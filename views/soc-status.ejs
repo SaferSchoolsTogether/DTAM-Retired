@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOC Status - Digital Threat Assessment Management</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/onboarding.css">
+    <script src="/js/onboarding.js"></script>
+</head>
+<body class="onboarding-body">
+    <div class="onboarding-container">
+        <div class="onboarding-card">
+            <div class="onboarding-header">
+                <h1>Digital Threat Assessment Management</h1>
+            </div>
+            <div class="onboarding-content">
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-step completed">1</div>
+                        <div class="progress-step completed">2</div>
+                        <div class="progress-step active">3</div>
+                        <div class="progress-step">4</div>
+                        <div class="progress-step">5</div>
+                    </div>
+                    <div class="progress-labels">
+                        <div class="progress-label completed">Terms</div>
+                        <div class="progress-label completed">Case</div>
+                        <div class="progress-label active">SOC</div>
+                        <div class="progress-label">Safety</div>
+                        <div class="progress-label">Platform</div>
+                    </div>
+                </div>
+                
+                <h2>Subject of Concern (SOC) Status</h2>
+                <p>A significant piece of Digital Threat Assessment is identifying if the subject of concern (SOC) has been engaging in behaviors consistent with the threat. Please indicate whether the threat maker is known or unknown.</p>
+                
+                <form action="/safety-assessment" method="POST" class="onboarding-form" id="socStatusForm">
+                    <input type="hidden" name="socStatus" id="socStatusInput" value="">
+                    
+                    <div class="soc-options">
+                        <div class="soc-option" data-value="known" onclick="selectSocOption(this)">
+                            <div class="soc-option-icon">👤</div>
+                            <div class="soc-option-title">The Threat Maker is KNOWN</div>
+                            <div class="soc-option-description">We have identified the individual who made the threat</div>
+                        </div>
+                        <div class="soc-option" data-value="unknown" onclick="selectSocOption(this)">
+                            <div class="soc-option-icon">❓</div>
+                            <div class="soc-option-title">The Threat Maker is UNKNOWN</div>
+                            <div class="soc-option-description">We have not yet identified who made the threat</div>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-buttons">
+                        <a href="/case-info" class="btn btn-secondary btn-back">Back</a>
+                        <button type="submit" class="btn btn-primary" id="continueBtn" disabled>Continue</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectSocOption(element) {
+            // Remove selected class from all options
+            document.querySelectorAll('.soc-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            element.classList.add('selected');
+            
+            // Set the hidden input value
+            document.getElementById('socStatusInput').value = element.dataset.value;
+            
+            // Enable the continue button
+            document.getElementById('continueBtn').disabled = false;
+        }
+    </script>
+</body>
+</html>

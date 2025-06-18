@@ -1,0 +1,70 @@
+{
+  "platforms": {
+    "instagram": {
+      "username": "test_user",
+      "displayName": "Test User",
+      "url": "instagram.com/test_user",
+      "photos": [
+        {
+          "id": "cff46197-7960-4350-92c7-46841f7924d7",
+          "path": "/uploads/instagram/f0f14efe-2b52-4804-b676-1dd8fdfe168b.jpeg",
+          "thumbnail": "/uploads/instagram/f0f14efe-2b52-4804-b676-1dd8fdfe168b.jpeg",
+          "uploadDate": "2025-06-17T23:48:43.331Z",
+          "tags": [],
+          "analysisTags": {
+            "threat-behavior": "Moderate concern"
+          },
+          "notes": "",
+          "metadata": {
+            "posted": "2025-06-17",
+            "likes": 0,
+            "comments": 0,
+            "engagementRate": "0%"
+          }
+        }
+      ]
+    },
+    "facebook": {
+      "username": "",
+      "displayName": "",
+      "url": "",
+      "photos": [
+        {
+          "id": "0bed0e63-6cb6-4e8e-bb45-702c46afa77e",
+          "path": "/uploads/facebook/47dd0d64-f1f0-4113-b0da-eca2f154f32f.jpeg",
+          "thumbnail": "/uploads/facebook/47dd0d64-f1f0-4113-b0da-eca2f154f32f.jpeg",
+          "uploadDate": "2025-06-17T23:49:55.401Z",
+          "tags": [],
+          "analysisTags": {
+            "privacy-concern": "Private account - limited access"
+          },
+          "notes": "Blah Blah Blah",
+          "metadata": {
+            "posted": "2025-06-17",
+            "likes": 0,
+            "comments": 0,
+            "engagementRate": "0%"
+          }
+        }
+      ]
+    },
+    "twitter": {
+      "username": "",
+      "displayName": "",
+      "url": "",
+      "photos": []
+    },
+    "tiktok": {
+      "username": "",
+      "displayName": "",
+      "url": "",
+      "photos": []
+    },
+    "youtube": {
+      "username": "",
+      "displayName": "",
+      "url": "",
+      "photos": []
+    }
+  }
+}

@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= platform.charAt(0).toUpperCase() + platform.slice(1) %> Workstation</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/onboarding.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-section">
+            <div class="sst-logo">SST</div>
+            <h1 class="platform-title"><%= platform.charAt(0).toUpperCase() + platform.slice(1) %> Workstation</h1>
+            <div class="progress-indicator" id="progressIndicator">
+                <% if (platformData.photos.length > 0) { %>
+                    Photo 1 of <%= platformData.photos.length %>
+                <% } else { %>
+                    No photos
+                <% } %>
+            </div>
+        </div>
+        <div class="user-info">
+            <span>Username: <%= platformData.username %></span>
+            <span>Display Name: <%= platformData.displayName %></span>
+            <span>URL: <%= platformData.url %></span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Platform Sidebar -->
+        <div class="sidebar">
+            <% allPlatforms.forEach(function(p) { %>
+                <a href="/platform/<%= p %>" class="platform-icon <%= p === platform ? 'active' : '' %>">
+                    <span><%= p.substring(0, 2).toUpperCase() %></span>
+                    <% if (p === platform && platformData.photos.length > 0) { %>
+                        <span class="platform-progress"><%= platformData.photos.filter(photo => Object.keys(photo.analysisTags).length > 0).length %>/<%= platformData.photos.length %></span>
+                    <% } %>
+                </a>
+            <% }); %>
+        </div>
+
+        <!-- Photo Gallery -->
+        <div class="photo-gallery">
+            <div class="gallery-header">
+                <h2 class="gallery-title">Your Photos</h2>
+                <button class="add-photos-btn" id="addPhotosBtn">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+                    </svg>
+                    Add
+                </button>
+            </div>
+            <div class="photo-grid" id="photoGrid">
+                <% if (platformData.photos.length > 0) { %>
+                    <% platformData.photos.forEach(function(photo, index) { %>
+                        <div class="photo-thumb <%= index === 0 ? 'active' : '' %>" data-photo-id="<%= photo.id %>">
+                            <img src="<%= photo.path %>" alt="Photo <%= index + 1 %>">
+                            <div class="photo-status <%= Object.keys(photo.analysisTags).length > 0 ? 'analyzed' : '' %>">
+                                <%= Object.keys(photo.analysisTags).length > 0 ? '✓' : '○' %>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="no-photos-message">
+                        No photos yet. Click "Add" to upload photos.
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Main Workspace -->
+        <div class="workspace">
+            <div class="workspace-content">
+                <% if (platformData.photos.length > 0) { %>
+                    <!-- Image Viewer -->
+                    <div class="image-viewer">
+                        <img src="<%= platformData.photos[0].path %>" alt="Current photo" class="current-image" id="currentImage">
+                        
+                        <div class="image-tools">
+                            <button class="tool-btn" id="zoomBtn">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                                </svg>
+                                Zoom
+                            </button>
+                            <button class="tool-btn" id="annotateBtn">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                </svg>
+                                Annotate
+                            </button>
+                            <button class="tool-btn" id="analyticsBtn">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                                </svg>
+                                Analytics
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Panel -->
+                    <div class="analysis-panel">
+                        <!-- Analyze Button -->
+                        <button class="analyze-btn" id="analyzeBtn">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
+                            </svg>
+                            Analyze Photo
+                        </button>
+
+                        <div class="panel-section">
+                            <h3 class="section-title">Tags</h3>
+                            <div class="tags-container" id="tagsContainer">
+                                <% if (platformData.photos.length > 0 && platformData.photos[0].tags.length > 0) { %>
+                                    <% platformData.photos[0].tags.forEach(function(tag) { %>
+                                        <span class="tag">
+                                            <%= tag %>
+                                            <span class="tag-remove" data-tag="<%= tag %>">×</span>
+                                        </span>
+                                    <% }); %>
+                                <% } %>
+                            </div>
+                            <input type="text" class="add-tag-input" id="addTagInput" placeholder="Add a tag...">
+                        </div>
+
+                        <div class="panel-section">
+                            <h3 class="section-title">Notes</h3>
+                            <textarea class="notes-textarea" id="notesTextarea" placeholder="Add your notes about this photo..."><%= platformData.photos.length > 0 ? platformData.photos[0].notes : '' %></textarea>
+                        </div>
+
+                        <div class="panel-section">
+                            <h3 class="section-title">Image Details</h3>
+                            <div class="image-details">
+                                <% if (platformData.photos.length > 0) { %>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Posted:</span>
+                                        <span class="detail-value"><%= platformData.photos[0].metadata.posted %></span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Likes:</span>
+                                        <span class="detail-value"><%= platformData.photos[0].metadata.likes %></span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Comments:</span>
+                                        <span class="detail-value"><%= platformData.photos[0].metadata.comments %></span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Engagement Rate:</span>
+                                        <span class="detail-value"><%= platformData.photos[0].metadata.engagementRate %></span>
+                                    </div>
+                                <% } else { %>
+                                    <div class="detail-row">
+                                        <span class="detail-label">No photo selected</span>
+                                        <span class="detail-value"></span>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <!-- Empty State -->
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📷</div>
+                        <div class="empty-state-message">No photos yet. Click "Add" to upload photos.</div>
+                        <button class="btn btn-primary" id="emptyStateAddBtn">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+                            </svg>
+                            Add Photos
+                        </button>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Action Bar -->
+            <div class="action-bar">
+                <div class="save-indicator" id="saveIndicator">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                    </svg>
+                    All changes saved
+                </div>
+                <div class="action-group">
+                    <button class="btn btn-secondary" id="previewReportBtn">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        Preview Report
+                    </button>
+                    <button class="btn btn-secondary" id="saveProgressBtn">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+                        </svg>
+                        Save Progress
+                    </button>
+                    <button class="btn btn-primary" id="generateReportBtn">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/>
+                        </svg>
+                        Generate Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- File Upload Modal -->
+    <div class="file-upload-container" id="fileUploadContainer">
+        <div class="file-upload-content">
+            <div class="file-upload-header">
+                <h2 class="file-upload-title">Upload Photos</h2>
+                <button class="close-btn" id="closeUploadBtn">×</button>
+            </div>
+            <form class="file-upload-form" id="fileUploadForm">
+                <div class="file-drop-area" id="fileDropArea">
+                    <div class="file-drop-message">Drag & drop photos here or click to browse</div>
+                    <input type="file" class="file-input" id="fileInput" accept="image/*" multiple>
+                    <div class="selected-file-name" id="selectedFileName"></div>
+                </div>
+                <button type="submit" class="upload-btn" id="uploadBtn" disabled>Upload</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Analysis Modal -->
+    <div class="analysis-modal" id="analysisModal">
+        <div class="analysis-content">
+            <div class="analysis-header">
+                <h2 class="analysis-title">Analyze Photo</h2>
+                <button class="close-btn" id="closeAnalysisBtn">×</button>
+            </div>
+            
+            <!-- Analysis Options -->
+            <div class="analysis-options" id="analysisOptions">
+                <div class="analysis-option" data-analysis="law-enforcement">
+                    Access the law enforcement guide for a social media platform
+                </div>
+                <div class="analysis-option" data-analysis="baseline-shift">
+                    Noticed a shift in the SOC's Digital Behavioral Baseline
+                </div>
+                <div class="analysis-option" data-analysis="authenticity">
+                    I've come across a concerning photo and want to verify its authenticity
+                </div>
+                <div class="analysis-option" data-analysis="threat-behavior">
+                    Noticed behaviors consistent with the threat
+                </div>
+                <div class="analysis-option" data-analysis="privacy-concern">
+                    SOC's account is private, or I did not find anything of concern on their accounts
+                </div>
+                <div class="analysis-option" data-analysis="osint-resources">
+                    I want to access more OSINT resources
+                </div>
+            </div>
+
+            <!-- Analysis Detail Views -->
+            <div class="analysis-detail" id="detail-baseline-shift">
+                <button class="back-btn" id="backToOptionsBtn">← Back to options</button>
+                
+                <div class="learning-content">
+                    <h3>Understanding Digital Behavioral Baseline</h3>
+                    <p>A digital behavioral baseline represents an individual's typical patterns of online activity. This includes:</p>
+                    <ul>
+                        <li>Posting frequency and timing</li>
+                        <li>Content themes and topics</li>
+                        <li>Language use and communication style</li>
+                        <li>Interaction patterns with others</li>
+                        <li>Visual content preferences</li>
+                    </ul>
+                    <p>Significant changes in these patterns may indicate important life changes, emotional distress, or other factors worth noting in your assessment.</p>
+                </div>
+
+                <div class="tag-options">
+                    <h3 class="tag-options-title">How significant is the baseline shift?</h3>
+                    <div class="tag-option-grid">
+                        <div class="tag-option" data-value="No baseline shift detected">
+                            No baseline shift detected
+                        </div>
+                        <div class="tag-option" data-value="Minor baseline shift">
+                            Minor baseline shift
+                        </div>
+                        <div class="tag-option" data-value="Moderate baseline shift">
+                            Moderate baseline shift
+                        </div>
+                        <div class="tag-option" data-value="Significant baseline shift">
+                            Significant baseline shift
+                        </div>
+                    </div>
+                    <button class="apply-tag-btn" id="applyBaselineShiftBtn" disabled>Apply Tag</button>
+                </div>
+            </div>
+
+            <div class="analysis-detail" id="detail-authenticity">
+                <button class="back-btn" id="backToOptionsBtn2">← Back to options</button>
+                
+                <div class="learning-content">
+                    <h3>Photo Authenticity Verification</h3>
+                    <p>When assessing photo authenticity, consider these key factors:</p>
+                    <ul>
+                        <li>Check for inconsistent lighting or shadows</li>
+                        <li>Look for distorted or blurred edges around subjects</li>
+                        <li>Verify metadata when available</li>
+                        <li>Cross-reference with other known images</li>
+                        <li>Check for signs of AI generation or manipulation</li>
+                    </ul>
+                    <p>Remember that sophisticated edits may require specialized tools to detect. Document your observations thoroughly.</p>
+                </div>
+
+                <div class="tag-options">
+                    <h3 class="tag-options-title">What is your authenticity assessment?</h3>
+                    <div class="tag-option-grid">
+                        <div class="tag-option" data-value="Appears authentic">
+                            Appears authentic
+                        </div>
+                        <div class="tag-option" data-value="Possibly edited">
+                            Possibly edited
+                        </div>
+                        <div class="tag-option" data-value="Likely manipulated">
+                            Likely manipulated
+                        </div>
+                        <div class="tag-option" data-value="Confirmed fake/AI generated">
+                            Confirmed fake/AI generated
+                        </div>
+                    </div>
+                    <button class="apply-tag-btn" id="applyAuthenticityBtn" disabled>Apply Tag</button>
+                </div>
+            </div>
+
+            <div class="analysis-detail" id="detail-threat-behavior">
+                <button class="back-btn" id="backToOptionsBtn3">← Back to options</button>
+                
+                <div class="learning-content">
+                    <h3>Identifying Threat-Related Behaviors</h3>
+                    <p>When evaluating potential threat indicators in social media content, look for:</p>
+                    <ul>
+                        <li>Direct or veiled threats towards individuals or groups</li>
+                        <li>Expressions of grievance or persecution</li>
+                        <li>Ideation of violence or self-harm</li>
+                        <li>Acquisition or display of weapons</li>
+                        <li>Behavioral escalation over time</li>
+                    </ul>
+                    <p>Document specific language, imagery, or patterns that concern you. Context is crucial for accurate assessment.</p>
+                </div>
+
+                <div class="tag-options">
+                    <h3 class="tag-options-title">What level of concern does this represent?</h3>
+                    <div class="tag-option-grid">
+                        <div class="tag-option" data-value="Low concern">
+                            Low concern
+                        </div>
+                        <div class="tag-option" data-value="Moderate concern">
+                            Moderate concern
+                        </div>
+                        <div class="tag-option" data-value="High concern">
+                            High concern
+                        </div>
+                        <div class="tag-option" data-value="Immediate threat">
+                            Immediate threat
+                        </div>
+                    </div>
+                    <button class="apply-tag-btn" id="applyThreatBtn" disabled>Apply Tag</button>
+                </div>
+            </div>
+
+            <div class="analysis-detail" id="detail-law-enforcement">
+                <button class="back-btn" id="backToOptionsBtn4">← Back to options</button>
+                
+                <div class="learning-content">
+                    <h3>Law Enforcement Guide for Social Media</h3>
+                    <p>When working with law enforcement on social media investigations:</p>
+                    <ul>
+                        <li>Understand the platform's data retention policies</li>
+                        <li>Know what information can be obtained with different legal instruments</li>
+                        <li>Document all findings with proper timestamps and source information</li>
+                        <li>Maintain chain of custody for digital evidence</li>
+                        <li>Be aware of platform-specific privacy settings and limitations</li>
+                    </ul>
+                    <p>Each platform has different procedures for law enforcement requests. Consult the platform's law enforcement portal for specific guidance.</p>
+                </div>
+
+                <div class="tag-options">
+                    <h3 class="tag-options-title">Select the appropriate tag:</h3>
+                    <div class="tag-option-grid">
+                        <div class="tag-option" data-value="Law enforcement guide consulted">
+                            Law enforcement guide consulted
+                        </div>
+                        <div class="tag-option" data-value="Legal process required">
+                            Legal process required
+                        </div>
+                        <div class="tag-option" data-value="Emergency disclosure appropriate">
+                            Emergency disclosure appropriate
+                        </div>
+                        <div class="tag-option" data-value="No legal action needed">
+                            No legal action needed
+                        </div>
+                    </div>
+                    <button class="apply-tag-btn" id="applyLawEnforcementBtn" disabled>Apply Tag</button>
+                </div>
+            </div>
+
+            <div class="analysis-detail" id="detail-privacy-concern">
+                <button class="back-btn" id="backToOptionsBtn5">← Back to options</button>
+                
+                <div class="learning-content">
+                    <h3>Handling Private Accounts and Limited Information</h3>
+                    <p>When dealing with private accounts or limited information:</p>
+                    <ul>
+                        <li>Document what information is publicly available</li>
+                        <li>Note when access is restricted and why</li>
+                        <li>Consider if the privacy settings themselves are significant</li>
+                        <li>Avoid making assumptions about unavailable content</li>
+                        <li>Document your methodology and limitations clearly</li>
+                    </ul>
+                    <p>Remember that absence of concerning content is not the same as confirming no concerns exist. Be clear about the limitations of your assessment.</p>
+                </div>
+
+                <div class="tag-options">
+                    <h3 class="tag-options-title">Select the appropriate tag:</h3>
+                    <div class="tag-option-grid">
+                        <div class="tag-option" data-value="Private account - limited access">
+                            Private account - limited access
+                        </div>
+                        <div class="tag-option" data-value="No concerning content found">
+                            No concerning content found
+                        </div>
+                        <div class="tag-option" data-value="Recently privatized account">
+                            Recently privatized account
+                        </div>
+                        <div class="tag-option" data-value="Assessment inconclusive">
+                            Assessment inconclusive
+                        </div>
+                    </div>
+                    <button class="apply-tag-btn" id="applyPrivacyBtn" disabled>Apply Tag</button>
+                </div>
+            </div>
+
+            <div class="analysis-detail" id="detail-osint-resources">
+                <button class="back-btn" id="backToOptionsBtn6">← Back to options</button>
+                
+                <div class="learning-content">
+                    <h3>Additional OSINT Resources</h3>
+                    <p>Consider these additional resources for your investigation:</p>
+                    <ul>
+                        <li>Reverse image search tools (Google, TinEye, Yandex)</li>
+                        <li>Username search engines (Namechk, WhatsMyName)</li>
+                        <li>Archive services (Wayback Machine, archive.today)</li>
+                        <li>Geolocation tools (Google Earth, GeoGuessr)</li>
+                        <li>Metadata viewers (ExifTool, Jeffrey's Exif Viewer)</li>
+                    </ul>
+                    <p>Document which tools you've used and what results they provided. Negative results can be just as important as positive findings.</p>
+                </div>
+
+                <div class="tag-options">
+                    <h3 class="tag-options-title">Select the resources used:</h3>
+                    <div class="tag-option-grid">
+                        <div class="tag-option" data-value="Reverse image search conducted">
+                            Reverse image search conducted
+                        </div>
+                        <div class="tag-option" data-value="Archive services checked">
+                            Archive services checked
+                        </div>
+                        <div class="tag-option" data-value="Metadata analysis performed">
+                            Metadata analysis performed
+                        </div>
+                        <div class="tag-option" data-value="Cross-platform investigation">
+                            Cross-platform investigation
+                        </div>
+                    </div>
+                    <button class="apply-tag-btn" id="applyOsintBtn" disabled>Apply Tag</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+        // Global variables
+        let currentPhotoId = null;
+        let selectedAnalysisType = null;
+        let selectedAnalysisValue = null;
+        let unsavedChanges = false;
+        let onboardingData = null;
+
+        // DOM Elements
+        const addPhotosBtn = document.getElementById('addPhotosBtn');
+        const emptyStateAddBtn = document.getElementById('emptyStateAddBtn');
+        const fileUploadContainer = document.getElementById('fileUploadContainer');
+        const closeUploadBtn = document.getElementById('closeUploadBtn');
+        const fileDropArea = document.getElementById('fileDropArea');
+        const fileInput = document.getElementById('fileInput');
+        const selectedFileName = document.getElementById('selectedFileName');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const fileUploadForm = document.getElementById('fileUploadForm');
+        const photoGrid = document.getElementById('photoGrid');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const analysisModal = document.getElementById('analysisModal');
+        const closeAnalysisBtn = document.getElementById('closeAnalysisBtn');
+        const analysisOptions = document.getElementById('analysisOptions');
+        const backToOptionsBtns = document.querySelectorAll('[id^="backToOptionsBtn"]');
+        const tagOptions = document.querySelectorAll('.tag-option');
+        const applyTagBtns = document.querySelectorAll('[id^="apply"][id$="Btn"]');
+        const addTagInput = document.getElementById('addTagInput');
+        const tagsContainer = document.getElementById('tagsContainer');
+        const notesTextarea = document.getElementById('notesTextarea');
+        const saveProgressBtn = document.getElementById('saveProgressBtn');
+        const previewReportBtn = document.getElementById('previewReportBtn');
+        const generateReportBtn = document.getElementById('generateReportBtn');
+        const saveIndicator = document.getElementById('saveIndicator');
+        const currentImage = document.getElementById('currentImage');
+        const progressIndicator = document.getElementById('progressIndicator');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current photo ID if photos exist
+            const photoThumbs = document.querySelectorAll('.photo-thumb');
+            if (photoThumbs.length > 0) {
+                currentPhotoId = photoThumbs[0].dataset.photoId;
+            }
+
+            // Get onboarding data from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const onboardingDataParam = urlParams.get('onboardingData');
+            
+            if (onboardingDataParam) {
+                try {
+                    onboardingData = JSON.parse(onboardingDataParam);
+                    console.log('Onboarding data loaded:', onboardingData);
+                    
+                    // Store in localStorage for use in report generation
+                    localStorage.setItem('onboardingData', onboardingDataParam);
+                } catch (e) {
+                    console.error('Error parsing onboarding data:', e);
+                }
+            } else {
+                // Try to get from localStorage
+                const storedData = localStorage.getItem('onboardingData');
+                if (storedData) {
+                    try {
+                        onboardingData = JSON.parse(storedData);
+                        console.log('Onboarding data loaded from localStorage:', onboardingData);
+                    } catch (e) {
+                        console.error('Error parsing stored onboarding data:', e);
+                    }
+                }
+            }
+
+            // Event listeners
+            initEventListeners();
+        });
+
+        // Initialize event listeners
+        function initEventListeners() {
+            // Photo upload
+            if (addPhotosBtn) addPhotosBtn.addEventListener('click', showUploadModal);
+            if (emptyStateAddBtn) emptyStateAddBtn.addEventListener('click', showUploadModal);
+            if (closeUploadBtn) closeUploadBtn.addEventListener('click', hideUploadModal);
+            if (fileDropArea) {
+                fileDropArea.addEventListener('click', () => fileInput.click());
+                fileDropArea.addEventListener('dragover', handleDragOver);
+                fileDropArea.addEventListener('dragleave', handleDragLeave);
+                fileDropArea.addEventListener('drop', handleDrop);
+            }
+            if (fileInput) fileInput.addEventListener('change', handleFileSelect);
+            if (fileUploadForm) fileUploadForm.addEventListener('submit', handleUpload);
+
+            // Photo selection
+            if (photoGrid) {
+                photoGrid.addEventListener('click', (e) => {
+                    const photoThumb = e.target.closest('.photo-thumb');
+                    if (photoThumb) {
+                        selectPhoto(photoThumb);
+                    }
+                });
+            }
+
+            // Analysis modal
+            if (analyzeBtn) analyzeBtn.addEventListener('click', showAnalysisModal);
+            if (closeAnalysisBtn) closeAnalysisBtn.addEventListener('click', hideAnalysisModal);
+            
+            // Analysis options
+            const analysisOptionElements = document.querySelectorAll('.analysis-option');
+            analysisOptionElements.forEach(option => {
+                option.addEventListener('click', () => {
+                    const analysisType = option.dataset.analysis;
+                    showAnalysisDetail(analysisType);
+                });
+            });
+
+            // Back buttons
+            backToOptionsBtns.forEach(btn => {
+                btn.addEventListener('click', backToOptions);
+            });
+
+            // Tag options
+            tagOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    selectTagOption(option);
+                });
+            });
+
+            // Apply tag buttons
+            applyTagBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    applyAnalysisTag();
+                });
+            });
+
+            // Add tag input
+            if (addTagInput) {
+                addTagInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && addTagInput.value.trim()) {
+                        addTag(addTagInput.value.trim());
+                        addTagInput.value = '';
+                    }
+                });
+            }
+
+            // Remove tag
+            if (tagsContainer) {
+                tagsContainer.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('tag-remove')) {
+                        removeTag(e.target.parentElement);
+                    }
+                });
+            }
+
+            // Notes textarea
+            if (notesTextarea) {
+                notesTextarea.addEventListener('input', () => {
+                    saveNotes(notesTextarea.value);
+                });
+            }
+
+            // Save progress
+            if (saveProgressBtn) {
+                saveProgressBtn.addEventListener('click', saveProgress);
+            }
+
+            // Preview report
+            if (previewReportBtn) {
+                previewReportBtn.addEventListener('click', previewReport);
+            }
+
+            // Generate report
+            if (generateReportBtn) {
+                generateReportBtn.addEventListener('click', generateReport);
+            }
+        }
+
+        // Show upload modal
+        function showUploadModal() {
+            fileUploadContainer.classList.add('active');
+        }
+
+        // Hide upload modal
+        function hideUploadModal() {
+            fileUploadContainer.classList.remove('active');
+            resetUploadForm();
+        }
+
+        // Handle drag over
+        function handleDragOver(e) {
+            e.preventDefault();
+            fileDropArea.classList.add('highlight');
+        }
+
+        // Handle drag leave
+        function handleDragLeave(e) {
+            e.preventDefault();
+            fileDropArea.classList.remove('highlight');
+        }
+
+        // Handle drop
+        function handleDrop(e) {
+            e.preventDefault();
+            fileDropArea.classList.remove('highlight');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                updateSelectedFileInfo(files);
+            }
+        }
+
+        // Handle file select
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                updateSelectedFileInfo(files);
+            }
+        }
+
+        // Update selected file info
+        function updateSelectedFileInfo(files) {
+            if (files.length === 1) {
+                selectedFileName.textContent = files[0].name;
+            } else {
+                selectedFileName.textContent = `${files.length} files selected`;
+            }
+            selectedFileName.classList.add('active');
+            uploadBtn.disabled = false;
+        }
+
+        // Reset upload form
+        function resetUploadForm() {
+            fileUploadForm.reset();
+            selectedFileName.textContent = '';
+            selectedFileName.classList.remove('active');
+            uploadBtn.disabled = true;
+        }
+
+        // Handle upload
+        function handleUpload(e) {
+            e.preventDefault();
+            
+            const files = fileInput.files;
+            if (files.length === 0) return;
+            
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append('photo', files[i]);
+            }
+            
+            uploadBtn.innerHTML = '<span class="loading-spinner"></span> Uploading...';
+            uploadBtn.disabled = true;
+            
+            fetch(`/api/platform/<%= platform %>/upload`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Upload failed');
+                }
+                return response.json();
+            })
+            .then(data => {
+                hideUploadModal();
+                window.location.reload(); // Reload to show new photos
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                uploadBtn.innerHTML = 'Upload';
+                uploadBtn.disabled = false;
+                alert('Upload failed. Please try again.');
+            });
+        }
+
+        // Select photo
+        function selectPhoto(photoThumb) {
+            // Remove active class from all thumbnails
+            document.querySelectorAll('.photo-thumb').forEach(thumb => {
+                thumb.classList.remove('active');
+            });
+            
+            // Add active class to selected thumbnail
+            photoThumb.classList.add('active');
+            
+            // Get photo ID
+            currentPhotoId = photoThumb.dataset.photoId;
+            
+            // Update UI
+            updatePhotoView();
+        }
+
+        // Update photo view
+        function updatePhotoView() {
+            // Show loading state
+            currentImage.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="600"%3E%3Crect width="600" height="600" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="24"%3ELoading...%3C/text%3E%3C/svg%3E';
+            
+            // Fetch photo data
+            fetch(`/api/platform/<%= platform %>/photo/${currentPhotoId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch photo data');
+                    }
+                    return response.json();
+                })
+                .then(photo => {
+                    // Update image
+                    currentImage.src = photo.path;
+                    
+                    // Update tags
+                    updateTags(photo.tags);
+                    
+                    // Update notes
+                    notesTextarea.value = photo.notes || '';
+                    
+                    // Update metadata
+                    updateMetadata(photo.metadata);
+                    
+                    // Update progress indicator
+                    const photoIndex = Array.from(document.querySelectorAll('.photo-thumb')).findIndex(thumb => thumb.dataset.photoId === currentPhotoId);
+                    progressIndicator.textContent = `Photo ${photoIndex + 1} of <%= platformData.photos.length %>`;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to load photo data. Please try again.');
+                });
+        }
+
+        // Update tags
+        function updateTags(tags) {
+            tagsContainer.innerHTML = '';
+            
+            tags.forEach(tag => {
+                const tagElement = document.createElement('span');
+                tagElement.className = 'tag';
+                tagElement.innerHTML = `
+                    ${tag}
+                    <span class="tag-remove" data-tag="${tag}">×</span>
+                `;
+                tagsContainer.appendChild(tagElement);
+            });
+        }
+
+        // Update metadata
+        function updateMetadata(metadata) {
+            const detailRows = document.querySelectorAll('.detail-row');
+            
+            if (detailRows.length >= 4 && metadata) {
+                detailRows[0].querySelector('.detail-value').textContent = metadata.posted || '';
+                detailRows[1].querySelector('.detail-value').textContent = metadata.likes || '0';
+                detailRows[2].querySelector('.detail-value').textContent = metadata.comments || '0';
+                detailRows[3].querySelector('.detail-value').textContent = metadata.engagementRate || '0%';
+            }
+        }
+
+        // Add tag
+        function addTag(tag) {
+            if (!tag) return;
+            
+            // Check if tag already exists
+            const existingTags = Array.from(tagsContainer.querySelectorAll('.tag')).map(tagEl => 
+                tagEl.textContent.trim().replace('×', '')
+            );
+            
+            if (existingTags.includes(tag)) return;
+            
+            // Create tag element
+            const tagElement = document.createElement('span');
+            tagElement.className = 'tag';
+            tagElement.innerHTML = `
+                ${tag}
+                <span class="tag-remove" data-tag="${tag}">×</span>
+            `;
+            tagsContainer.appendChild(tagElement);
+            
+            // Save tags
+            saveTags();
+        }
+
+        // Remove tag
+        function removeTag(tagElement) {
+            tagElement.remove();
+            saveTags();
+        }
+
+        // Save tags
+        function saveTags() {
+            if (!currentPhotoId) return;
+            
+            const tags = Array.from(tagsContainer.querySelectorAll('.tag')).map(tagEl => 
+                tagEl.textContent.trim().replace('×', '')
+            );
+            
+            updatePhoto({ tags });
+        }
+
+        // Save notes
+        function saveNotes(notes) {
+            if (!currentPhotoId) return;
+            
+            updatePhoto({ notes });
+        }
+
+        // Update photo
+        function updatePhoto(data) {
+            if (!currentPhotoId) return;
+            
+            // Show saving indicator
+            saveIndicator.innerHTML = `
+                <span class="loading-spinner"></span>
+                Saving...
+            `;
+            
+            fetch(`/api/platform/<%= platform %>/photo/${currentPhotoId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to update photo');
+                }
+                return response.json();
+            })
+            .then(photo => {
+                // Show saved indicator
+                saveIndicator.innerHTML = `
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                    </svg>
+                    All changes saved
+                `;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                saveIndicator.innerHTML = `
+                    <svg class="icon" viewBox="0 0 24 24" style="color: #f44336;">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                    Failed to save changes
+                `;
+            });
+        }
+
+        // Show analysis modal
+        function showAnalysisModal() {
+            analysisModal.classList.add('active');
+            analysisOptions.style.display = 'grid';
+            
+            // Hide all detail views
+            document.querySelectorAll('.analysis-detail').forEach(detail => {
+                detail.classList.remove('active');
+            });
+        }
+
+        // Hide analysis modal
+        function hideAnalysisModal() {
+            analysisModal.classList.remove('active');
+            selectedAnalysisType = null;
+            selectedAnalysisValue = null;
+        }
+
+        // Show analysis detail
+        function showAnalysisDetail(type) {
+            selectedAnalysisType = type;
+            
+            // Hide options
+            analysisOptions.style.display = 'none';
+            
+            // Show detail view
+            document.getElementById(`detail-${type}`).classList.add('active');
+        }
+
+        // Back to options
+        function backToOptions() {
+            // Hide all detail views
+            document.querySelectorAll('.analysis-detail').forEach(detail => {
+                detail.classList.remove('active');
+            });
+            
+            // Show options
+            analysisOptions.style.display = 'grid';
+            
+            // Reset selection
+            selectedAnalysisType = null;
+            selectedAnalysisValue = null;
+            
+            // Reset tag options
+            document.querySelectorAll('.tag-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Disable apply buttons
+            document.querySelectorAll('.apply-tag-btn').forEach(btn => {
+                btn.disabled = true;
+            });
+        }
+
+        // Select tag option
+        function selectTagOption(option) {
+            // Clear other selections in this category
+            const options = option.closest('.tag-option-grid').querySelectorAll('.tag-option');
+            options.forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Select this option
+            option.classList.add('selected');
+            selectedAnalysisValue = option.dataset.value;
+            
+            // Enable apply button
+            const applyBtn = option.closest('.tag-options').querySelector('.apply-tag-btn');
+            applyBtn.disabled = false;
+        }
+
+        // Apply analysis tag
+        function applyAnalysisTag() {
+            if (!currentPhotoId || !selectedAnalysisType || !selectedAnalysisValue) return;
+            
+            const analysisTags = {};
+            analysisTags[selectedAnalysisType] = selectedAnalysisValue;
+            
+            // Update photo
+            updatePhoto({ analysisTags });
+            
+            // Add tag to UI
+            const tagElement = document.createElement('span');
+            tagElement.className = 'tag analysis-tag';
+            tagElement.textContent = `${selectedAnalysisType.replace(/-/g, ' ')}: ${selectedAnalysisValue}`;
+            tagsContainer.appendChild(tagElement);
+            
+            // Update photo status
+            const photoThumb = document.querySelector(`.photo-thumb[data-photo-id="${currentPhotoId}"]`);
+            if (photoThumb) {
+                const photoStatus = photoThumb.querySelector('.photo-status');
+                photoStatus.classList.add('analyzed');
+                photoStatus.textContent = '✓';
+            }
+            
+            // Hide modal
+            hideAnalysisModal();
+        }
+
+        // Save progress
+        function saveProgress() {
+            saveIndicator.innerHTML = `
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                </svg>
+                All changes saved
+            `;
+            
+            // In a real app, this would save all progress to the server
+            alert('Progress saved successfully!');
+        }
+
+        // Preview report
+        function previewReport() {
+            // In a real app, this would generate a preview of the report
+            window.open(`/api/platform/<%= platform %>/report`, '_blank');
+        }
+
+        // Generate report
+        function generateReport() {
+            // In a real app, this would generate and download the report
+            
+            // Include onboarding data in the report
+            let reportContent = 'Digital Threat Assessment Report\n\n';
+            
+            if (onboardingData) {
+                // Case Information
+                reportContent += '=== Case Information ===\n';
+                reportContent += `Case/Incident ID: ${onboardingData.caseInfo.caseId}\n`;
+                reportContent += `Date: ${onboardingData.caseInfo.date}\n`;
+                reportContent += `Investigator: ${onboardingData.caseInfo.investigatorName}\n`;
+                reportContent += `Organization: ${onboardingData.caseInfo.organization || 'N/A'}\n\n`;
+                
+                // SOC Status
+                reportContent += '=== Subject of Concern (SOC) Status ===\n';
+                reportContent += `Status: ${onboardingData.socStatus === 'known' ? 'Known' : 'Unknown'}\n\n`;
+                
+                // Safety Assessment (if known SOC)
+                if (onboardingData.socStatus === 'known') {
+                    reportContent += '=== Safety Assessment ===\n';
+                    reportContent += `Access to means: ${formatSafetyValue(onboardingData.safetyAssessment.means)}\n`;
+                    reportContent += `Rehearsal behavior: ${formatSafetyValue(onboardingData.safetyAssessment.rehearsal)}\n`;
+                    reportContent += `Baseline shift: ${formatSafetyValue(onboardingData.safetyAssessment.baseline)}\n\n`;
+                    
+                    // Risk level
+                    const highRisk = onboardingData.safetyAssessment.means === 'yes' && 
+                                    (onboardingData.safetyAssessment.rehearsal === 'yes' || onboardingData.safetyAssessment.baseline === 'yes');
+                    reportContent += `Risk level: ${highRisk ? 'High' : 'Moderate to Low'}\n\n`;
+                }
+                
+                // Platform Information
+                if (onboardingData.socStatus === 'known') {
+                    const platforms = Object.keys(onboardingData.platformData.platforms);
+                    if (platforms.length > 0) {
+                        reportContent += '=== Platform Information ===\n';
+                        platforms.forEach(platform => {
+                            const data = onboardingData.platformData.platforms[platform];
+                            reportContent += `${platform.charAt(0).toUpperCase() + platform.slice(1)}:\n`;
+                            reportContent += `  Username: ${data.username}\n`;
+                            reportContent += `  Display Name: ${data.displayName || 'N/A'}\n`;
+                            reportContent += `  URL: ${data.url || 'N/A'}\n\n`;
+                        });
+                    }
+                } else {
+                    // Unknown threat information
+                    reportContent += '=== Unknown Threat Information ===\n';
+                    const threatSource = onboardingData.platformData.threatSource === 'physical' ? 
+                        'Physical (bathroom wall, note, etc.)' : 
+                        'Social media post';
+                    reportContent += `Threat source: ${threatSource}\n`;
+                    
+                    if (onboardingData.platformData.threatSource === 'social' && onboardingData.platformData.sourcePlatform) {
+                        reportContent += `Source platform: ${onboardingData.platformData.sourcePlatform.charAt(0).toUpperCase() + onboardingData.platformData.sourcePlatform.slice(1)}\n\n`;
+                    }
+                }
+            }
+            
+            // Platform data
+            reportContent += `=== ${platform.charAt(0).toUpperCase() + platform.slice(1)} Analysis ===\n`;
+            
+            // Get current platform data
+            fetch(`/api/platform/${platform}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Add platform data to report
+                    reportContent += `Username: ${data.username}\n`;
+                    reportContent += `Display Name: ${data.displayName}\n`;
+                    reportContent += `URL: ${data.url}\n\n`;
+                    
+                    // Add photos data
+                    reportContent += `Photos analyzed: ${data.photos.length}\n\n`;
+                    
+                    data.photos.forEach((photo, index) => {
+                        reportContent += `Photo ${index + 1}:\n`;
+                        reportContent += `  Upload Date: ${new Date(photo.uploadDate).toLocaleString()}\n`;
+                        reportContent += `  Tags: ${photo.tags.join(', ') || 'None'}\n`;
+                        
+                        // Analysis tags
+                        const analysisTagKeys = Object.keys(photo.analysisTags);
+                        if (analysisTagKeys.length > 0) {
+                            reportContent += '  Analysis Tags:\n';
+                            analysisTagKeys.forEach(key => {
+                                reportContent += `    ${key}: ${photo.analysisTags[key]}\n`;
+                            });
+                        }
+                        
+                        // Notes
+                        if (photo.notes) {
+                            reportContent += `  Notes: ${photo.notes}\n`;
+                        }
+                        
+                        reportContent += '\n';
+                    });
+                    
+                    // Display report (in a real app, this would generate a PDF)
+                    console.log(reportContent);
+                    alert('Report generated successfully!');
+                })
+                .catch(error => {
+                    console.error('Error generating report:', error);
+                    alert('Error generating report. Please try again.');
+                });
+        }
+        
+        // Format safety value for display
+        function formatSafetyValue(value) {
+            if (value === 'yes') return 'Yes';
+            if (value === 'no') return 'No';
+            return 'Unknown';
+        }
+    </script>
+</body>
+</html>

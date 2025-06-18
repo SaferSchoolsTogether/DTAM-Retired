@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Information - Digital Threat Assessment Management</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/onboarding.css">
+    <script src="/js/onboarding.js"></script>
+</head>
+<body class="onboarding-body">
+    <div class="onboarding-container">
+        <div class="onboarding-card">
+            <div class="onboarding-header">
+                <h1>Digital Threat Assessment Management</h1>
+            </div>
+            <div class="onboarding-content">
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-step completed">1</div>
+                        <div class="progress-step completed">2</div>
+                        <div class="progress-step completed">3</div>
+                        <div class="progress-step completed">4</div>
+                        <div class="progress-step active">5</div>
+                    </div>
+                    <div class="progress-labels">
+                        <div class="progress-label completed">Terms</div>
+                        <div class="progress-label completed">Case</div>
+                        <div class="progress-label completed">SOC</div>
+                        <div class="progress-label completed">Safety</div>
+                        <div class="progress-label active">Platform</div>
+                    </div>
+                </div>
+                
+                <h2>Social Media Platform Information</h2>
+                <p id="platformInfoDesc">Please provide information about the social media platforms used by the Subject of Concern (SOC). This will help with your digital threat assessment.</p>
+                
+                <form action="/summary" method="POST" class="onboarding-form" id="platformInfoForm">
+                    <input type="hidden" name="platformData" id="platformDataInput" value="{}">
+                    
+                    <div class="platform-selection">
+                        <label>Select the platforms where the SOC has accounts:</label>
+                        <div class="platform-grid">
+                            <div class="platform-option" data-platform="instagram" onclick="togglePlatform(this)">
+                                <div class="platform-icon">📸</div>
+                                <div class="platform-name">Instagram</div>
+                            </div>
+                            <div class="platform-option" data-platform="snapchat" onclick="togglePlatform(this)">
+                                <div class="platform-icon">👻</div>
+                                <div class="platform-name">Snapchat</div>
+                            </div>
+                            <div class="platform-option" data-platform="tiktok" onclick="togglePlatform(this)">
+                                <div class="platform-icon">🎵</div>
+                                <div class="platform-name">TikTok</div>
+                            </div>
+                            <div class="platform-option" data-platform="facebook" onclick="togglePlatform(this)">
+                                <div class="platform-icon">👍</div>
+                                <div class="platform-name">Facebook</div>
+                            </div>
+                            <div class="platform-option" data-platform="twitter" onclick="togglePlatform(this)">
+                                <div class="platform-icon">🐦</div>
+                                <div class="platform-name">Twitter</div>
+                            </div>
+                            <div class="platform-option" data-platform="discord" onclick="togglePlatform(this)">
+                                <div class="platform-icon">💬</div>
+                                <div class="platform-name">Discord</div>
+                            </div>
+                            <div class="platform-option" data-platform="other" onclick="togglePlatform(this)">
+                                <div class="platform-icon">➕</div>
+                                <div class="platform-name">Other</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="platformDetails" style="display: none;">
+                        <h3 id="platformDetailsTitle">Platform Details</h3>
+                        
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" class="form-control" placeholder="Enter username">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="displayName">Display Name</label>
+                            <input type="text" id="displayName" name="displayName" class="form-control" placeholder="Enter display name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="url">URL</label>
+                            <input type="text" id="url" name="url" class="form-control" placeholder="Enter profile URL">
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="button" class="btn btn-secondary" id="addPlatformBtn">Add Platform</button>
+                        </div>
+                    </div>
+                    
+                    <div id="selectedPlatforms" style="display: none;">
+                        <h3>Selected Platforms</h3>
+                        <div id="platformList" class="platform-list"></div>
+                    </div>
+                    
+                    <div id="unknownThreatSection" style="display: none;">
+                        <h3>Unknown Threat Information</h3>
+                        <p>Since the threat maker is unknown, please provide information about how the threat was discovered.</p>
+                        
+                        <div class="radio-group">
+                            <div class="radio-option" data-value="physical" onclick="selectThreatSource(this)">
+                                <input type="radio" id="physical" name="threatSource" value="physical">
+                                <label for="physical" class="option-label">The threat was left via bathroom wall graffiti, note, etc.</label>
+                            </div>
+                            <div class="radio-option" data-value="social" onclick="selectThreatSource(this)">
+                                <input type="radio" id="social" name="threatSource" value="social">
+                                <label for="social" class="option-label">The threat is an anonymous social media post</label>
+                            </div>
+                        </div>
+                        
+                        <div id="socialMediaSource" style="display: none;">
+                            <div class="form-group">
+                                <label for="sourcePlatform">Which platform was the threat posted on?</label>
+                                <select id="sourcePlatform" name="sourcePlatform" class="form-control">
+                                    <option value="">Select a platform</option>
+                                    <option value="instagram">Instagram</option>
+                                    <option value="snapchat">Snapchat</option>
+                                    <option value="tiktok">TikTok</option>
+                                    <option value="facebook">Facebook</option>
+                                    <option value="twitter">Twitter</option>
+                                    <option value="discord">Discord</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-buttons">
+                        <a href="/safety-assessment" class="btn btn-secondary btn-back">Back</a>
+                        <button type="submit" class="btn btn-primary" id="continueBtn">Continue to Workstation</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get SOC status from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const socStatus = urlParams.get('socStatus') || 'known';
+        
+        // Initialize platform data
+        let platformData = {
+            platforms: {},
+            threatSource: null,
+            sourcePlatform: null
+        };
+        
+        // Current platform being edited
+        let currentPlatform = null;
+        
+        // Initialize page based on SOC status
+        document.addEventListener('DOMContentLoaded', function() {
+            if (socStatus === 'unknown') {
+                document.getElementById('platformInfoDesc').textContent = 'Since the threat maker is unknown, please provide information about how the threat was discovered.';
+                document.getElementById('unknownThreatSection').style.display = 'block';
+                document.querySelector('.platform-selection').style.display = 'none';
+            }
+        });
+        
+        // Toggle platform selection
+        function togglePlatform(element) {
+            // If already selected, deselect
+            if (element.classList.contains('selected')) {
+                element.classList.remove('selected');
+                currentPlatform = null;
+                document.getElementById('platformDetails').style.display = 'none';
+                return;
+            }
+            
+            // Deselect all platforms
+            document.querySelectorAll('.platform-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Select this platform
+            element.classList.add('selected');
+            currentPlatform = element.dataset.platform;
+            
+            // Show platform details
+            document.getElementById('platformDetails').style.display = 'block';
+            document.getElementById('platformDetailsTitle').textContent = element.querySelector('.platform-name').textContent + ' Details';
+            
+            // Clear form fields
+            document.getElementById('username').value = '';
+            document.getElementById('displayName').value = '';
+            document.getElementById('url').value = '';
+        }
+        
+        // Add platform to selected platforms
+        document.getElementById('addPlatformBtn').addEventListener('click', function() {
+            if (!currentPlatform) return;
+            
+            const username = document.getElementById('username').value.trim();
+            const displayName = document.getElementById('displayName').value.trim();
+            const url = document.getElementById('url').value.trim();
+            
+            if (!username) {
+                alert('Please enter a username');
+                return;
+            }
+            
+            // Add to platform data
+            platformData.platforms[currentPlatform] = {
+                username,
+                displayName,
+                url
+            };
+            
+            // Update hidden input
+            document.getElementById('platformDataInput').value = JSON.stringify(platformData);
+            
+            // Update UI
+            updatePlatformList();
+            
+            // Reset form
+            document.querySelectorAll('.platform-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            currentPlatform = null;
+            document.getElementById('platformDetails').style.display = 'none';
+        });
+        
+        // Update platform list UI
+        function updatePlatformList() {
+            const platformList = document.getElementById('platformList');
+            platformList.innerHTML = '';
+            
+            const platforms = Object.keys(platformData.platforms);
+            
+            if (platforms.length === 0) {
+                document.getElementById('selectedPlatforms').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('selectedPlatforms').style.display = 'block';
+            
+            platforms.forEach(platform => {
+                const data = platformData.platforms[platform];
+                
+                const platformItem = document.createElement('div');
+                platformItem.className = 'platform-item';
+                platformItem.innerHTML = `
+                    <div class="platform-item-header">
+                        <strong>${platform.charAt(0).toUpperCase() + platform.slice(1)}</strong>
+                        <button type="button" class="btn-remove" data-platform="${platform}">×</button>
+                    </div>
+                    <div class="platform-item-details">
+                        <div><strong>Username:</strong> ${data.username}</div>
+                        <div><strong>Display Name:</strong> ${data.displayName || 'N/A'}</div>
+                        <div><strong>URL:</strong> ${data.url || 'N/A'}</div>
+                    </div>
+                `;
+                
+                platformList.appendChild(platformItem);
+            });
+            
+            // Add event listeners to remove buttons
+            document.querySelectorAll('.btn-remove').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const platform = this.dataset.platform;
+                    delete platformData.platforms[platform];
+                    document.getElementById('platformDataInput').value = JSON.stringify(platformData);
+                    updatePlatformList();
+                });
+            });
+        }
+        
+        // Select threat source for unknown SOC
+        function selectThreatSource(element) {
+            // Remove selected class from all options
+            document.querySelectorAll('.radio-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            element.classList.add('selected');
+            
+            // Update threat source
+            const value = element.dataset.value;
+            platformData.threatSource = value;
+            
+            // Show/hide social media source
+            document.getElementById('socialMediaSource').style.display = value === 'social' ? 'block' : 'none';
+            
+            // Update hidden input
+            document.getElementById('platformDataInput').value = JSON.stringify(platformData);
+        }
+        
+        // Update source platform
+        document.getElementById('sourcePlatform').addEventListener('change', function() {
+            platformData.sourcePlatform = this.value;
+            document.getElementById('platformDataInput').value = JSON.stringify(platformData);
+        });
+    </script>
+</body>
+</html>

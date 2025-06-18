@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Information - Digital Threat Assessment Management</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/onboarding.css">
+    <script src="/js/onboarding.js"></script>
+</head>
+<body class="onboarding-body">
+    <div class="onboarding-container">
+        <div class="onboarding-card">
+            <div class="onboarding-header">
+                <h1>Digital Threat Assessment Management</h1>
+            </div>
+            <div class="onboarding-content">
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-step completed">1</div>
+                        <div class="progress-step active">2</div>
+                        <div class="progress-step">3</div>
+                        <div class="progress-step">4</div>
+                        <div class="progress-step">5</div>
+                    </div>
+                    <div class="progress-labels">
+                        <div class="progress-label completed">Terms</div>
+                        <div class="progress-label active">Case</div>
+                        <div class="progress-label">SOC</div>
+                        <div class="progress-label">Safety</div>
+                        <div class="progress-label">Platform</div>
+                    </div>
+                </div>
+                
+                <h2>Case Information</h2>
+                <p>Please provide information about this case to help with organization and reporting.</p>
+                
+                <form action="/soc-status" method="POST" class="onboarding-form" id="caseInfoForm">
+                    <div class="case-info-grid">
+                        <div class="form-group">
+                            <label for="caseId">Case/Incident ID</label>
+                            <input type="text" id="caseId" name="caseId" class="form-control" placeholder="Enter case ID or reference number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="date">Date</label>
+                            <input type="date" id="date" name="date" class="form-control" value="<%= new Date().toISOString().split('T')[0] %>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="investigatorName">Investigator Name</label>
+                            <input type="text" id="investigatorName" name="investigatorName" class="form-control" placeholder="Enter your name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="organization">Organization</label>
+                            <input type="text" id="organization" name="organization" class="form-control" placeholder="Enter your organization">
+                        </div>
+                    </div>
+                    
+                    <div class="nav-buttons">
+                        <a href="/" class="btn btn-secondary btn-back">Back</a>
+                        <button type="submit" class="btn btn-primary">Continue</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

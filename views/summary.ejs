@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summary - Digital Threat Assessment Management</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/onboarding.css">
+    <script src="/js/onboarding.js"></script>
+</head>
+<body class="onboarding-body">
+    <div class="onboarding-container">
+        <div class="onboarding-card">
+            <div class="onboarding-header">
+                <h1>Digital Threat Assessment Management</h1>
+            </div>
+            <div class="onboarding-content">
+                <h2>Assessment Summary</h2>
+                <p>Please review the information you've provided before proceeding to the workstation.</p>
+                
+                <div class="summary-section">
+                    <h3>Case Information</h3>
+                    <div class="summary-item">
+                        <div class="summary-label">Case/Incident ID:</div>
+                        <div class="summary-value" id="summaryCase"></div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Date:</div>
+                        <div class="summary-value" id="summaryDate"></div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Investigator:</div>
+                        <div class="summary-value" id="summaryInvestigator"></div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Organization:</div>
+                        <div class="summary-value" id="summaryOrganization"></div>
+                    </div>
+                </div>
+                
+                <div class="summary-section">
+                    <h3>Subject of Concern (SOC) Status</h3>
+                    <div class="summary-item">
+                        <div class="summary-label">Status:</div>
+                        <div class="summary-value" id="summarySocStatus"></div>
+                    </div>
+                </div>
+                
+                <div class="summary-section" id="safetySummarySection">
+                    <h3>Safety Assessment</h3>
+                    <div class="summary-item">
+                        <div class="summary-label">Access to means:</div>
+                        <div class="summary-value" id="summaryMeans"></div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Rehearsal behavior:</div>
+                        <div class="summary-value" id="summaryRehearsal"></div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Baseline shift:</div>
+                        <div class="summary-value" id="summaryBaseline"></div>
+                    </div>
+                    <div class="summary-item" id="summaryRiskItem">
+                        <div class="summary-label">Risk level:</div>
+                        <div class="summary-value" id="summaryRisk"></div>
+                    </div>
+                </div>
+                
+                <div class="summary-section" id="knownSocPlatformsSection">
+                    <h3>Platform Information</h3>
+                    <div id="platformSummaryList"></div>
+                </div>
+                
+                <div class="summary-section" id="unknownThreatSection" style="display: none;">
+                    <h3>Unknown Threat Information</h3>
+                    <div class="summary-item">
+                        <div class="summary-label">Threat source:</div>
+                        <div class="summary-value" id="summaryThreatSource"></div>
+                    </div>
+                    <div class="summary-item" id="summarySourcePlatformItem" style="display: none;">
+                        <div class="summary-label">Source platform:</div>
+                        <div class="summary-value" id="summarySourcePlatform"></div>
+                    </div>
+                </div>
+                
+                <form action="/platform/instagram" method="GET" id="summaryForm">
+                    <input type="hidden" name="onboardingData" id="onboardingDataInput">
+                    
+                    <div class="nav-buttons">
+                        <a href="/platform-info" class="btn btn-secondary btn-back">Back</a>
+                        <button type="submit" class="btn btn-primary">Proceed to Workstation</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Retrieve session data
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simulate retrieving data from session
+            // In a real implementation, this would come from the server
+            const caseInfo = {
+                caseId: localStorage.getItem('caseId') || 'CASE-001',
+                date: localStorage.getItem('date') || new Date().toISOString().split('T')[0],
+                investigatorName: localStorage.getItem('investigatorName') || 'John Doe',
+                organization: localStorage.getItem('organization') || 'Example Organization'
+            };
+            
+            const socStatus = localStorage.getItem('socStatus') || 'known';
+            
+            const safetyAssessment = JSON.parse(localStorage.getItem('safetyAssessment') || '{"means":"no","rehearsal":"no","baseline":"no"}');
+            
+            const platformData = JSON.parse(localStorage.getItem('platformData') || '{"platforms":{},"threatSource":null,"sourcePlatform":null}');
+            
+            // Populate summary
+            document.getElementById('summaryCase').textContent = caseInfo.caseId;
+            document.getElementById('summaryDate').textContent = caseInfo.date;
+            document.getElementById('summaryInvestigator').textContent = caseInfo.investigatorName;
+            document.getElementById('summaryOrganization').textContent = caseInfo.organization || 'N/A';
+            
+            document.getElementById('summarySocStatus').textContent = socStatus === 'known' ? 'Known' : 'Unknown';
+            
+            // Safety assessment
+            if (socStatus === 'known') {
+                document.getElementById('summaryMeans').textContent = formatSafetyValue(safetyAssessment.means);
+                document.getElementById('summaryRehearsal').textContent = formatSafetyValue(safetyAssessment.rehearsal);
+                document.getElementById('summaryBaseline').textContent = formatSafetyValue(safetyAssessment.baseline);
+                
+                // Determine risk level
+                const highRisk = safetyAssessment.means === 'yes' && 
+                                (safetyAssessment.rehearsal === 'yes' || safetyAssessment.baseline === 'yes');
+                
+                document.getElementById('summaryRisk').textContent = highRisk ? 'High' : 'Moderate to Low';
+                document.getElementById('summaryRisk').style.color = highRisk ? '#e60000' : '#0095f6';
+            } else {
+                document.getElementById('safetySummarySection').style.display = 'none';
+            }
+            
+            // Platform information
+            if (socStatus === 'known') {
+                const platforms = Object.keys(platformData.platforms);
+                
+                if (platforms.length === 0) {
+                    document.getElementById('platformSummaryList').innerHTML = '<p>No platforms added.</p>';
+                } else {
+                    let platformHtml = '';
+                    
+                    platforms.forEach(platform => {
+                        const data = platformData.platforms[platform];
+                        
+                        platformHtml += `
+                            <div class="summary-item">
+                                <div class="summary-label">${platform.charAt(0).toUpperCase() + platform.slice(1)}:</div>
+                                <div class="summary-value">
+                                    <div><strong>Username:</strong> ${data.username}</div>
+                                    <div><strong>Display Name:</strong> ${data.displayName || 'N/A'}</div>
+                                    <div><strong>URL:</strong> ${data.url || 'N/A'}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    document.getElementById('platformSummaryList').innerHTML = platformHtml;
+                }
+            } else {
+                document.getElementById('knownSocPlatformsSection').style.display = 'none';
+                document.getElementById('unknownThreatSection').style.display = 'block';
+                
+                // Unknown threat information
+                const threatSource = platformData.threatSource === 'physical' ? 
+                    'Physical (bathroom wall, note, etc.)' : 
+                    'Social media post';
+                
+                document.getElementById('summaryThreatSource').textContent = threatSource;
+                
+                if (platformData.threatSource === 'social' && platformData.sourcePlatform) {
+                    document.getElementById('summarySourcePlatformItem').style.display = 'flex';
+                    document.getElementById('summarySourcePlatform').textContent = 
+                        platformData.sourcePlatform.charAt(0).toUpperCase() + platformData.sourcePlatform.slice(1);
+                }
+            }
+            
+            // Prepare data for workstation
+            const onboardingData = {
+                caseInfo,
+                socStatus,
+                safetyAssessment,
+                platformData
+            };
+            
+            document.getElementById('onboardingDataInput').value = JSON.stringify(onboardingData);
+            
+            // Update form action to go to the appropriate platform
+            if (socStatus === 'known' && Object.keys(platformData.platforms).length > 0) {
+                const firstPlatform = Object.keys(platformData.platforms)[0];
+                document.getElementById('summaryForm').action = `/platform/${firstPlatform}`;
+            }
+        });
+        
+        // Format safety value for display
+        function formatSafetyValue(value) {
+            if (value === 'yes') return 'Yes';
+            if (value === 'no') return 'No';
+            return 'Unknown';
+        }
+    </script>
+</body>
+</html>

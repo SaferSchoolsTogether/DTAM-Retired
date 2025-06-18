@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safety Assessment - Digital Threat Assessment Management</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/onboarding.css">
+    <script src="/js/onboarding.js"></script>
+</head>
+<body class="onboarding-body">
+    <div class="onboarding-container">
+        <div class="onboarding-card">
+            <div class="onboarding-header">
+                <h1>Digital Threat Assessment Management</h1>
+            </div>
+            <div class="onboarding-content">
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-step completed">1</div>
+                        <div class="progress-step completed">2</div>
+                        <div class="progress-step completed">3</div>
+                        <div class="progress-step active">4</div>
+                        <div class="progress-step">5</div>
+                    </div>
+                    <div class="progress-labels">
+                        <div class="progress-label completed">Terms</div>
+                        <div class="progress-label completed">Case</div>
+                        <div class="progress-label completed">SOC</div>
+                        <div class="progress-label active">Safety</div>
+                        <div class="progress-label">Platform</div>
+                    </div>
+                </div>
+                
+                <h2>Immediate Safety Considerations</h2>
+                <p>Before proceeding, please answer the following safety consideration questions. These questions are designed to help you determine the immediate risk level posed by the Subject of Concern (SOC).</p>
+                
+                <form action="/platform-info" method="POST" class="onboarding-form" id="safetyAssessmentForm">
+                    <input type="hidden" name="safetyAssessment" id="safetyAssessmentInput" value="{}">
+                    
+                    <div class="safety-question">
+                        <div class="safety-question-title">1. Does the SOC have immediate access to the means to carry out the threat?</div>
+                        <div class="safety-options">
+                            <div class="safety-option" data-question="means" data-value="yes" onclick="selectSafetyOption(this)">Yes</div>
+                            <div class="safety-option" data-question="means" data-value="no" onclick="selectSafetyOption(this)">No</div>
+                            <div class="safety-option" data-question="means" data-value="unknown" onclick="selectSafetyOption(this)">Unknown at this time</div>
+                        </div>
+                        <div class="safety-help" onclick="toggleHelp('means-help')">Why is this important?</div>
+                        <div class="safety-help-content" id="means-help">
+                            Access to means is a critical factor in assessing threat level. If the SOC has immediate access to weapons, explosives, or other means to carry out the threat, this significantly increases the risk level and may require immediate intervention.
+                        </div>
+                    </div>
+                    
+                    <div class="safety-question">
+                        <div class="safety-question-title">2. Has any rehearsal behavior or planning been identified or observed?</div>
+                        <div class="safety-options">
+                            <div class="safety-option" data-question="rehearsal" data-value="yes" onclick="selectSafetyOption(this)">Yes</div>
+                            <div class="safety-option" data-question="rehearsal" data-value="no" onclick="selectSafetyOption(this)">No</div>
+                            <div class="safety-option" data-question="rehearsal" data-value="unknown" onclick="selectSafetyOption(this)">Unknown at this time</div>
+                        </div>
+                        <div class="safety-help" onclick="toggleHelp('rehearsal-help')">Why is this important?</div>
+                        <div class="safety-help-content" id="rehearsal-help">
+                            Rehearsal behavior or planning indicates that the SOC is moving from ideation to action. This might include researching targets, practicing with weapons, creating plans, or conducting surveillance. These behaviors suggest a higher level of commitment to carrying out the threat.
+                        </div>
+                    </div>
+                    
+                    <div class="safety-question">
+                        <div class="safety-question-title">3. Is this a shift in the SOC's baseline behavior?</div>
+                        <div class="safety-options">
+                            <div class="safety-option" data-question="baseline" data-value="yes" onclick="selectSafetyOption(this)">Yes</div>
+                            <div class="safety-option" data-question="baseline" data-value="no" onclick="selectSafetyOption(this)">No</div>
+                            <div class="safety-option" data-question="baseline" data-value="unknown" onclick="selectSafetyOption(this)">Unknown at this time</div>
+                        </div>
+                        <div class="safety-help" onclick="toggleHelp('baseline-help')">Why is this important?</div>
+                        <div class="safety-help-content" id="baseline-help">
+                            A subject's baseline behavior refers to their usual patterns of interaction, mood, and activity. Significant changes in the frequency, intensity, or recency of concerning, worrisome, or threat-related behaviors can signal an important shift. This might include an increase in hostile comments, more frequent expressions of grievances, or a recent surge in violent ideation.
+                        </div>
+                    </div>
+                    
+                    <div id="warningBox" class="warning-box" style="display: none;">
+                        <div class="warning-title">
+                            <svg class="warning-icon" viewBox="0 0 24 24">
+                                <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                            </svg>
+                            Stop!
+                        </div>
+                        <div class="warning-content">
+                            Based on your responses, it is advised that you should NOT continue with the Digital Threat Assessment Toolkit. Please focus on immediate risk-reducing interventions:
+                            <ul>
+                                <li>Notify law enforcement immediately.</li>
+                                <li>Secure the area to prevent access.</li>
+                                <li>Inform relevant stakeholders (e.g., school administrators, security personnel)</li>
+                                <li>Activate your organization's emergency response plan.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-buttons">
+                        <a href="/soc-status" class="btn btn-secondary btn-back">Back</a>
+                        <button type="submit" class="btn btn-primary" id="continueBtn" disabled>Continue</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize assessment object
+        let safetyAssessment = {
+            means: null,
+            rehearsal: null,
+            baseline: null
+        };
+        
+        function selectSafetyOption(element) {
+            // Get question and value
+            const question = element.dataset.question;
+            const value = element.dataset.value;
+            
+            // Remove selected class from all options in this question
+            document.querySelectorAll(`.safety-option[data-question="${question}"]`).forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            element.classList.add('selected');
+            
+            // Update assessment object
+            safetyAssessment[question] = value;
+            
+            // Update hidden input
+            document.getElementById('safetyAssessmentInput').value = JSON.stringify(safetyAssessment);
+            
+            // Check if all questions are answered
+            const allAnswered = Object.values(safetyAssessment).every(value => value !== null);
+            
+            // Enable continue button if all questions are answered
+            document.getElementById('continueBtn').disabled = !allAnswered;
+            
+            // Check for high risk conditions
+            checkForHighRisk();
+        }
+        
+        function toggleHelp(id) {
+            const helpContent = document.getElementById(id);
+            helpContent.classList.toggle('active');
+        }
+        
+        function checkForHighRisk() {
+            // Show warning if high risk conditions are met
+            const highRisk = safetyAssessment.means === 'yes' && 
+                            (safetyAssessment.rehearsal === 'yes' || safetyAssessment.baseline === 'yes');
+            
+            document.getElementById('warningBox').style.display = highRisk ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>
