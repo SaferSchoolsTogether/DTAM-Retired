@@ -12,7 +12,8 @@
           "uploadDate": "2025-06-17T23:48:43.331Z",
           "tags": [],
           "analysisTags": {
-            "threat-behavior": "Moderate concern"
+            "threat-behavior": "Moderate concern",
+            "law-enforcement": "Emergency disclosure appropriate"
           },
           "notes": "",
           "metadata": {
