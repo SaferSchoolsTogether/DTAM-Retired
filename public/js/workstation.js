@@ -59,15 +59,121 @@ function initEventListeners() {
     if (fileInput) fileInput.addEventListener('change', handleFileSelect);
     if (fileUploadForm) fileUploadForm.addEventListener('submit', handleUpload);
 
-    // Photo selection
-    if (photoGrid) {
-        photoGrid.addEventListener('click', (e) => {
-            const photoThumb = e.target.closest('.photo-thumb');
+// Global function to update delete button listeners
+window.updateDeleteButtonListeners = function() {
+    document.querySelectorAll('.photo-delete-btn').forEach(btn => {
+        // Remove any existing listeners to prevent duplicates
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        
+        // Add direct click event listener
+        newBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent photo selection
+            e.preventDefault();
+            
+            const photoThumb = this.closest('.photo-thumb');
             if (photoThumb) {
-                selectPhoto(photoThumb);
+                const photoId = photoThumb.dataset.photoId;
+                const isActive = photoThumb.classList.contains('active');
+                
+                if (confirm('Are you sure you want to delete this photo? This action cannot be undone.')) {
+                    // Get the full platform name from the URL instead of the abbreviated text
+                    const platformUrl = document.querySelector('.platform-icon.active').getAttribute('href');
+                    const platform = platformUrl.split('/').pop(); // Extract platform name from URL
+                    
+                    const saveIndicator = document.getElementById('saveIndicator');
+                    const progressIndicator = document.getElementById('progressIndicator');
+                    
+                    // Show deleting indicator
+                    saveIndicator.innerHTML = `
+                        <span class="loading-spinner"></span>
+                        Deleting...
+                    `;
+                    
+                    fetch(`/api/platform/${platform}/photo/${photoId}`, {
+                        method: 'DELETE'
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to delete photo');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Remove photo from grid
+                        photoThumb.remove();
+                        
+                        // Update progress indicator
+                        const totalPhotos = document.querySelectorAll('.photo-thumb').length;
+                        if (totalPhotos === 0) {
+                            // No photos left, show empty state
+                            window.location.reload();
+                        } else {
+                            progressIndicator.textContent = `Photo 1 of ${totalPhotos}`;
+                            
+                            // If the deleted photo was active, select another one
+                            if (isActive) {
+                                const firstPhoto = document.querySelector('.photo-thumb');
+                                if (firstPhoto) {
+                                    selectPhoto(firstPhoto);
+                                }
+                            }
+                        }
+                        
+                        // Show success message
+                        saveIndicator.innerHTML = `
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                            </svg>
+                            Photo deleted successfully
+                        `;
+                        
+                        // Reset after 3 seconds
+                        setTimeout(() => {
+                            saveIndicator.innerHTML = `
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                                </svg>
+                                All changes saved
+                            `;
+                        }, 3000);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        saveIndicator.innerHTML = `
+                            <svg class="icon" viewBox="0 0 24 24" style="color: #f44336;">
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                            </svg>
+                            Failed to delete photo
+                        `;
+                        
+                        alert('Failed to delete photo. Please try again.');
+                    });
+                }
             }
         });
-    }
+    });
+};
+
+// Photo selection and delete
+if (photoGrid) {
+    // Initial setup of delete button listeners
+    window.updateDeleteButtonListeners();
+    
+    // Handle photo selection
+    photoGrid.addEventListener('click', (e) => {
+        // Skip if clicking on delete button (handled separately)
+        if (e.target.classList.contains('photo-delete-btn')) {
+            return;
+        }
+        
+        // Handle photo selection
+        const photoThumb = e.target.closest('.photo-thumb');
+        if (photoThumb) {
+            selectPhoto(photoThumb);
+        }
+    });
+}
 
     // Analysis modal
     if (analyzeBtn) analyzeBtn.addEventListener('click', showAnalysisModal);
@@ -218,7 +324,9 @@ function handleUpload(e) {
     
     const fileInput = document.getElementById('fileInput');
     const uploadBtn = document.getElementById('uploadBtn');
-    const platform = document.querySelector('.platform-icon.active span').textContent.toLowerCase();
+    // Get the full platform name from the URL instead of the abbreviated text
+    const platformUrl = document.querySelector('.platform-icon.active').getAttribute('href');
+    const platform = platformUrl.split('/').pop(); // Extract platform name from URL
     
     const files = fileInput.files;
     if (files.length === 0) return;
@@ -243,7 +351,17 @@ function handleUpload(e) {
     })
     .then(data => {
         hideUploadModal();
-        window.location.reload(); // Reload to show new photos
+        
+        // Reload to show new photos and ensure event listeners are attached
+        window.location.reload();
+        
+        // Add event to ensure delete buttons work after reload
+        window.addEventListener('DOMContentLoaded', function() {
+            // Make sure updateDeleteButtonListeners is available in global scope
+            if (typeof window.updateDeleteButtonListeners === 'function') {
+                window.updateDeleteButtonListeners();
+            }
+        });
     })
     .catch(error => {
         console.error('Error:', error);
@@ -273,7 +391,9 @@ function selectPhoto(photoThumb) {
 // Update photo view
 function updatePhotoView() {
     const currentImage = document.getElementById('currentImage');
-    const platform = document.querySelector('.platform-icon.active span').textContent.toLowerCase();
+    // Get the full platform name from the URL instead of the abbreviated text
+    const platformUrl = document.querySelector('.platform-icon.active').getAttribute('href');
+    const platform = platformUrl.split('/').pop(); // Extract platform name from URL
     
     // Show loading state
     currentImage.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="600"%3E%3Crect width="600" height="600" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="24"%3ELoading...%3C/text%3E%3C/svg%3E';
@@ -303,6 +423,11 @@ function updatePhotoView() {
             const photoIndex = Array.from(document.querySelectorAll('.photo-thumb')).findIndex(thumb => thumb.dataset.photoId === currentPhotoId);
             const totalPhotos = document.querySelectorAll('.photo-thumb').length;
             document.getElementById('progressIndicator').textContent = `Photo ${photoIndex + 1} of ${totalPhotos}`;
+            
+            // Make sure delete buttons have event listeners
+            if (typeof updateDeleteButtonListeners === 'function') {
+                updateDeleteButtonListeners();
+            }
         })
         .catch(error => {
             console.error('Error:', error);
@@ -394,7 +519,9 @@ function updatePhoto(data) {
     if (!currentPhotoId) return;
     
     const saveIndicator = document.getElementById('saveIndicator');
-    const platform = document.querySelector('.platform-icon.active span').textContent.toLowerCase();
+    // Get the full platform name from the URL instead of the abbreviated text
+    const platformUrl = document.querySelector('.platform-icon.active').getAttribute('href');
+    const platform = platformUrl.split('/').pop(); // Extract platform name from URL
     
     // Show saving indicator
     saveIndicator.innerHTML = `
@@ -556,7 +683,9 @@ function saveProgress() {
 
 // Preview report
 function previewReport() {
-    const platform = document.querySelector('.platform-icon.active span').textContent.toLowerCase();
+    // Get the full platform name from the URL instead of the abbreviated text
+    const platformUrl = document.querySelector('.platform-icon.active').getAttribute('href');
+    const platform = platformUrl.split('/').pop(); // Extract platform name from URL
     
     // In a real app, this would generate a preview of the report
     window.open(`/api/platform/${platform}/report`, '_blank');
@@ -566,4 +695,104 @@ function previewReport() {
 function generateReport() {
     // In a real app, this would generate and download the report
     alert('Report generated successfully!');
+}
+
+// Confirm delete photo
+function confirmDeletePhoto(photoThumb) {
+    const photoId = photoThumb.dataset.photoId;
+    const isActive = photoThumb.classList.contains('active');
+    
+    // For testing purposes, skip confirmation and directly delete
+    // In a production environment, you would use: 
+    // if (confirm('Are you sure you want to delete this photo? This action cannot be undone.')) {
+    //     deletePhoto(photoId, photoThumb, isActive);
+    // }
+    
+    // Directly delete for testing
+    deletePhoto(photoId, photoThumb, isActive);
+}
+
+// Delete photo
+function deletePhoto(photoId, photoThumb, wasActive) {
+    // Get the full platform name from the URL instead of the abbreviated text
+    const platformUrl = document.querySelector('.platform-icon.active').getAttribute('href');
+    const platform = platformUrl.split('/').pop(); // Extract platform name from URL
+    
+    const saveIndicator = document.getElementById('saveIndicator');
+    
+    // Show deleting indicator
+    saveIndicator.innerHTML = `
+        <span class="loading-spinner"></span>
+        Deleting...
+    `;
+    
+    fetch(`/api/platform/${platform}/photo/${photoId}`, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to delete photo');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Remove photo from grid
+        photoThumb.remove();
+        
+        // Update progress indicator
+        const totalPhotos = document.querySelectorAll('.photo-thumb').length;
+        if (totalPhotos === 0) {
+            // No photos left, show empty state
+            window.location.reload();
+        } else {
+            document.getElementById('progressIndicator').textContent = `Photo 1 of ${totalPhotos}`;
+            
+            // If the deleted photo was active, select another one
+            if (wasActive) {
+                const firstPhoto = document.querySelector('.photo-thumb');
+                if (firstPhoto) {
+                    selectPhoto(firstPhoto);
+                }
+            }
+        }
+        
+        // Show success message
+        saveIndicator.innerHTML = `
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+            </svg>
+            Photo deleted successfully
+        `;
+        
+        // Reset after 3 seconds
+        setTimeout(() => {
+            saveIndicator.innerHTML = `
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                </svg>
+                All changes saved
+            `;
+        }, 3000);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        saveIndicator.innerHTML = `
+            <svg class="icon" viewBox="0 0 24 24" style="color: #f44336;">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+            Failed to delete photo
+        `;
+        
+        // Reset after 3 seconds
+        setTimeout(() => {
+            saveIndicator.innerHTML = `
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                </svg>
+                All changes saved
+            `;
+        }, 3000);
+        
+        alert('Failed to delete photo. Please try again.');
+    });
 }
