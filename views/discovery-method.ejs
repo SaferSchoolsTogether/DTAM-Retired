@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discovery Method - Digital Threat Assessment Management</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/onboarding.css">
+    <script src="/js/onboarding.js"></script>
+</head>
+<body class="onboarding-body">
+    <div class="onboarding-container">
+        <div class="onboarding-card">
+            <div class="onboarding-header">
+                <h1>Digital Threat Assessment Management</h1>
+            </div>
+            <div class="onboarding-content">
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-step completed">1</div>
+                        <div class="progress-step completed">2</div>
+                        <div class="progress-step active">3</div>
+                        <div class="progress-step">4</div>
+                    </div>
+                    <div class="progress-labels">
+                        <div class="progress-label completed">Terms</div>
+                        <div class="progress-label completed">SOC</div>
+                        <div class="progress-label active">Discovery</div>
+                        <div class="progress-label">Summary</div>
+                    </div>
+                </div>
+                
+                <h2>Threat Discovery Method</h2>
+                <p>Since the threat maker is unknown, please provide information about how the threat was discovered.</p>
+                
+                <form action="/summary" method="POST" class="onboarding-form" id="discoveryMethodForm">
+                    <input type="hidden" name="discoveryMethod" id="discoveryMethodInput" value="">
+                    
+                    <div class="radio-group">
+                        <div class="radio-option" data-value="physical" onclick="selectDiscoveryOption(this)">
+                            <input type="radio" name="discoveryMethodRadio" id="physicalDiscovery" value="physical">
+                            <div class="option-label">
+                                <div class="discovery-option-icon">📝</div>
+                                <div class="discovery-option-title">Physical Discovery</div>
+                                <div class="discovery-option-description">The threat has been left via bathroom wall graffiti / note/text on the side of the building / left in a note, etc.</div>
+                            </div>
+                        </div>
+                        <div class="radio-option" data-value="social" onclick="selectDiscoveryOption(this)">
+                            <input type="radio" name="discoveryMethodRadio" id="socialMediaPost" value="social">
+                            <div class="option-label">
+                                <div class="discovery-option-icon">💻</div>
+                                <div class="discovery-option-title">Social Media Post</div>
+                                <div class="discovery-option-description">The threat is an anonymous social media post</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="physicalDiscoveryDetails" style="display: none;">
+                        <h3>Physical Discovery Details</h3>
+                        <div class="form-group">
+                            <label for="discoveryFinder">Who found/received the threat?</label>
+                            <input type="text" id="discoveryFinder" name="discoveryFinder" class="form-control" placeholder="Name of person who found the threat">
+                        </div>
+                        <div class="form-group">
+                            <label for="discoveryDate">When was the threat received?</label>
+                            <input type="datetime-local" id="discoveryDate" name="discoveryDate" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="discoveryLocation">Where was the threat received?</label>
+                            <input type="text" id="discoveryLocation" name="discoveryLocation" class="form-control" placeholder="Location details">
+                        </div>
+                        <div class="form-group">
+                            <label for="discoveryWitnesses">Who else knows about the threat?</label>
+                            <textarea id="discoveryWitnesses" name="discoveryWitnesses" class="form-control" rows="3" placeholder="List of people who know about the threat"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div id="socialMediaSource" style="display: none;">
+                        <div class="form-group">
+                            <label for="sourcePlatform">Which platform was the threat posted on?</label>
+                            <select id="sourcePlatform" name="sourcePlatform" class="form-control">
+                                <option value="">Select a platform</option>
+                                <option value="instagram">Instagram</option>
+                                <option value="snapchat">Snapchat</option>
+                                <option value="tiktok">TikTok</option>
+                                <option value="facebook">Facebook</option>
+                                <option value="twitter">Twitter</option>
+                                <option value="discord">Discord</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-buttons">
+                        <a href="/soc-status" class="btn btn-secondary btn-back">Back</a>
+                        <button type="submit" class="btn btn-primary" id="continueBtn" disabled>Continue</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize discovery data
+        let discoveryData = {
+            method: null,
+            sourcePlatform: null,
+            physicalDetails: {
+                finder: null,
+                date: null,
+                location: null,
+                witnesses: null
+            }
+        };
+        
+        function selectDiscoveryOption(element) {
+            // Select the radio button
+            const radioInput = element.querySelector('input[type="radio"]');
+            radioInput.checked = true;
+            
+            // Remove selected class from all options
+            document.querySelectorAll('.radio-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            element.classList.add('selected');
+            
+            // Get the value
+            const value = element.dataset.value;
+            
+            // Update discovery data
+            discoveryData.method = value;
+            
+            // Show/hide appropriate sections
+            document.getElementById('physicalDiscoveryDetails').style.display = value === 'physical' ? 'block' : 'none';
+            document.getElementById('socialMediaSource').style.display = value === 'social' ? 'block' : 'none';
+            
+            // Enable continue button based on selection and required fields
+            updateContinueButton();
+            
+            // Update hidden input
+            document.getElementById('discoveryMethodInput').value = JSON.stringify(discoveryData);
+        }
+        
+        // Update source platform
+        document.getElementById('sourcePlatform').addEventListener('change', function() {
+            discoveryData.sourcePlatform = this.value;
+            document.getElementById('discoveryMethodInput').value = JSON.stringify(discoveryData);
+            updateContinueButton();
+        });
+        
+        // Update physical discovery details
+        document.getElementById('discoveryFinder').addEventListener('input', function() {
+            discoveryData.physicalDetails.finder = this.value;
+            document.getElementById('discoveryMethodInput').value = JSON.stringify(discoveryData);
+            updateContinueButton();
+        });
+        
+        document.getElementById('discoveryDate').addEventListener('input', function() {
+            discoveryData.physicalDetails.date = this.value;
+            document.getElementById('discoveryMethodInput').value = JSON.stringify(discoveryData);
+            updateContinueButton();
+        });
+        
+        document.getElementById('discoveryLocation').addEventListener('input', function() {
+            discoveryData.physicalDetails.location = this.value;
+            document.getElementById('discoveryMethodInput').value = JSON.stringify(discoveryData);
+            updateContinueButton();
+        });
+        
+        document.getElementById('discoveryWitnesses').addEventListener('input', function() {
+            discoveryData.physicalDetails.witnesses = this.value;
+            document.getElementById('discoveryMethodInput').value = JSON.stringify(discoveryData);
+            updateContinueButton();
+        });
+        
+        function updateContinueButton() {
+            const continueBtn = document.getElementById('continueBtn');
+            
+            if (discoveryData.method === 'physical') {
+                // Check if all required physical discovery fields are filled
+                const allFieldsFilled = 
+                    discoveryData.physicalDetails.finder && 
+                    discoveryData.physicalDetails.date && 
+                    discoveryData.physicalDetails.location && 
+                    discoveryData.physicalDetails.witnesses;
+                
+                continueBtn.disabled = !allFieldsFilled;
+            } else if (discoveryData.method === 'social' && discoveryData.sourcePlatform) {
+                continueBtn.disabled = false;
+            } else {
+                continueBtn.disabled = true;
+            }
+        }
+        
+        // Set current date and time as default for discovery date
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            
+            const defaultDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+            document.getElementById('discoveryDate').value = defaultDateTime;
+        });
+    </script>
+</body>
+</html>

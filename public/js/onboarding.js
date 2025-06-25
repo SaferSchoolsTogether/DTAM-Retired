@@ -33,6 +33,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Discovery Method Form
+    const discoveryMethodForm = document.getElementById('discoveryMethodForm');
+    if (discoveryMethodForm) {
+        discoveryMethodForm.addEventListener('submit', function(e) {
+            const discoveryMethod = document.getElementById('discoveryMethodInput').value;
+            
+            // Store in localStorage
+            localStorage.setItem('discoveryMethod', discoveryMethod);
+        });
+    }
+    
     // Safety Assessment Form
     const safetyAssessmentForm = document.getElementById('safetyAssessmentForm');
     if (safetyAssessmentForm) {
@@ -44,16 +55,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Platform Info Form
-    const platformInfoForm = document.getElementById('platformInfoForm');
-    if (platformInfoForm) {
-        platformInfoForm.addEventListener('submit', function(e) {
-            const platformData = document.getElementById('platformDataInput').value;
-            
-            // Store in localStorage
-            localStorage.setItem('platformData', platformData);
-        });
-    }
     
     // Pre-fill forms with stored data
     prefillForms();
@@ -92,6 +93,6 @@ function clearOnboardingData() {
     localStorage.removeItem('organization');
     localStorage.removeItem('socStatus');
     localStorage.removeItem('safetyAssessment');
-    localStorage.removeItem('platformData');
+    localStorage.removeItem('discoveryMethod');
     localStorage.removeItem('onboardingData');
 }

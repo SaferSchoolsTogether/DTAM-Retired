@@ -106,41 +106,65 @@ app.get('/', (req, res) => {
 });
 
 // Onboarding routes
+app.post('/soc-status', (req, res) => {
+  // In a real app, we would store this in the session
+  res.render('soc-status');
+});
+
+app.get('/soc-status', (req, res) => {
+  // Handle GET request for soc-status
+  res.render('soc-status');
+});
+
 app.post('/case-info', (req, res) => {
+  // Store SOC status in session
+  const { socStatus } = req.body;
+  
   // In a real app, we would store this in the session
   res.render('case-info');
 });
 
-app.post('/soc-status', (req, res) => {
-  // Store case info in session
-  const { caseId, date, investigatorName, organization } = req.body;
+app.get('/case-info', (req, res) => {
+  // Handle GET request for case-info
+  res.render('case-info');
+});
+
+app.post('/discovery-method', (req, res) => {
+  // Store SOC status in session
+  const { socStatus } = req.body;
   
   // In a real app, we would store this in the session
-  // For now, we'll use localStorage in the client
-  res.render('soc-status');
+  res.render('discovery-method');
+});
+
+app.get('/discovery-method', (req, res) => {
+  // Handle GET request for discovery-method
+  res.render('discovery-method');
 });
 
 app.post('/safety-assessment', (req, res) => {
-  // Store SOC status in session
-  const { socStatus } = req.body;
+  // Store case info in session
+  const { caseId, date, investigatorName, organization } = req.body;
   
   // In a real app, we would store this in the session
   res.render('safety-assessment');
 });
 
-app.post('/platform-info', (req, res) => {
-  // Store safety assessment in session
-  const { safetyAssessment } = req.body;
-  
-  // In a real app, we would store this in the session
-  res.render('platform-info');
+app.get('/safety-assessment', (req, res) => {
+  // Handle GET request for safety-assessment
+  res.render('safety-assessment');
 });
 
 app.post('/summary', (req, res) => {
-  // Store platform data in session
-  const { platformData } = req.body;
+  // Store safety assessment or discovery method in session
+  const { safetyAssessment, discoveryMethod } = req.body;
   
   // In a real app, we would store this in the session
+  res.render('summary');
+});
+
+app.get('/summary', (req, res) => {
+  // Handle GET request for summary
   res.render('summary');
 });
 

@@ -21,21 +21,19 @@
                         <div class="progress-step completed">2</div>
                         <div class="progress-step completed">3</div>
                         <div class="progress-step active">4</div>
-                        <div class="progress-step">5</div>
                     </div>
                     <div class="progress-labels">
                         <div class="progress-label completed">Terms</div>
-                        <div class="progress-label completed">Case</div>
                         <div class="progress-label completed">SOC</div>
-                        <div class="progress-label active">Safety</div>
-                        <div class="progress-label">Platform</div>
+                        <div class="progress-label completed">Case</div>
+                        <div class="progress-label active">Summary</div>
                     </div>
                 </div>
                 
                 <h2>Immediate Safety Considerations</h2>
                 <p>Before proceeding, please answer the following safety consideration questions. These questions are designed to help you determine the immediate risk level posed by the Subject of Concern (SOC).</p>
                 
-                <form action="/platform-info" method="POST" class="onboarding-form" id="safetyAssessmentForm">
+                <form action="/summary" method="POST" class="onboarding-form" id="safetyAssessmentForm">
                     <input type="hidden" name="safetyAssessment" id="safetyAssessmentInput" value="{}">
                     
                     <div class="safety-question">
@@ -96,7 +94,7 @@
                     </div>
                     
                     <div class="nav-buttons">
-                        <a href="/soc-status" class="btn btn-secondary btn-back">Back</a>
+                        <a href="/case-info" class="btn btn-secondary btn-back">Back</a>
                         <button type="submit" class="btn btn-primary" id="continueBtn" disabled>Continue</button>
                     </div>
                 </form>
