@@ -44,12 +44,82 @@
                             <input type="date" id="date" name="date" class="form-control" value="<%= new Date().toISOString().split('T')[0] %>" required>
                         </div>
                         <div class="form-group">
-                            <label for="investigatorName">Investigator Name</label>
+                            <label for="investigatorName">Threat Assessment Team Member</label>
                             <input type="text" id="investigatorName" name="investigatorName" class="form-control" placeholder="Enter your name" required>
                         </div>
                         <div class="form-group">
                             <label for="organization">Organization</label>
                             <input type="text" id="organization" name="organization" class="form-control" placeholder="Enter your organization">
+                        </div>
+                    </div>
+                    
+                    <div id="studentInfoSection" style="display: none;">
+                        <h3>Student Information</h3>
+                        <p>Please provide information about the student involved in this case.</p>
+                        
+                        <div class="case-info-grid">
+                            <div class="form-group">
+                                <label for="studentName">Student Name</label>
+                                <input type="text" id="studentName" name="studentName" class="form-control" placeholder="Enter student name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="studentId">Student ID/PEN</label>
+                                <input type="text" id="studentId" name="studentId" class="form-control" placeholder="Enter student ID or PEN">
+                            </div>
+                            <div class="form-group">
+                                <label for="grade">Grade</label>
+                                <select id="grade" name="grade" class="form-control">
+                                    <option value="">Select grade</option>
+                                    <option value="K">Kindergarten</option>
+                                    <option value="1">Grade 1</option>
+                                    <option value="2">Grade 2</option>
+                                    <option value="3">Grade 3</option>
+                                    <option value="4">Grade 4</option>
+                                    <option value="5">Grade 5</option>
+                                    <option value="6">Grade 6</option>
+                                    <option value="7">Grade 7</option>
+                                    <option value="8">Grade 8</option>
+                                    <option value="9">Grade 9</option>
+                                    <option value="10">Grade 10</option>
+                                    <option value="11">Grade 11</option>
+                                    <option value="12">Grade 12</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="school">School</label>
+                                <input type="text" id="school" name="school" class="form-control" placeholder="Enter school name">
+                            </div>
+                            <div class="form-group">
+                                <label for="dob">Date of Birth</label>
+                                <input type="date" id="dob" name="dob" class="form-control">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Support Plans (select all that apply)</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="iep" name="supportPlans" value="IEP">
+                                    <label for="iep">IEP (Individualized Education Plan)</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="plan504" name="supportPlans" value="504">
+                                    <label for="plan504">504 Plan</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="safetyPlan" name="supportPlans" value="Safety">
+                                    <label for="safetyPlan">Safety Plan</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="bip" name="supportPlans" value="BIP">
+                                    <label for="bip">BIP (Behavior Intervention Plan)</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="otherPlan" name="supportPlans" value="Other">
+                                    <label for="otherPlan">Other</label>
+                                    <input type="text" id="otherPlanText" name="otherPlanText" class="form-control inline-input" placeholder="Please specify" style="display: none;">
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -61,5 +131,27 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if we're coming from the SOC status page with "known" status
+            const socStatus = localStorage.getItem('socStatus');
+            if (socStatus === 'known') {
+                document.getElementById('studentInfoSection').style.display = 'block';
+                
+                // Make student name required only when section is visible
+                document.getElementById('studentName').required = true;
+            } else {
+                document.getElementById('studentName').required = false;
+            }
+            
+            // Toggle "Other" text field visibility
+            const otherPlanCheckbox = document.getElementById('otherPlan');
+            const otherPlanText = document.getElementById('otherPlanText');
+            
+            otherPlanCheckbox.addEventListener('change', function() {
+                otherPlanText.style.display = this.checked ? 'inline-block' : 'none';
+            });
+        });
+    </script>
 </body>
 </html>

@@ -44,12 +44,40 @@
                         <div class="summary-value" id="summaryDate"></div>
                     </div>
                     <div class="summary-item">
-                        <div class="summary-label">Investigator:</div>
+                        <div class="summary-label">Threat Assessment Team Member:</div>
                         <div class="summary-value" id="summaryInvestigator"></div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-label">Organization:</div>
                         <div class="summary-value" id="summaryOrganization"></div>
+                    </div>
+                </div>
+                
+                <div class="summary-section" id="studentInfoSummary" style="display: none;">
+                    <h3>Student Information</h3>
+                    <div class="summary-item">
+                        <div class="summary-label">Student Name:</div>
+                        <div class="summary-value" id="summaryStudentName"></div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Student ID/PEN:</div>
+                        <div class="summary-value" id="summaryStudentId"></div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Grade:</div>
+                        <div class="summary-value" id="summaryGrade"></div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">School:</div>
+                        <div class="summary-value" id="summarySchool"></div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Date of Birth:</div>
+                        <div class="summary-value" id="summaryDOB"></div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Support Plans:</div>
+                        <div class="summary-value" id="summarySupportPlans"></div>
                     </div>
                 </div>
                 
@@ -157,6 +185,9 @@
             
             const platformData = JSON.parse(localStorage.getItem('platformData') || '{"platforms":{},"threatSource":null,"sourcePlatform":null}');
             
+            // Get student information if available
+            const studentInfo = JSON.parse(localStorage.getItem('studentInfo') || 'null');
+            
             // Populate summary
             document.getElementById('summaryCase').textContent = caseInfo.caseId || 'N/A';
             document.getElementById('summaryDate').textContent = caseInfo.date || new Date().toISOString().split('T')[0];
@@ -182,6 +213,28 @@
                 
                 document.getElementById('summaryRisk').textContent = highRisk ? 'High' : 'Moderate to Low';
                 document.getElementById('summaryRisk').style.color = highRisk ? '#e60000' : '#0095f6';
+                
+                // Show student information if available
+                if (studentInfo) {
+                    document.getElementById('studentInfoSummary').style.display = 'block';
+                    document.getElementById('summaryStudentName').textContent = studentInfo.name || 'N/A';
+                    document.getElementById('summaryStudentId').textContent = studentInfo.id || 'N/A';
+                    document.getElementById('summaryGrade').textContent = studentInfo.grade || 'N/A';
+                    document.getElementById('summarySchool').textContent = studentInfo.school || 'N/A';
+                    document.getElementById('summaryDOB').textContent = studentInfo.dob || 'N/A';
+                    
+                    // Format support plans
+                    let supportPlansText = 'None';
+                    if (studentInfo.supportPlans && studentInfo.supportPlans.length > 0) {
+                        supportPlansText = studentInfo.supportPlans.map(plan => {
+                            if (plan === 'Other' && studentInfo.otherPlanText) {
+                                return `Other (${studentInfo.otherPlanText})`;
+                            }
+                            return plan;
+                        }).join(', ');
+                    }
+                    document.getElementById('summarySupportPlans').textContent = supportPlansText;
+                }
                 
                 // Hide discovery method section
                 document.getElementById('discoveryMethodSection').style.display = 'none';
@@ -241,6 +294,7 @@
                 caseInfo,
                 socStatus,
                 safetyAssessment: socStatus === 'known' ? safetyAssessment : null,
+                studentInfo: socStatus === 'known' ? studentInfo : null,
                 discoveryMethod: socStatus === 'unknown' ? JSON.parse(localStorage.getItem('discoveryMethod') || '{"method":null,"sourcePlatform":null}') : null
             };
             

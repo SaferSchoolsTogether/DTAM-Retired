@@ -19,6 +19,37 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.setItem('date', date);
             localStorage.setItem('investigatorName', investigatorName);
             localStorage.setItem('organization', organization);
+            
+            // Get student information if section is visible
+            if (document.getElementById('studentInfoSection').style.display !== 'none') {
+                const studentName = document.getElementById('studentName').value;
+                const studentId = document.getElementById('studentId').value;
+                const grade = document.getElementById('grade').value;
+                const school = document.getElementById('school').value;
+                const dob = document.getElementById('dob').value;
+                
+                // Get selected support plans
+                const supportPlans = [];
+                document.querySelectorAll('input[name="supportPlans"]:checked').forEach(checkbox => {
+                    supportPlans.push(checkbox.value);
+                });
+                
+                // Get "Other" plan text if applicable
+                const otherPlanText = document.getElementById('otherPlanText').value;
+                
+                // Store student info in localStorage
+                const studentInfo = {
+                    name: studentName,
+                    id: studentId,
+                    grade: grade,
+                    school: school,
+                    dob: dob,
+                    supportPlans: supportPlans,
+                    otherPlanText: otherPlanText
+                };
+                
+                localStorage.setItem('studentInfo', JSON.stringify(studentInfo));
+            }
         });
     }
     
@@ -83,6 +114,49 @@ function prefillForms() {
     if (organizationInput && localStorage.getItem('organization')) {
         organizationInput.value = localStorage.getItem('organization');
     }
+    
+    // Student Info Form
+    const studentInfoSection = document.getElementById('studentInfoSection');
+    if (studentInfoSection && localStorage.getItem('studentInfo')) {
+        const studentInfo = JSON.parse(localStorage.getItem('studentInfo'));
+        
+        // Fill in student info fields
+        if (document.getElementById('studentName')) {
+            document.getElementById('studentName').value = studentInfo.name || '';
+        }
+        
+        if (document.getElementById('studentId')) {
+            document.getElementById('studentId').value = studentInfo.id || '';
+        }
+        
+        if (document.getElementById('grade')) {
+            document.getElementById('grade').value = studentInfo.grade || '';
+        }
+        
+        if (document.getElementById('school')) {
+            document.getElementById('school').value = studentInfo.school || '';
+        }
+        
+        if (document.getElementById('dob')) {
+            document.getElementById('dob').value = studentInfo.dob || '';
+        }
+        
+        // Check support plan checkboxes
+        if (studentInfo.supportPlans && studentInfo.supportPlans.length > 0) {
+            studentInfo.supportPlans.forEach(plan => {
+                const checkbox = document.querySelector(`input[name="supportPlans"][value="${plan}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                    
+                    // Show "Other" text field if applicable
+                    if (plan === 'Other' && document.getElementById('otherPlanText')) {
+                        document.getElementById('otherPlanText').style.display = 'inline-block';
+                        document.getElementById('otherPlanText').value = studentInfo.otherPlanText || '';
+                    }
+                }
+            });
+        }
+    }
 }
 
 // Clear onboarding data
@@ -95,4 +169,5 @@ function clearOnboardingData() {
     localStorage.removeItem('safetyAssessment');
     localStorage.removeItem('discoveryMethod');
     localStorage.removeItem('onboardingData');
+    localStorage.removeItem('studentInfo');
 }

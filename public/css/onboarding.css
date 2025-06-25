@@ -135,6 +135,23 @@
     margin-right: 12px;
 }
 
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.checkbox-item input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.inline-input {
+    display: inline-block;
+    width: auto;
+    margin-left: 10px;
+    padding: 8px;
+}
+
 .option-label {
     flex: 1;
 }
