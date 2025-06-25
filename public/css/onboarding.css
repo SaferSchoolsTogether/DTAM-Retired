@@ -232,6 +232,22 @@
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.info-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: #0095f6;
+    color: white;
+    font-size: 12px;
+    margin-left: 8px;
+    cursor: pointer;
 }
 
 .safety-options {
@@ -317,6 +333,36 @@
 
 .warning-content li {
     margin-bottom: 8px;
+}
+
+/* Proceed Box Styles */
+.proceed-box {
+    background-color: #f0fff4;
+    border: 1px solid #9ae6b4;
+    border-left: 4px solid #38a169;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 24px;
+}
+
+.proceed-title {
+    color: #38a169;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.proceed-icon {
+    width: 24px;
+    height: 24px;
+    fill: #38a169;
+}
+
+.proceed-content {
+    color: #333;
 }
 
 /* Navigation Buttons */

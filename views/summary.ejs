@@ -90,18 +90,14 @@
                 </div>
                 
                 <div class="summary-section" id="safetySummarySection">
-                    <h3>Safety Assessment</h3>
+                    <h3>Threat Assessment</h3>
+                    <div class="summary-item">
+                        <div class="summary-label">Law enforcement response needed:</div>
+                        <div class="summary-value" id="summaryEnforcement"></div>
+                    </div>
                     <div class="summary-item">
                         <div class="summary-label">Access to means:</div>
                         <div class="summary-value" id="summaryMeans"></div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">Rehearsal behavior:</div>
-                        <div class="summary-value" id="summaryRehearsal"></div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">Baseline shift:</div>
-                        <div class="summary-value" id="summaryBaseline"></div>
                     </div>
                     <div class="summary-item" id="summaryRiskItem">
                         <div class="summary-label">Risk level:</div>
@@ -203,16 +199,14 @@
                 
                 // Safety assessment
                 document.getElementById('safetySummarySection').style.display = 'block';
+                document.getElementById('summaryEnforcement').textContent = formatSafetyValue(safetyAssessment.enforcement);
                 document.getElementById('summaryMeans').textContent = formatSafetyValue(safetyAssessment.means);
-                document.getElementById('summaryRehearsal').textContent = formatSafetyValue(safetyAssessment.rehearsal);
-                document.getElementById('summaryBaseline').textContent = formatSafetyValue(safetyAssessment.baseline);
                 
                 // Determine risk level
-                const highRisk = safetyAssessment.means === 'yes' && 
-                                (safetyAssessment.rehearsal === 'yes' || safetyAssessment.baseline === 'yes');
+                const highRisk = safetyAssessment.enforcement === 'yes' || safetyAssessment.means === 'yes';
                 
                 document.getElementById('summaryRisk').textContent = highRisk ? 'High' : 'Moderate to Low';
-                document.getElementById('summaryRisk').style.color = highRisk ? '#e60000' : '#0095f6';
+                document.getElementById('summaryRisk').style.color = highRisk ? '#e60000' : '#38a169';
                 
                 // Show student information if available
                 if (studentInfo) {
