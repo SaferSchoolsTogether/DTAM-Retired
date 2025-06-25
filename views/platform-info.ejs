@@ -76,12 +76,24 @@
                         <h3 id="platformDetailsTitle">Platform Details</h3>
                         
                         <div class="form-group">
-                            <label for="username">Username</label>
+                            <div class="label-with-tooltip">
+                                <label for="username">Username</label>
+                                <span class="tooltip-icon">
+                                    ?
+                                    <span class="tooltip-text">The @handle someone uses to identify their account (e.g., @john_doe123). This appears after the @ symbol.</span>
+                                </span>
+                            </div>
                             <input type="text" id="username" name="username" class="form-control" placeholder="Enter username">
                         </div>
                         
                         <div class="form-group">
-                            <label for="displayName">Display Name</label>
+                            <div class="label-with-tooltip">
+                                <label for="displayName">Display Name</label>
+                                <span class="tooltip-icon">
+                                    ?
+                                    <span class="tooltip-text">The name shown on their profile that others see (e.g., John Doe). This can be their real name or any chosen name.</span>
+                                </span>
+                            </div>
                             <input type="text" id="displayName" name="displayName" class="form-control" placeholder="Enter display name">
                         </div>
                         
@@ -141,6 +153,76 @@
         </div>
     </div>
 
+    <style>
+        .label-with-tooltip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+        
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            background-color: #e0e0e0;
+            color: #555;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: help;
+            transition: background-color 0.2s;
+        }
+        
+        .tooltip-icon:hover {
+            background-color: #0095f6;
+            color: white;
+        }
+        
+        .tooltip-icon .tooltip-text {
+            visibility: hidden;
+            width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 8px 12px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: normal;
+            font-size: 13px;
+            line-height: 1.4;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .tooltip-icon .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        
+        .tooltip-icon:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .tooltip-icon {
+            position: relative;
+        }
+    </style>
+    
     <script>
         // Get SOC status from URL parameters
         const urlParams = new URLSearchParams(window.location.search);

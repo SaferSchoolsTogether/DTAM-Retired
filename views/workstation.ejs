@@ -6,6 +6,100 @@
     <title><%= platform.charAt(0).toUpperCase() + platform.slice(1) %> Workstation</title>
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/onboarding.css">
+    <style>
+        /* Profile field styles */
+        .user-info {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .profile-field {
+            display: flex;
+            flex-direction: column;
+            min-width: 180px;
+        }
+        
+        .profile-input {
+            padding: 8px 12px;
+            border: 1px solid #dbdbdb;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        
+        .profile-input:focus {
+            outline: none;
+            border-color: #0095f6;
+        }
+        
+        /* Tooltip styles */
+        .label-with-tooltip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+        
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            background-color: #e0e0e0;
+            color: #555;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: help;
+            transition: background-color 0.2s;
+            position: relative;
+        }
+        
+        .tooltip-icon:hover {
+            background-color: #0095f6;
+            color: white;
+        }
+        
+        .tooltip-icon .tooltip-text {
+            visibility: hidden;
+            width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 8px 12px;
+            position: absolute;
+            z-index: 1000;
+            top: 125%; /* Changed from bottom: 125% to top: 125% */
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: normal;
+            font-size: 13px;
+            line-height: 1.4;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .tooltip-icon .tooltip-text::after {
+            content: "";
+            position: absolute;
+            bottom: 100%; /* Changed from top: 100% to bottom: 100% */
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent transparent #333 transparent; /* Changed arrow direction */
+        }
+        
+        .tooltip-icon:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
     <!-- Header -->
@@ -22,9 +116,30 @@
             </div>
         </div>
         <div class="user-info">
-            <span>Username: <%= platformData.username %></span>
-            <span>Display Name: <%= platformData.displayName %></span>
-            <span>URL: <%= platformData.url %></span>
+            <div class="profile-field">
+                <div class="label-with-tooltip">
+                    <label for="username">Username</label>
+                    <span class="tooltip-icon">
+                        ?
+                        <span class="tooltip-text">The @handle someone uses to identify their account (e.g., @john_doe123). This appears after the @ symbol.</span>
+                    </span>
+                </div>
+                <input type="text" id="username" class="profile-input" value="<%= platformData.username %>" placeholder="Enter username">
+            </div>
+            <div class="profile-field">
+                <div class="label-with-tooltip">
+                    <label for="displayName">Display Name</label>
+                    <span class="tooltip-icon">
+                        ?
+                        <span class="tooltip-text">The name shown on their profile that others see (e.g., John Doe). This can be their real name or any chosen name.</span>
+                    </span>
+                </div>
+                <input type="text" id="displayName" class="profile-input" value="<%= platformData.displayName %>" placeholder="Enter display name">
+            </div>
+            <div class="profile-field">
+                <label for="profileUrl">URL</label>
+                <input type="text" id="profileUrl" class="profile-input" value="<%= platformData.url %>" placeholder="Enter profile URL">
+            </div>
             <button id="clearSessionBtn" class="btn btn-danger">Clear Session</button>
         </div>
     </header>

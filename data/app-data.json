@@ -1,10 +1,26 @@
 {
   "platforms": {
     "instagram": {
-      "username": "",
-      "displayName": "",
-      "url": "",
-      "photos": []
+      "username": "Colton_easton",
+      "displayName": "Colton_easton",
+      "url": "Instagram.com",
+      "photos": [
+        {
+          "id": "f85300b8-eb95-42eb-8846-cdac6fe091a3",
+          "path": "/uploads/instagram/127dc529-2885-4b6a-8460-cf74ae3a8cbe.png",
+          "thumbnail": "/uploads/instagram/127dc529-2885-4b6a-8460-cf74ae3a8cbe.png",
+          "uploadDate": "2025-06-25T23:30:57.320Z",
+          "tags": [],
+          "analysisTags": {},
+          "notes": "",
+          "metadata": {
+            "posted": "2025-06-25",
+            "likes": 0,
+            "comments": 0,
+            "engagementRate": "0%"
+          }
+        }
+      ]
     },
     "facebook": {
       "username": "",
