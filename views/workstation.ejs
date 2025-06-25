@@ -25,6 +25,7 @@
             <span>Username: <%= platformData.username %></span>
             <span>Display Name: <%= platformData.displayName %></span>
             <span>URL: <%= platformData.url %></span>
+            <button id="clearSessionBtn" class="btn btn-danger">Clear Session</button>
         </div>
     </header>
 
@@ -223,6 +224,37 @@
                 </div>
                 <button type="submit" class="upload-btn" id="uploadBtn" disabled>Upload</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Clear Session Modal -->
+    <div class="analysis-modal" id="clearSessionModal">
+        <div class="analysis-content">
+            <div class="analysis-header">
+                <h2 class="analysis-title">Clear Session</h2>
+                <button class="close-btn" id="closeClearSessionBtn">×</button>
+            </div>
+            
+            <div class="clear-session-content" style="padding: 24px;">
+                <div class="learning-content" style="background-color: #ffebee;">
+                    <h3 style="color: #c0392b;">Warning: This action cannot be undone</h3>
+                    <p>Clearing your session will:</p>
+                    <ul>
+                        <li>Delete all uploaded photos from all platforms</li>
+                        <li>Reset all platform data including usernames and URLs</li>
+                        <li>Clear all analysis tags, notes, and metadata</li>
+                        <li>Reset your entire session state</li>
+                    </ul>
+                    <p>You will be redirected to the beginning and need to start over completely.</p>
+                </div>
+                
+                <div style="margin-top: 24px;">
+                    <label for="confirmDeleteInput" style="display: block; margin-bottom: 8px; font-weight: 500;">Type "DELETE" to confirm:</label>
+                    <input type="text" id="confirmDeleteInput" class="add-tag-input" style="margin-bottom: 16px;" placeholder="Type DELETE here">
+                    
+                    <button id="confirmClearSessionBtn" class="btn btn-danger" style="width: 100%;" disabled>Clear Session</button>
+                </div>
+            </div>
         </div>
     </div>
 

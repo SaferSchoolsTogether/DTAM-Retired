@@ -45,6 +45,11 @@ function initEventListeners() {
     const saveIndicator = document.getElementById('saveIndicator');
     const currentImage = document.getElementById('currentImage');
     const progressIndicator = document.getElementById('progressIndicator');
+    const clearSessionBtn = document.getElementById('clearSessionBtn');
+    const clearSessionModal = document.getElementById('clearSessionModal');
+    const closeClearSessionBtn = document.getElementById('closeClearSessionBtn');
+    const confirmDeleteInput = document.getElementById('confirmDeleteInput');
+    const confirmClearSessionBtn = document.getElementById('confirmClearSessionBtn');
 
     // Photo upload
     if (addPhotosBtn) addPhotosBtn.addEventListener('click', showUploadModal);
@@ -247,6 +252,87 @@ if (photoGrid) {
     if (generateReportBtn) {
         generateReportBtn.addEventListener('click', generateReport);
     }
+
+    // Clear Session
+    if (clearSessionBtn) {
+        clearSessionBtn.addEventListener('click', showClearSessionModal);
+    }
+
+    if (closeClearSessionBtn) {
+        closeClearSessionBtn.addEventListener('click', hideClearSessionModal);
+    }
+
+    if (confirmDeleteInput) {
+        confirmDeleteInput.addEventListener('input', function() {
+            confirmClearSessionBtn.disabled = this.value !== 'DELETE';
+        });
+    }
+
+    if (confirmClearSessionBtn) {
+        confirmClearSessionBtn.addEventListener('click', clearSession);
+    }
+}
+
+// Show clear session modal
+function showClearSessionModal() {
+    document.getElementById('clearSessionModal').classList.add('active');
+    document.getElementById('confirmDeleteInput').value = '';
+    document.getElementById('confirmClearSessionBtn').disabled = true;
+}
+
+// Hide clear session modal
+function hideClearSessionModal() {
+    document.getElementById('clearSessionModal').classList.remove('active');
+}
+
+// Clear session
+function clearSession() {
+    const saveIndicator = document.getElementById('saveIndicator');
+    
+    // Show clearing indicator
+    saveIndicator.innerHTML = `
+        <span class="loading-spinner"></span>
+        Clearing session...
+    `;
+    
+    fetch('/api/clear-session', {
+        method: 'POST'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to clear session');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Show success message
+        saveIndicator.innerHTML = `
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+            </svg>
+            Session cleared successfully
+        `;
+        
+        // Hide modal
+        hideClearSessionModal();
+        
+        // Show alert
+        alert('Session cleared successfully. You will be redirected to the welcome page.');
+        
+        // Redirect to welcome page
+        window.location.href = '/';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        saveIndicator.innerHTML = `
+            <svg class="icon" viewBox="0 0 24 24" style="color: #f44336;">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+            Failed to clear session
+        `;
+        
+        alert('Failed to clear session. Please try again.');
+    });
 }
 
 // Show upload modal

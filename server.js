@@ -346,6 +346,66 @@ app.get('/api/platform/:platform/report', (req, res) => {
   res.json(data.platforms[platform]);
 });
 
+// Clear session - delete all data and reset to initial state
+app.post('/api/clear-session', async (req, res) => {
+  try {
+    // Delete all uploaded photos
+    const platforms = ['instagram', 'facebook', 'twitter', 'tiktok', 'youtube'];
+    
+    // Delete all files in upload directories
+    for (const platform of platforms) {
+      const uploadDir = path.join(__dirname, 'public', 'uploads', platform);
+      // Keep the directory but remove all files
+      await fs.emptyDir(uploadDir);
+    }
+    
+    // Reset app-data.json to initial state
+    const initialData = {
+      platforms: {
+        instagram: {
+          username: '',
+          displayName: '',
+          url: '',
+          photos: []
+        },
+        facebook: {
+          username: '',
+          displayName: '',
+          url: '',
+          photos: []
+        },
+        twitter: {
+          username: '',
+          displayName: '',
+          url: '',
+          photos: []
+        },
+        tiktok: {
+          username: '',
+          displayName: '',
+          url: '',
+          photos: []
+        },
+        youtube: {
+          username: '',
+          displayName: '',
+          url: '',
+          photos: []
+        }
+      }
+    };
+    
+    // Write the reset data
+    writeData(initialData);
+    
+    // Return success
+    res.json({ success: true, message: 'Session cleared successfully' });
+  } catch (error) {
+    console.error('Error clearing session:', error);
+    res.status(500).json({ error: 'Failed to clear session' });
+  }
+});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

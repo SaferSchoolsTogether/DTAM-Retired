@@ -448,6 +448,16 @@ body {
     background-color: #0074cc;
 }
 
+.btn-danger {
+    background-color: #e74c3c;
+    color: white;
+    margin-left: 16px;
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+}
+
 .save-indicator {
     color: #00d632;
     font-size: 13px;

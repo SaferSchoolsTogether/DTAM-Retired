@@ -1,9 +1,9 @@
 {
   "platforms": {
     "instagram": {
-      "username": "test_user",
-      "displayName": "Test User",
-      "url": "instagram.com/test_user",
+      "username": "",
+      "displayName": "",
+      "url": "",
       "photos": []
     },
     "facebook": {
