@@ -25,7 +25,25 @@
       "username": "",
       "displayName": "",
       "url": "",
-      "photos": []
+      "photos": [
+        {
+          "id": "299b17f3-d5f4-44cb-945e-c3d6f1ae0087",
+          "path": "/uploads/instagram/cdf02868-9256-4414-9fd3-1c4fe71ad99d.jpeg",
+          "thumbnail": "/uploads/instagram/cdf02868-9256-4414-9fd3-1c4fe71ad99d.jpeg",
+          "uploadDate": "2025-07-03T18:26:09.472Z",
+          "tags": [],
+          "analysisTags": {
+            "threat-behavior": "Moderate concern"
+          },
+          "notes": "",
+          "metadata": {
+            "posted": "2025-07-03",
+            "likes": 0,
+            "comments": 0,
+            "engagementRate": "0%"
+          }
+        }
+      ]
     },
     "facebook": {
       "username": "",

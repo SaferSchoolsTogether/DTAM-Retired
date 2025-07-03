@@ -1,0 +1,248 @@
+<!-- Analysis Modal -->
+<div class="analysis-modal" id="analysisModal">
+    <div class="analysis-content">
+        <div class="analysis-header">
+            <h2 class="analysis-title">Analyze Photo</h2>
+            <button class="close-btn" id="closeAnalysisBtn">×</button>
+        </div>
+        
+        <!-- Analysis Options -->
+        <div class="analysis-options" id="analysisOptions">
+            <div class="analysis-option" data-analysis="law-enforcement">
+                Access the law enforcement guide for a social media platform
+            </div>
+            <div class="analysis-option" data-analysis="baseline-shift">
+                Noticed a shift in the SOC's Digital Behavioral Baseline
+            </div>
+            <div class="analysis-option" data-analysis="authenticity">
+                I've come across a concerning photo and want to verify its authenticity
+            </div>
+            <div class="analysis-option" data-analysis="threat-behavior">
+                Noticed behaviors consistent with the threat
+            </div>
+            <div class="analysis-option" data-analysis="privacy-concern">
+                SOC's account is private, or I did not find anything of concern on their accounts
+            </div>
+            <div class="analysis-option" data-analysis="osint-resources">
+                I want to access more OSINT resources
+            </div>
+        </div>
+
+        <!-- Analysis Detail Views -->
+        <div class="analysis-detail" id="detail-baseline-shift">
+            <button class="back-btn" id="backToOptionsBtn">← Back to options</button>
+            
+            <div class="learning-content">
+                <h3>Understanding Digital Behavioral Baseline</h3>
+                <p>A digital behavioral baseline represents an individual's typical patterns of online activity. This includes:</p>
+                <ul>
+                    <li>Posting frequency and timing</li>
+                    <li>Content themes and topics</li>
+                    <li>Language use and communication style</li>
+                    <li>Interaction patterns with others</li>
+                    <li>Visual content preferences</li>
+                </ul>
+                <p>Significant changes in these patterns may indicate important life changes, emotional distress, or other factors worth noting in your assessment.</p>
+            </div>
+
+            <div class="tag-options">
+                <h3 class="tag-options-title">How significant is the baseline shift?</h3>
+                <div class="tag-option-grid">
+                    <div class="tag-option" data-value="No baseline shift detected">
+                        No baseline shift detected
+                    </div>
+                    <div class="tag-option" data-value="Minor baseline shift">
+                        Minor baseline shift
+                    </div>
+                    <div class="tag-option" data-value="Moderate baseline shift">
+                        Moderate baseline shift
+                    </div>
+                    <div class="tag-option" data-value="Significant baseline shift">
+                        Significant baseline shift
+                    </div>
+                </div>
+                <button class="apply-tag-btn" id="applyBaselineShiftBtn" disabled>Apply Tag</button>
+            </div>
+        </div>
+
+        <div class="analysis-detail" id="detail-authenticity">
+            <button class="back-btn" id="backToOptionsBtn2">← Back to options</button>
+            
+            <div class="learning-content">
+                <h3>Photo Authenticity Verification</h3>
+                <p>When assessing photo authenticity, consider these key factors:</p>
+                <ul>
+                    <li>Check for inconsistent lighting or shadows</li>
+                    <li>Look for distorted or blurred edges around subjects</li>
+                    <li>Verify metadata when available</li>
+                    <li>Cross-reference with other known images</li>
+                    <li>Check for signs of AI generation or manipulation</li>
+                </ul>
+                <p>Remember that sophisticated edits may require specialized tools to detect. Document your observations thoroughly.</p>
+            </div>
+
+            <div class="tag-options">
+                <h3 class="tag-options-title">What is your authenticity assessment?</h3>
+                <div class="tag-option-grid">
+                    <div class="tag-option" data-value="Appears authentic">
+                        Appears authentic
+                    </div>
+                    <div class="tag-option" data-value="Possibly edited">
+                        Possibly edited
+                    </div>
+                    <div class="tag-option" data-value="Likely manipulated">
+                        Likely manipulated
+                    </div>
+                    <div class="tag-option" data-value="Confirmed fake/AI generated">
+                        Confirmed fake/AI generated
+                    </div>
+                </div>
+                <button class="apply-tag-btn" id="applyAuthenticityBtn" disabled>Apply Tag</button>
+            </div>
+        </div>
+
+        <div class="analysis-detail" id="detail-threat-behavior">
+            <button class="back-btn" id="backToOptionsBtn3">← Back to options</button>
+            
+            <div class="learning-content">
+                <h3>Identifying Threat-Related Behaviors</h3>
+                <p>When evaluating potential threat indicators in social media content, look for:</p>
+                <ul>
+                    <li>Direct or veiled threats towards individuals or groups</li>
+                    <li>Expressions of grievance or persecution</li>
+                    <li>Ideation of violence or self-harm</li>
+                    <li>Acquisition or display of weapons</li>
+                    <li>Behavioral escalation over time</li>
+                </ul>
+                <p>Document specific language, imagery, or patterns that concern you. Context is crucial for accurate assessment.</p>
+            </div>
+
+            <div class="tag-options">
+                <h3 class="tag-options-title">What level of concern does this represent?</h3>
+                <div class="tag-option-grid">
+                    <div class="tag-option" data-value="Low concern">
+                        Low concern
+                    </div>
+                    <div class="tag-option" data-value="Moderate concern">
+                        Moderate concern
+                    </div>
+                    <div class="tag-option" data-value="High concern">
+                        High concern
+                    </div>
+                    <div class="tag-option" data-value="Immediate threat">
+                        Immediate threat
+                    </div>
+                </div>
+                <button class="apply-tag-btn" id="applyThreatBtn" disabled>Apply Tag</button>
+            </div>
+        </div>
+
+        <div class="analysis-detail" id="detail-law-enforcement">
+            <button class="back-btn" id="backToOptionsBtn4">← Back to options</button>
+            
+            <div class="learning-content">
+                <h3>Law Enforcement Guide for Social Media</h3>
+                <p>When working with law enforcement on social media investigations:</p>
+                <ul>
+                    <li>Understand the platform's data retention policies</li>
+                    <li>Know what information can be obtained with different legal instruments</li>
+                    <li>Document all findings with proper timestamps and source information</li>
+                    <li>Maintain chain of custody for digital evidence</li>
+                    <li>Be aware of platform-specific privacy settings and limitations</li>
+                </ul>
+                <p>Each platform has different procedures for law enforcement requests. Consult the platform's law enforcement portal for specific guidance.</p>
+            </div>
+
+            <div class="tag-options">
+                <h3 class="tag-options-title">Select the appropriate tag:</h3>
+                <div class="tag-option-grid">
+                    <div class="tag-option" data-value="Law enforcement guide consulted">
+                        Law enforcement guide consulted
+                    </div>
+                    <div class="tag-option" data-value="Legal process required">
+                        Legal process required
+                    </div>
+                    <div class="tag-option" data-value="Emergency disclosure appropriate">
+                        Emergency disclosure appropriate
+                    </div>
+                    <div class="tag-option" data-value="No legal action needed">
+                        No legal action needed
+                    </div>
+                </div>
+                <button class="apply-tag-btn" id="applyLawEnforcementBtn" disabled>Apply Tag</button>
+            </div>
+        </div>
+
+        <div class="analysis-detail" id="detail-privacy-concern">
+            <button class="back-btn" id="backToOptionsBtn5">← Back to options</button>
+            
+            <div class="learning-content">
+                <h3>Handling Private Accounts and Limited Information</h3>
+                <p>When dealing with private accounts or limited information:</p>
+                <ul>
+                    <li>Document what information is publicly available</li>
+                    <li>Note when access is restricted and why</li>
+                    <li>Consider if the privacy settings themselves are significant</li>
+                    <li>Avoid making assumptions about unavailable content</li>
+                    <li>Document your methodology and limitations clearly</li>
+                </ul>
+                <p>Remember that absence of concerning content is not the same as confirming no concerns exist. Be clear about the limitations of your assessment.</p>
+            </div>
+
+            <div class="tag-options">
+                <h3 class="tag-options-title">Select the appropriate tag:</h3>
+                <div class="tag-option-grid">
+                    <div class="tag-option" data-value="Private account - limited access">
+                        Private account - limited access
+                    </div>
+                    <div class="tag-option" data-value="No concerning content found">
+                        No concerning content found
+                    </div>
+                    <div class="tag-option" data-value="Recently privatized account">
+                        Recently privatized account
+                    </div>
+                    <div class="tag-option" data-value="Assessment inconclusive">
+                        Assessment inconclusive
+                    </div>
+                </div>
+                <button class="apply-tag-btn" id="applyPrivacyBtn" disabled>Apply Tag</button>
+            </div>
+        </div>
+
+        <div class="analysis-detail" id="detail-osint-resources">
+            <button class="back-btn" id="backToOptionsBtn6">← Back to options</button>
+            
+            <div class="learning-content">
+                <h3>Additional OSINT Resources</h3>
+                <p>Consider these additional resources for your investigation:</p>
+                <ul>
+                    <li>Reverse image search tools (Google, TinEye, Yandex)</li>
+                    <li>Username search engines (Namechk, WhatsMyName)</li>
+                    <li>Archive services (Wayback Machine, archive.today)</li>
+                    <li>Geolocation tools (Google Earth, GeoGuessr)</li>
+                    <li>Metadata viewers (ExifTool, Jeffrey's Exif Viewer)</li>
+                </ul>
+                <p>Document which tools you've used and what results they provided. Negative results can be just as important as positive findings.</p>
+            </div>
+
+            <div class="tag-options">
+                <h3 class="tag-options-title">Select the resources used:</h3>
+                <div class="tag-option-grid">
+                    <div class="tag-option" data-value="Reverse image search conducted">
+                        Reverse image search conducted
+                    </div>
+                    <div class="tag-option" data-value="Archive services checked">
+                        Archive services checked
+                    </div>
+                    <div class="tag-option" data-value="Metadata analysis performed">
+                        Metadata analysis performed
+                    </div>
+                    <div class="tag-option" data-value="Cross-platform investigation">
+                        Cross-platform investigation
+                    </div>
+                </div>
+                <button class="apply-tag-btn" id="applyOsintBtn" disabled>Apply Tag</button>
+            </div>
+        </div>
+    </div>
+</div>

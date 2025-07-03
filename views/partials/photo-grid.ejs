@@ -1,0 +1,29 @@
+<!-- Photo Gallery -->
+<div class="photo-gallery">
+    <div class="gallery-header">
+        <h2 class="gallery-title">Your Photos</h2>
+        <button class="add-photos-btn" id="addPhotosBtn">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+            </svg>
+            Add
+        </button>
+    </div>
+    <div class="photo-grid" id="photoGrid">
+        <% if (platformData.photos.length > 0) { %>
+            <% platformData.photos.forEach(function(photo, index) { %>
+                <div class="photo-thumb <%= index === 0 ? 'active' : '' %>" data-photo-id="<%= photo.id %>">
+                    <img src="<%= photo.path %>" alt="Photo <%= index + 1 %>">
+                    <div class="photo-status <%= Object.keys(photo.analysisTags).length > 0 ? 'analyzed' : '' %>">
+                        <%= Object.keys(photo.analysisTags).length > 0 ? '✓' : '○' %>
+                    </div>
+                    <button class="photo-delete-btn" title="Delete photo">×</button>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <div class="no-photos-message">
+                No photos yet. Click "Add" to upload photos.
+            </div>
+        <% } %>
+    </div>
+</div>
