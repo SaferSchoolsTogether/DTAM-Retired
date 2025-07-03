@@ -25,6 +25,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Load case data
 function loadCaseData() {
+    // Get the current SOC ID from the page data
+    const socId = document.body.dataset.socId || window.currentSocId || 'soc_1';
+    
+    // First, fetch the case data
     fetch('/api/case-data')
         .then(response => {
             if (!response.ok) {
@@ -35,10 +39,26 @@ function loadCaseData() {
         })
         .then(response => response.json())
         .then(data => {
-            // Check if we have case data
-            if (data.case) {
-                populateCaseContext(data.case);
-            }
+            // Store the case data
+            const caseData = data.case;
+            
+            // Now fetch the active SOC data
+            return fetch(`/api/soc/${socId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch SOC data');
+                    }
+                    return response.json();
+                })
+                .then(socData => {
+                    // Populate the case context with both case and SOC data
+                    populateCaseContext(caseData, socData);
+                })
+                .catch(error => {
+                    console.error('Error loading SOC data:', error);
+                    // If we can't get SOC data, still populate with case data
+                    populateCaseContext(caseData);
+                });
         })
         .catch(error => {
             console.error('Error loading case data:', error);
@@ -46,7 +66,7 @@ function loadCaseData() {
 }
 
 // Populate case context
-function populateCaseContext(caseData) {
+function populateCaseContext(caseData, socData) {
     // Set case ID and date
     document.getElementById('caseId').textContent = caseData.caseId || 'N/A';
     document.getElementById('caseDate').textContent = caseData.date || 'N/A';
@@ -54,8 +74,11 @@ function populateCaseContext(caseData) {
     // Set investigator name
     document.getElementById('investigatorName').textContent = caseData.investigatorName || 'N/A';
     
-    // Set student info
-    if (caseData.studentInfo) {
+    // Set student info - prioritize SOC data if available
+    if (socData && socData.name) {
+        document.getElementById('studentName').textContent = socData.name || 'N/A';
+        document.getElementById('studentGrade').textContent = socData.grade || 'N/A';
+    } else if (caseData.studentInfo) {
         document.getElementById('studentName').textContent = caseData.studentInfo.name || 'N/A';
         document.getElementById('studentGrade').textContent = caseData.studentInfo.grade || 'N/A';
     } else {
@@ -63,8 +86,8 @@ function populateCaseContext(caseData) {
         document.getElementById('studentGrade').textContent = 'N/A';
     }
     
-    // Set SOC status
-    document.getElementById('socStatus').textContent = caseData.socStatus || 'N/A';
+    // Set SOC status - prioritize SOC data if available
+    document.getElementById('socStatus').textContent = (socData && socData.status) ? socData.status : (caseData.socStatus || 'N/A');
 }
 
 // Toggle case context

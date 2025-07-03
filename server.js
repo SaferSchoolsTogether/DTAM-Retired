@@ -28,38 +28,72 @@ fs.ensureDirSync(DATA_DIR);
 const DATA_FILE = path.join(DATA_DIR, 'app-data.json');
 if (!fs.existsSync(DATA_FILE)) {
   const initialData = {
-    platforms: {
-      instagram: {
-        username: 'test_user',
-        displayName: 'Test User',
-        url: 'instagram.com/test_user',
-        photos: []
-      },
-      facebook: {
-        username: '',
-        displayName: '',
-        url: '',
-        photos: []
-      },
-      twitter: {
-        username: '',
-        displayName: '',
-        url: '',
-        photos: []
-      },
-      tiktok: {
-        username: '',
-        displayName: '',
-        url: '',
-        photos: []
-      },
-      youtube: {
-        username: '',
-        displayName: '',
-        url: '',
-        photos: []
+    case: {
+      caseId: '',
+      date: '',
+      investigatorName: '',
+      organization: '',
+      discoveryMethod: '',
+      safetyAssessment: ''
+    },
+    socs: {
+      soc_1: {
+        id: 'soc_1',
+        name: '',
+        studentId: '',
+        grade: '',
+        school: '',
+        dob: '',
+        supportPlans: [],
+        otherPlanText: '',
+        status: 'known',
+        platforms: {
+          instagram: {
+            username: '',
+            displayName: '',
+            url: '',
+            photos: []
+          },
+          tiktok: {
+            username: '',
+            displayName: '',
+            url: '',
+            photos: []
+          },
+          snapchat: {
+            username: '',
+            displayName: '',
+            url: '',
+            photos: []
+          },
+          x: {
+            username: '',
+            displayName: '',
+            url: '',
+            photos: []
+          },
+          discord: {
+            username: '',
+            displayName: '',
+            url: '',
+            photos: []
+          },
+          facebook: {
+            username: '',
+            displayName: '',
+            url: '',
+            photos: []
+          },
+          other: {
+            username: '',
+            displayName: '',
+            url: '',
+            photos: []
+          }
+        }
       }
-    }
+    },
+    activeSocId: 'soc_1'
   };
   fs.writeJsonSync(DATA_FILE, initialData, { spaces: 2 });
 }
@@ -67,8 +101,9 @@ if (!fs.existsSync(DATA_FILE)) {
 // Set up multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+    const socId = req.params.socId || 'soc_1';
     const platform = req.params.platform || 'instagram';
-    const uploadDir = path.join(__dirname, 'public', 'uploads', platform);
+    const uploadDir = path.join(__dirname, 'public', 'uploads', socId, platform);
     fs.ensureDirSync(uploadDir);
     cb(null, uploadDir);
   },
@@ -169,19 +204,41 @@ app.get('/summary', (req, res) => {
 });
 
 // Platform workstation route
-app.get('/platform/:platform', (req, res) => {
-  const platform = req.params.platform;
+app.get('/soc/:socId/platform/:platform', (req, res) => {
+  const { socId, platform } = req.params;
   const data = readData();
   
-  if (!data.platforms[platform]) {
+  if (!data.socs[socId]) {
+    return res.status(404).send('SOC not found');
+  }
+  
+  if (!data.socs[socId].platforms[platform]) {
     return res.status(404).send('Platform not found');
   }
   
+  // Update active SOC
+  data.activeSocId = socId;
+  writeData(data);
+  
   res.render('workstation', {
+    socId: socId,
     platform: platform,
-    platformData: data.platforms[platform],
-    allPlatforms: Object.keys(data.platforms)
+    platformData: data.socs[socId].platforms[platform],
+    socData: data.socs[socId],
+    allPlatforms: Object.keys(data.socs[socId].platforms),
+    allSocs: Object.keys(data.socs),
+    allSocsData: data.socs,
+    activeSocId: data.activeSocId
   });
+});
+
+// Redirect from old route to new route with active SOC
+app.get('/platform/:platform', (req, res) => {
+  const platform = req.params.platform;
+  const data = readData();
+  const activeSocId = data.activeSocId || Object.keys(data.socs)[0] || 'soc_1';
+  
+  res.redirect(`/soc/${activeSocId}/platform/${platform}`);
 });
 
 // API Routes
@@ -227,41 +284,197 @@ app.post('/api/save-case', (req, res) => {
 });
 
 // Get platform data
-app.get('/api/platform/:platform', (req, res) => {
-  const platform = req.params.platform;
+app.get('/api/soc/:socId/platform/:platform', (req, res) => {
+  const { socId, platform } = req.params;
   const data = readData();
   
-  if (!data.platforms[platform]) {
+  if (!data.socs[socId]) {
+    return res.status(404).json({ error: 'SOC not found' });
+  }
+  
+  if (!data.socs[socId].platforms[platform]) {
     return res.status(404).json({ error: 'Platform not found' });
   }
   
-  res.json(data.platforms[platform]);
+  res.json(data.socs[socId].platforms[platform]);
 });
 
 // Update platform info
-app.post('/api/platform/:platform', (req, res) => {
-  const platform = req.params.platform;
+app.post('/api/soc/:socId/platform/:platform', (req, res) => {
+  const { socId, platform } = req.params;
   const { username, displayName, url } = req.body;
   const data = readData();
   
-  if (!data.platforms[platform]) {
+  if (!data.socs[socId]) {
+    return res.status(404).json({ error: 'SOC not found' });
+  }
+  
+  if (!data.socs[socId].platforms[platform]) {
     return res.status(404).json({ error: 'Platform not found' });
   }
   
-  data.platforms[platform].username = username || data.platforms[platform].username;
-  data.platforms[platform].displayName = displayName || data.platforms[platform].displayName;
-  data.platforms[platform].url = url || data.platforms[platform].url;
+  data.socs[socId].platforms[platform].username = username || data.socs[socId].platforms[platform].username;
+  data.socs[socId].platforms[platform].displayName = displayName || data.socs[socId].platforms[platform].displayName;
+  data.socs[socId].platforms[platform].url = url || data.socs[socId].platforms[platform].url;
   
   writeData(data);
-  res.json(data.platforms[platform]);
+  res.json(data.socs[socId].platforms[platform]);
+});
+
+// Get SOC data
+app.get('/api/soc/:socId', (req, res) => {
+  const { socId } = req.params;
+  const data = readData();
+  
+  if (!data.socs[socId]) {
+    return res.status(404).json({ error: 'SOC not found' });
+  }
+  
+  res.json(data.socs[socId]);
+});
+
+// Get all SOCs
+app.get('/api/socs', (req, res) => {
+  const data = readData();
+  res.json(data.socs);
+});
+
+// Create new SOC
+app.post('/api/socs', (req, res) => {
+  const { name, studentId, grade, school, dob, supportPlans, otherPlanText, status } = req.body;
+  const data = readData();
+  
+  const socId = `soc_${uuidv4().substring(0, 8)}`;
+  
+  data.socs[socId] = {
+    id: socId,
+    name: name || '',
+    studentId: studentId || '',
+    grade: grade || '',
+    school: school || '',
+    dob: dob || '',
+    supportPlans: supportPlans || [],
+    otherPlanText: otherPlanText || '',
+    status: status || 'potential',
+    platforms: {
+      instagram: {
+        username: '',
+        displayName: '',
+        url: '',
+        photos: []
+      },
+      tiktok: {
+        username: '',
+        displayName: '',
+        url: '',
+        photos: []
+      },
+      snapchat: {
+        username: '',
+        displayName: '',
+        url: '',
+        photos: []
+      },
+      x: {
+        username: '',
+        displayName: '',
+        url: '',
+        photos: []
+      },
+      discord: {
+        username: '',
+        displayName: '',
+        url: '',
+        photos: []
+      },
+      facebook: {
+        username: '',
+        displayName: '',
+        url: '',
+        photos: []
+      },
+      other: {
+        username: '',
+        displayName: '',
+        url: '',
+        photos: []
+      }
+    }
+  };
+  
+  // Create directories for the new SOC
+  Object.keys(data.socs[socId].platforms).forEach(platform => {
+    const uploadDir = path.join(__dirname, 'public', 'uploads', socId, platform);
+    fs.ensureDirSync(uploadDir);
+  });
+  
+  writeData(data);
+  res.json(data.socs[socId]);
+});
+
+// Update SOC
+app.put('/api/soc/:socId', (req, res) => {
+  const { socId } = req.params;
+  const { name, studentId, grade, school, dob, supportPlans, otherPlanText, status } = req.body;
+  const data = readData();
+  
+  if (!data.socs[socId]) {
+    return res.status(404).json({ error: 'SOC not found' });
+  }
+  
+  if (name) data.socs[socId].name = name;
+  if (studentId) data.socs[socId].studentId = studentId;
+  if (grade) data.socs[socId].grade = grade;
+  if (school) data.socs[socId].school = school;
+  if (dob) data.socs[socId].dob = dob;
+  if (supportPlans) data.socs[socId].supportPlans = supportPlans;
+  if (otherPlanText !== undefined) data.socs[socId].otherPlanText = otherPlanText;
+  if (status) data.socs[socId].status = status;
+  
+  writeData(data);
+  res.json(data.socs[socId]);
+});
+
+// Set active SOC
+app.post('/api/active-soc/:socId', (req, res) => {
+  const { socId } = req.params;
+  const data = readData();
+  
+  if (!data.socs[socId]) {
+    return res.status(404).json({ error: 'SOC not found' });
+  }
+  
+  data.activeSocId = socId;
+  writeData(data);
+  
+  res.json({ success: true, activeSocId: socId });
+});
+
+// Get active SOC
+app.get('/api/active-soc', (req, res) => {
+  const data = readData();
+  const activeSocId = data.activeSocId || Object.keys(data.socs)[0] || 'soc_1';
+  
+  if (!data.socs[activeSocId]) {
+    return res.status(404).json({ error: 'Active SOC not found' });
+  }
+  
+  res.json({ 
+    activeSocId: activeSocId,
+    socData: data.socs[activeSocId]
+  });
 });
 
 // Upload photo
-app.post('/api/platform/:platform/upload', upload.single('photo'), (req, res) => {
-  const platform = req.params.platform;
+app.post('/api/soc/:socId/platform/:platform/upload', upload.single('photo'), (req, res) => {
+  const { socId, platform } = req.params;
   const data = readData();
   
-  if (!data.platforms[platform]) {
+  if (!data.socs[socId]) {
+    return res.status(404).json({ error: 'SOC not found' });
+  }
+  
+  if (!data.socs[socId].platforms[platform]) {
     return res.status(404).json({ error: 'Platform not found' });
   }
   
@@ -270,7 +483,7 @@ app.post('/api/platform/:platform/upload', upload.single('photo'), (req, res) =>
   }
   
   const photoId = uuidv4();
-  const photoPath = `/uploads/${platform}/${req.file.filename}`;
+  const photoPath = `/uploads/${socId}/${platform}/${req.file.filename}`;
   
   const newPhoto = {
     id: photoId,
@@ -288,22 +501,26 @@ app.post('/api/platform/:platform/upload', upload.single('photo'), (req, res) =>
     }
   };
   
-  data.platforms[platform].photos.push(newPhoto);
+  data.socs[socId].platforms[platform].photos.push(newPhoto);
   writeData(data);
   
   res.json(newPhoto);
 });
 
 // Get photo
-app.get('/api/platform/:platform/photo/:photoId', (req, res) => {
-  const { platform, photoId } = req.params;
+app.get('/api/soc/:socId/platform/:platform/photo/:photoId', (req, res) => {
+  const { socId, platform, photoId } = req.params;
   const data = readData();
   
-  if (!data.platforms[platform]) {
+  if (!data.socs[socId]) {
+    return res.status(404).json({ error: 'SOC not found' });
+  }
+  
+  if (!data.socs[socId].platforms[platform]) {
     return res.status(404).json({ error: 'Platform not found' });
   }
   
-  const photo = data.platforms[platform].photos.find(p => p.id === photoId);
+  const photo = data.socs[socId].platforms[platform].photos.find(p => p.id === photoId);
   
   if (!photo) {
     return res.status(404).json({ error: 'Photo not found' });
@@ -313,50 +530,58 @@ app.get('/api/platform/:platform/photo/:photoId', (req, res) => {
 });
 
 // Update photo
-app.put('/api/platform/:platform/photo/:photoId', (req, res) => {
-  const { platform, photoId } = req.params;
+app.put('/api/soc/:socId/platform/:platform/photo/:photoId', (req, res) => {
+  const { socId, platform, photoId } = req.params;
   const { tags, analysisTags, notes, metadata } = req.body;
   const data = readData();
   
-  if (!data.platforms[platform]) {
+  if (!data.socs[socId]) {
+    return res.status(404).json({ error: 'SOC not found' });
+  }
+  
+  if (!data.socs[socId].platforms[platform]) {
     return res.status(404).json({ error: 'Platform not found' });
   }
   
-  const photoIndex = data.platforms[platform].photos.findIndex(p => p.id === photoId);
+  const photoIndex = data.socs[socId].platforms[platform].photos.findIndex(p => p.id === photoId);
   
   if (photoIndex === -1) {
     return res.status(404).json({ error: 'Photo not found' });
   }
   
-  const photo = data.platforms[platform].photos[photoIndex];
+  const photo = data.socs[socId].platforms[platform].photos[photoIndex];
   
   if (tags) photo.tags = tags;
   if (analysisTags) photo.analysisTags = { ...photo.analysisTags, ...analysisTags };
   if (notes) photo.notes = notes;
   if (metadata) photo.metadata = { ...photo.metadata, ...metadata };
   
-  data.platforms[platform].photos[photoIndex] = photo;
+  data.socs[socId].platforms[platform].photos[photoIndex] = photo;
   writeData(data);
   
   res.json(photo);
 });
 
 // Delete photo
-app.delete('/api/platform/:platform/photo/:photoId', (req, res) => {
-  const { platform, photoId } = req.params;
+app.delete('/api/soc/:socId/platform/:platform/photo/:photoId', (req, res) => {
+  const { socId, platform, photoId } = req.params;
   const data = readData();
   
-  if (!data.platforms[platform]) {
+  if (!data.socs[socId]) {
+    return res.status(404).json({ error: 'SOC not found' });
+  }
+  
+  if (!data.socs[socId].platforms[platform]) {
     return res.status(404).json({ error: 'Platform not found' });
   }
   
-  const photoIndex = data.platforms[platform].photos.findIndex(p => p.id === photoId);
+  const photoIndex = data.socs[socId].platforms[platform].photos.findIndex(p => p.id === photoId);
   
   if (photoIndex === -1) {
     return res.status(404).json({ error: 'Photo not found' });
   }
   
-  const photo = data.platforms[platform].photos[photoIndex];
+  const photo = data.socs[socId].platforms[platform].photos[photoIndex];
   
   // Remove the file
   try {
@@ -367,78 +592,158 @@ app.delete('/api/platform/:platform/photo/:photoId', (req, res) => {
   }
   
   // Remove from data
-  data.platforms[platform].photos.splice(photoIndex, 1);
+  data.socs[socId].platforms[platform].photos.splice(photoIndex, 1);
   writeData(data);
   
   res.json({ success: true });
 });
 
-// Generate report
-app.get('/api/platform/:platform/report', (req, res) => {
-  const platform = req.params.platform;
+// Generate report for a platform
+app.get('/api/soc/:socId/platform/:platform/report', (req, res) => {
+  const { socId, platform } = req.params;
   const data = readData();
   
-  if (!data.platforms[platform]) {
+  if (!data.socs[socId]) {
+    return res.status(404).json({ error: 'SOC not found' });
+  }
+  
+  if (!data.socs[socId].platforms[platform]) {
     return res.status(404).json({ error: 'Platform not found' });
   }
   
   // For now, just return the platform data
   // In the future, this would generate a PDF
-  res.json(data.platforms[platform]);
+  res.json(data.socs[socId].platforms[platform]);
+});
+
+// Generate report for a SOC (all platforms)
+app.get('/api/soc/:socId/report', (req, res) => {
+  const { socId } = req.params;
+  const data = readData();
+  
+  if (!data.socs[socId]) {
+    return res.status(404).json({ error: 'SOC not found' });
+  }
+  
+  // For now, just return the SOC data
+  // In the future, this would generate a PDF with all platforms
+  res.json(data.socs[socId]);
+});
+
+// Generate report for the entire case
+app.get('/api/case/report', (req, res) => {
+  const data = readData();
+  
+  if (!data.case) {
+    return res.status(404).json({ error: 'Case data not found' });
+  }
+  
+  // For now, just return the case data with SOCs
+  // In the future, this would generate a comprehensive PDF
+  res.json({
+    case: data.case,
+    socs: data.socs
+  });
+});
+
+// Redirect from old report endpoint
+app.get('/api/platform/:platform/report', (req, res) => {
+  const platform = req.params.platform;
+  const data = readData();
+  const activeSocId = data.activeSocId || Object.keys(data.socs)[0] || 'soc_1';
+  
+  res.redirect(`/api/soc/${activeSocId}/platform/${platform}/report`);
 });
 
 // Clear session - delete all data and reset to initial state
 app.post('/api/clear-session', async (req, res) => {
   try {
     // Delete all uploaded photos
-    const platforms = ['instagram', 'facebook', 'twitter', 'tiktok', 'youtube'];
+    const uploadDir = path.join(__dirname, 'public', 'uploads');
     
-    // Delete all files in upload directories
-    for (const platform of platforms) {
-      const uploadDir = path.join(__dirname, 'public', 'uploads', platform);
-      // Keep the directory but remove all files
-      await fs.emptyDir(uploadDir);
-    }
+    // Keep the directory but remove all files and subdirectories
+    await fs.emptyDir(uploadDir);
     
     // Reset app-data.json to initial state
     const initialData = {
-      case: null,
-      platforms: {
-        instagram: {
-          username: '',
-          displayName: '',
-          url: '',
-          photos: []
-        },
-        facebook: {
-          username: '',
-          displayName: '',
-          url: '',
-          photos: []
-        },
-        twitter: {
-          username: '',
-          displayName: '',
-          url: '',
-          photos: []
-        },
-        tiktok: {
-          username: '',
-          displayName: '',
-          url: '',
-          photos: []
-        },
-        youtube: {
-          username: '',
-          displayName: '',
-          url: '',
-          photos: []
+      case: {
+        caseId: '',
+        date: '',
+        investigatorName: '',
+        organization: '',
+        discoveryMethod: '',
+        safetyAssessment: ''
+      },
+      socs: {
+        soc_1: {
+          id: 'soc_1',
+          name: '',
+          studentId: '',
+          grade: '',
+          school: '',
+          dob: '',
+          supportPlans: [],
+          otherPlanText: '',
+          status: 'known',
+          platforms: {
+            instagram: {
+              username: '',
+              displayName: '',
+              url: '',
+              photos: []
+            },
+            tiktok: {
+              username: '',
+              displayName: '',
+              url: '',
+              photos: []
+            },
+            snapchat: {
+              username: '',
+              displayName: '',
+              url: '',
+              photos: []
+            },
+            x: {
+              username: '',
+              displayName: '',
+              url: '',
+              photos: []
+            },
+            discord: {
+              username: '',
+              displayName: '',
+              url: '',
+              photos: []
+            },
+            facebook: {
+              username: '',
+              displayName: '',
+              url: '',
+              photos: []
+            },
+            other: {
+              username: '',
+              displayName: '',
+              url: '',
+              photos: []
+            }
+          }
         }
-      }
+      },
+      activeSocId: 'soc_1'
     };
     
     // Write the reset data
     writeData(initialData);
+    
+    // Create directories for the SOC platforms
+    Object.keys(initialData.socs).forEach(socId => {
+      Object.keys(initialData.socs[socId].platforms).forEach(platform => {
+        const platformDir = path.join(__dirname, 'public', 'uploads', socId, platform);
+        fs.ensureDirSync(platformDir);
+      });
+    });
     
     // Return success
     res.json({ success: true, message: 'Session cleared successfully' });
@@ -455,8 +760,17 @@ app.listen(PORT, () => {
   // Ensure data directory exists
   fs.ensureDirSync(DATA_DIR);
   
-  // Ensure upload directories exist
-  Object.keys(readData().platforms).forEach(platform => {
-    fs.ensureDirSync(path.join(__dirname, 'public', 'uploads', platform));
-  });
+  // Ensure upload directories exist for each SOC and platform
+  const data = readData();
+  if (data.socs) {
+    Object.keys(data.socs).forEach(socId => {
+      if (data.socs[socId].platforms) {
+        Object.keys(data.socs[socId].platforms).forEach(platform => {
+          fs.ensureDirSync(path.join(__dirname, 'public', 'uploads', socId, platform));
+        });
+      }
+    });
+  }
+  
+  console.log('Server is ready to handle requests');
 });

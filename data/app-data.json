@@ -1,15 +1,30 @@
 {
   "case": {
     "caseId": "23423",
-    "date": "2025-06-24",
-    "investigatorName": "Colton Easton",
+    "date": "2025-07-03",
+    "investigatorName": "James Thomas",
     "organization": "SST",
     "socStatus": "known",
     "discoveryMethod": "{\"method\":\"social\",\"sourcePlatform\":\"other\",\"physicalDetails\":{\"finder\":null,\"date\":null,\"location\":null,\"witnesses\":null}}",
     "safetyAssessment": "{\"enforcement\":\"no\",\"means\":\"no\"}",
     "studentInfo": {
+      "name": "Jennifer Chambers",
+      "id": "987654321",
+      "grade": "12",
+      "school": "Riverside High School",
+      "dob": "1990-10-16",
+      "supportPlans": [
+        "Safety",
+        "Other"
+      ],
+      "otherPlanText": "Some other plan"
+    }
+  },
+  "socs": {
+    "soc_1": {
+      "id": "soc_1",
       "name": "Colton Easton",
-      "id": "123455",
+      "studentId": "123455",
       "grade": "9",
       "school": "High School School",
       "dob": "2025-02-06",
@@ -17,57 +32,233 @@
         "Safety",
         "Other"
       ],
-      "otherPlanText": "Other BIP Plan"
+      "otherPlanText": "Other BIP Plan",
+      "status": "known",
+      "platforms": {
+        "instagram": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": [
+            {
+              "id": "6d715a7b-e036-4e92-bc50-e41cc258f2a1",
+              "path": "/uploads/soc_1/instagram/4d85ed02-8c28-49de-86c7-fd1256e0a777.jpeg",
+              "thumbnail": "/uploads/soc_1/instagram/4d85ed02-8c28-49de-86c7-fd1256e0a777.jpeg",
+              "uploadDate": "2025-07-03T20:01:53.019Z",
+              "tags": [],
+              "analysisTags": {
+                "baseline-shift": "Minor baseline shift"
+              },
+              "notes": "",
+              "metadata": {
+                "posted": "2025-07-03",
+                "likes": 0,
+                "comments": 0,
+                "engagementRate": "0%"
+              }
+            },
+            {
+              "id": "2ee03b6d-57a8-4ca9-9dbc-48d5cabe8dfd",
+              "path": "/uploads/soc_1/instagram/a735b067-7578-4bb1-95a2-75794265c7df.jpg",
+              "thumbnail": "/uploads/soc_1/instagram/a735b067-7578-4bb1-95a2-75794265c7df.jpg",
+              "uploadDate": "2025-07-03T20:02:15.473Z",
+              "tags": [],
+              "analysisTags": {
+                "threat-behavior": "Moderate concern"
+              },
+              "notes": "",
+              "metadata": {
+                "posted": "2025-07-03",
+                "likes": 0,
+                "comments": 0,
+                "engagementRate": "0%"
+              }
+            }
+          ]
+        },
+        "tiktok": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": []
+        },
+        "snapchat": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": []
+        },
+        "x": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": []
+        },
+        "discord": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": []
+        },
+        "facebook": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": []
+        },
+        "other": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": []
+        }
+      }
+    },
+    "soc_2": {
+      "id": "soc_2",
+      "name": "Jennifer Chambers",
+      "studentId": "987654321",
+      "grade": "12",
+      "school": "Riverside High School",
+      "dob": "1990-10-16",
+      "supportPlans": [
+        "Safety",
+        "Other"
+      ],
+      "otherPlanText": "Some other plan",
+      "status": "known",
+      "platforms": {
+        "instagram": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": [
+            {
+              "id": "2a6abdd8-f4da-45e8-b2ab-422e950d1b64",
+              "path": "/uploads/soc_2/instagram/72adbb7c-5a2e-4c8a-b5e3-99bde67bcc7d.jpeg",
+              "thumbnail": "/uploads/soc_2/instagram/72adbb7c-5a2e-4c8a-b5e3-99bde67bcc7d.jpeg",
+              "uploadDate": "2025-07-03T20:41:50.907Z",
+              "tags": [],
+              "analysisTags": {},
+              "notes": "",
+              "metadata": {
+                "posted": "2025-07-03",
+                "likes": 0,
+                "comments": 0,
+                "engagementRate": "0%"
+              }
+            }
+          ]
+        },
+        "tiktok": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": [
+            {
+              "id": "e38b5a2f-a1ca-46b8-80db-584928dbff25",
+              "path": "/uploads/soc_2/tiktok/1135f40d-69e7-4924-a025-ed68073616d4.jpeg",
+              "thumbnail": "/uploads/soc_2/tiktok/1135f40d-69e7-4924-a025-ed68073616d4.jpeg",
+              "uploadDate": "2025-07-03T20:42:12.759Z",
+              "tags": [],
+              "analysisTags": {},
+              "notes": "",
+              "metadata": {
+                "posted": "2025-07-03",
+                "likes": 0,
+                "comments": 0,
+                "engagementRate": "0%"
+              }
+            }
+          ]
+        },
+        "snapchat": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": []
+        },
+        "x": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": []
+        },
+        "discord": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": []
+        },
+        "facebook": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": []
+        },
+        "other": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": []
+        }
+      }
+    },
+    "soc_6fe71fd3": {
+      "id": "soc_6fe71fd3",
+      "name": "Cady Sinclair",
+      "studentId": "456789405",
+      "grade": "10",
+      "school": "Riverside High School",
+      "dob": "2016-07-06",
+      "supportPlans": [],
+      "otherPlanText": "",
+      "status": "known",
+      "platforms": {
+        "instagram": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": []
+        },
+        "tiktok": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": []
+        },
+        "snapchat": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": []
+        },
+        "x": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": []
+        },
+        "discord": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": []
+        },
+        "facebook": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": []
+        },
+        "other": {
+          "username": "",
+          "displayName": "",
+          "url": "",
+          "photos": []
+        }
+      }
     }
   },
-  "platforms": {
-    "instagram": {
-      "username": "",
-      "displayName": "",
-      "url": "",
-      "photos": [
-        {
-          "id": "299b17f3-d5f4-44cb-945e-c3d6f1ae0087",
-          "path": "/uploads/instagram/cdf02868-9256-4414-9fd3-1c4fe71ad99d.jpeg",
-          "thumbnail": "/uploads/instagram/cdf02868-9256-4414-9fd3-1c4fe71ad99d.jpeg",
-          "uploadDate": "2025-07-03T18:26:09.472Z",
-          "tags": [],
-          "analysisTags": {
-            "threat-behavior": "Moderate concern"
-          },
-          "notes": "",
-          "metadata": {
-            "posted": "2025-07-03",
-            "likes": 0,
-            "comments": 0,
-            "engagementRate": "0%"
-          }
-        }
-      ]
-    },
-    "facebook": {
-      "username": "",
-      "displayName": "",
-      "url": "",
-      "photos": []
-    },
-    "twitter": {
-      "username": "",
-      "displayName": "",
-      "url": "",
-      "photos": []
-    },
-    "tiktok": {
-      "username": "",
-      "displayName": "",
-      "url": "",
-      "photos": []
-    },
-    "youtube": {
-      "username": "",
-      "displayName": "",
-      "url": "",
-      "photos": []
-    }
-  }
+  "activeSocId": "soc_6fe71fd3"
 }

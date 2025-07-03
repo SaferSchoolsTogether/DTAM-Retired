@@ -101,7 +101,7 @@
         }
     </style>
 </head>
-<body>
+<body data-soc-id="<%= socId %>">
     <!-- Header -->
     <header class="header">
         <div class="logo-section">
@@ -113,6 +113,18 @@
                 <% } else { %>
                     No photos
                 <% } %>
+            </div>
+            <div class="soc-selector-container">
+                <label for="socSelector">SOC:</label>
+                <select id="socSelector" class="soc-selector">
+                    <% allSocs.forEach(function(s) { %>
+                        <option value="<%= s %>" <%= s === socId ? 'selected' : '' %> <%= s === activeSocId ? 'class="active-soc"' : '' %>>
+                            <%= allSocsData[s].name || 'Unnamed SOC' %>
+                            <%= s === activeSocId ? '(Active)' : '' %>
+                        </option>
+                    <% }); %>
+                    <option value="add_new" class="add-new-option">+ Add New SOC</option>
+                </select>
             </div>
         </div>
         <div class="user-info">
@@ -153,7 +165,7 @@
         <!-- Platform Sidebar -->
         <div class="sidebar">
             <% allPlatforms.forEach(function(p) { %>
-                <a href="/platform/<%= p %>" class="platform-icon <%= p === platform ? 'active' : '' %>">
+                <a href="/soc/<%= socId %>/platform/<%= p %>" class="platform-icon <%= p === platform ? 'active' : '' %>">
                     <span><%= p.substring(0, 2).toUpperCase() %></span>
                     <% if (p === platform && platformData.photos.length > 0) { %>
                         <span class="platform-progress"><%= platformData.photos.filter(photo => Object.keys(photo.analysisTags).length > 0).length %>/<%= platformData.photos.length %></span>
@@ -302,6 +314,54 @@
 
     <%- include('partials/upload-modal') %>
     <%- include('partials/analysis-modal') %>
+
+    <!-- Add SOC Modal -->
+    <div class="modal" id="addSocModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New SOC</h2>
+                <button class="close-btn" id="closeAddSocBtn">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="addSocForm">
+                    <div class="form-group">
+                        <label for="socName">Name</label>
+                        <input type="text" id="socName" class="form-input" placeholder="Enter SOC name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="socStudentId">Student ID</label>
+                        <input type="text" id="socStudentId" class="form-input" placeholder="Enter student ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="socGrade">Grade</label>
+                        <input type="text" id="socGrade" class="form-input" placeholder="Enter grade">
+                    </div>
+                    <div class="form-group">
+                        <label for="socSchool">School</label>
+                        <input type="text" id="socSchool" class="form-input" placeholder="Enter school">
+                    </div>
+                    <div class="form-group">
+                        <label for="socDob">Date of Birth</label>
+                        <input type="date" id="socDob" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="socStatus" value="known" checked>
+                                Known
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="socStatus" value="potential">
+                                Potential
+                            </label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="submitAddSocBtn">Add SOC</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
 <script src="/js/case-context.js?v=<%= new Date().getTime() %>"></script>
 <script src="/js/photo-management.js?v=<%= new Date().getTime() %>"></script>

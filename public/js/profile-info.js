@@ -43,13 +43,16 @@ function saveProfileInfo() {
     const platformUrl = document.querySelector('.platform-icon.active').getAttribute('href');
     const platform = platformUrl.split('/').pop(); // Extract platform name from URL
     
+    // Get the current SOC ID
+    const socId = window.currentSocId || document.body.dataset.socId || 'soc_1';
+    
     // Show saving indicator
     saveIndicator.innerHTML = `
         <span class="loading-spinner"></span>
         Saving profile info...
     `;
     
-    fetch(`/api/platform/${platform}`, {
+    fetch(`/api/soc/${socId}/platform/${platform}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

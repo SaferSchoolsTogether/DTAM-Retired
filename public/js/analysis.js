@@ -2,8 +2,8 @@
 let selectedAnalysisType = null;
 let selectedAnalysisValue = null;
 
-// Reference to currentPhotoId from photo-management.js
-// This is declared in photo-management.js and made available globally
+// Reference to currentPhotoId and currentSocId from photo-management.js
+// These are declared in photo-management.js and made available globally
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
@@ -254,7 +254,7 @@ function updatePhoto(data) {
         Saving...
     `;
     
-    fetch(`/api/platform/${platform}/photo/${window.currentPhotoId}`, {
+    fetch(`/api/soc/${window.currentSocId}/platform/${platform}/photo/${window.currentPhotoId}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'

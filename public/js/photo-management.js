@@ -1,10 +1,14 @@
 // Global variables for photo management
 // currentPhotoId is used by other modules like analysis.js
 window.currentPhotoId = null;
+window.currentSocId = null;
 let unsavedChanges = false;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
+    // Set current SOC ID from the page data
+    window.currentSocId = document.body.dataset.socId || 'soc_1';
+    
     // Set current photo ID if photos exist
     const photoThumbs = document.querySelectorAll('.photo-thumb');
     if (photoThumbs.length > 0) {
@@ -36,6 +40,38 @@ function initPhotoManagementEventListeners() {
     const saveProgressBtn = document.getElementById('saveProgressBtn');
     const previewReportBtn = document.getElementById('previewReportBtn');
     const generateReportBtn = document.getElementById('generateReportBtn');
+    const socSelector = document.getElementById('socSelector');
+
+    // SOC selection
+    if (socSelector) {
+        socSelector.addEventListener('change', function() {
+            const socId = this.value;
+            
+            if (socId === 'add_new') {
+                // Show the add SOC modal
+                showAddSocModal();
+            } else {
+                const platformUrl = document.querySelector('.platform-icon.active').getAttribute('href');
+                const platform = platformUrl.split('/').pop(); // Extract platform name from URL
+                
+                // Redirect to the selected SOC's platform page
+                window.location.href = `/soc/${socId}/platform/${platform}`;
+            }
+        });
+    }
+    
+    // Add SOC modal
+    const addSocModal = document.getElementById('addSocModal');
+    const closeAddSocBtn = document.getElementById('closeAddSocBtn');
+    const addSocForm = document.getElementById('addSocForm');
+    
+    if (closeAddSocBtn) {
+        closeAddSocBtn.addEventListener('click', hideAddSocModal);
+    }
+    
+    if (addSocForm) {
+        addSocForm.addEventListener('submit', handleAddSoc);
+    }
 
     // Photo upload
     if (addPhotosBtn) addPhotosBtn.addEventListener('click', showUploadModal);
@@ -136,7 +172,7 @@ function updateDeleteButtonListeners() {
                         Deleting...
                     `;
                     
-                    fetch(`/api/platform/${platform}/photo/${photoId}`, {
+                    fetch(`/api/soc/${window.currentSocId}/platform/${platform}/photo/${photoId}`, {
                         method: 'DELETE'
                     })
                     .then(response => {
@@ -353,7 +389,7 @@ function handleUpload(e) {
     uploadBtn.innerHTML = '<span class="loading-spinner"></span> Uploading...';
     uploadBtn.disabled = true;
     
-    fetch(`/api/platform/${platform}/upload`, {
+    fetch(`/api/soc/${window.currentSocId}/platform/${platform}/upload`, {
         method: 'POST',
         body: formData
     })
@@ -405,7 +441,7 @@ function updatePhotoView() {
     currentImage.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="600"%3E%3Crect width="600" height="600" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="24"%3ELoading...%3C/text%3E%3C/svg%3E';
     
     // Fetch photo data
-    fetch(`/api/platform/${platform}/photo/${window.currentPhotoId}`)
+    fetch(`/api/soc/${window.currentSocId}/platform/${platform}/photo/${window.currentPhotoId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Failed to fetch photo data');
@@ -467,6 +503,105 @@ function updateMetadata(metadata) {
     }
 }
 
+// Add tag
+function addTag(tag) {
+    if (!tag) return;
+    
+    const tagsContainer = document.getElementById('tagsContainer');
+    
+    // Check if tag already exists
+    const existingTags = Array.from(tagsContainer.querySelectorAll('.tag')).map(tagEl => 
+        tagEl.textContent.trim().replace('×', '')
+    );
+    
+    if (existingTags.includes(tag)) return;
+    
+    // Create tag element
+    const tagElement = document.createElement('span');
+    tagElement.className = 'tag';
+    tagElement.innerHTML = `
+        ${tag}
+        <span class="tag-remove" data-tag="${tag}">×</span>
+    `;
+    tagsContainer.appendChild(tagElement);
+    
+    // Save tags
+    saveTags();
+}
+
+// Remove tag
+function removeTag(tagElement) {
+    tagElement.remove();
+    saveTags();
+}
+
+// Save tags
+function saveTags() {
+    if (!window.currentPhotoId) return;
+    
+    const tagsContainer = document.getElementById('tagsContainer');
+    const tags = Array.from(tagsContainer.querySelectorAll('.tag')).map(tagEl => 
+        tagEl.textContent.trim().replace('×', '')
+    );
+    
+    updatePhoto({ tags });
+}
+
+// Save notes
+function saveNotes(notes) {
+    if (!window.currentPhotoId) return;
+    
+    updatePhoto({ notes });
+}
+
+// Update photo
+function updatePhoto(data) {
+    if (!window.currentPhotoId) return;
+    
+    const saveIndicator = document.getElementById('saveIndicator');
+    // Get the full platform name from the URL instead of the abbreviated text
+    const platformUrl = document.querySelector('.platform-icon.active').getAttribute('href');
+    const platform = platformUrl.split('/').pop(); // Extract platform name from URL
+    
+    // Show saving indicator
+    saveIndicator.innerHTML = `
+        <span class="loading-spinner"></span>
+        Saving...
+    `;
+    
+    fetch(`/api/soc/${window.currentSocId}/platform/${platform}/photo/${window.currentPhotoId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to update photo');
+        }
+        return response.json();
+    })
+    .then(photo => {
+        // Show saved indicator
+        saveIndicator.innerHTML = `
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+            </svg>
+            All changes saved
+        `;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        saveIndicator.innerHTML = `
+            <svg class="icon" viewBox="0 0 24 24" style="color: #f44336;">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+            Failed to save changes
+        `;
+    });
+}
+
 // Save progress
 function saveProgress() {
     const saveIndicator = document.getElementById('saveIndicator');
@@ -489,13 +624,99 @@ function previewReport() {
     const platform = platformUrl.split('/').pop(); // Extract platform name from URL
     
     // In a real app, this would generate a preview of the report
-    window.open(`/api/platform/${platform}/report`, '_blank');
+    window.open(`/api/soc/${window.currentSocId}/platform/${platform}/report`, '_blank');
 }
 
 // Generate report
 function generateReport() {
     // In a real app, this would generate and download the report
-    alert('Report generated successfully!');
+    window.open(`/api/soc/${window.currentSocId}/report`, '_blank');
+}
+
+// Show add SOC modal
+function showAddSocModal() {
+    document.getElementById('addSocModal').classList.add('active');
+}
+
+// Hide add SOC modal
+function hideAddSocModal() {
+    document.getElementById('addSocModal').classList.remove('active');
+    document.getElementById('addSocForm').reset();
+    
+    // Reset the SOC selector to the current SOC
+    const socSelector = document.getElementById('socSelector');
+    socSelector.value = window.currentSocId;
+}
+
+// Handle add SOC
+function handleAddSoc(e) {
+    e.preventDefault();
+    
+    const socName = document.getElementById('socName').value.trim();
+    const socStudentId = document.getElementById('socStudentId').value.trim();
+    const socGrade = document.getElementById('socGrade').value.trim();
+    const socSchool = document.getElementById('socSchool').value.trim();
+    const socDob = document.getElementById('socDob').value;
+    const socStatus = document.querySelector('input[name="socStatus"]:checked').value;
+    
+    const saveIndicator = document.getElementById('saveIndicator');
+    
+    // Show saving indicator
+    saveIndicator.innerHTML = `
+        <span class="loading-spinner"></span>
+        Creating new SOC...
+    `;
+    
+    fetch('/api/socs', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name: socName,
+            studentId: socStudentId,
+            grade: socGrade,
+            school: socSchool,
+            dob: socDob,
+            status: socStatus
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to create SOC');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Show success message
+        saveIndicator.innerHTML = `
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+            </svg>
+            SOC created successfully
+        `;
+        
+        // Hide modal
+        hideAddSocModal();
+        
+        // Get the current platform
+        const platformUrl = document.querySelector('.platform-icon.active').getAttribute('href');
+        const platform = platformUrl.split('/').pop(); // Extract platform name from URL
+        
+        // Redirect to the new SOC's platform page
+        window.location.href = `/soc/${data.id}/platform/${platform}`;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        saveIndicator.innerHTML = `
+            <svg class="icon" viewBox="0 0 24 24" style="color: #f44336;">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+            Failed to create SOC
+        `;
+        
+        alert('Failed to create SOC. Please try again.');
+    });
 }
 
 // Make updateDeleteButtonListeners available globally
