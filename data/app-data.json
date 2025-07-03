@@ -1,26 +1,31 @@
 {
+  "case": {
+    "caseId": "23423",
+    "date": "2025-06-24",
+    "investigatorName": "Colton Easton",
+    "organization": "SST",
+    "socStatus": "known",
+    "discoveryMethod": "{\"method\":\"social\",\"sourcePlatform\":\"other\",\"physicalDetails\":{\"finder\":null,\"date\":null,\"location\":null,\"witnesses\":null}}",
+    "safetyAssessment": "{\"enforcement\":\"no\",\"means\":\"no\"}",
+    "studentInfo": {
+      "name": "Colton Easton",
+      "id": "123455",
+      "grade": "9",
+      "school": "High School School",
+      "dob": "2025-02-06",
+      "supportPlans": [
+        "Safety",
+        "Other"
+      ],
+      "otherPlanText": "Other BIP Plan"
+    }
+  },
   "platforms": {
     "instagram": {
-      "username": "Colton_easton",
-      "displayName": "Colton_easton",
-      "url": "Instagram.com",
-      "photos": [
-        {
-          "id": "f85300b8-eb95-42eb-8846-cdac6fe091a3",
-          "path": "/uploads/instagram/127dc529-2885-4b6a-8460-cf74ae3a8cbe.png",
-          "thumbnail": "/uploads/instagram/127dc529-2885-4b6a-8460-cf74ae3a8cbe.png",
-          "uploadDate": "2025-06-25T23:30:57.320Z",
-          "tags": [],
-          "analysisTags": {},
-          "notes": "",
-          "metadata": {
-            "posted": "2025-06-25",
-            "likes": 0,
-            "comments": 0,
-            "engagementRate": "0%"
-          }
-        }
-      ]
+      "username": "",
+      "displayName": "",
+      "url": "",
+      "photos": []
     },
     "facebook": {
       "username": "",

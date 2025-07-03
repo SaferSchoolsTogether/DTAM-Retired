@@ -85,7 +85,46 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.setItem('safetyAssessment', safetyAssessment);
         });
     }
-    
+
+    // Summary Form - Save all data to app-data.json
+    const summaryForm = document.getElementById('summaryForm');
+    if (summaryForm) {
+        summaryForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get all data from localStorage
+            const caseData = {
+                caseId: localStorage.getItem('caseId'),
+                date: localStorage.getItem('date'),
+                investigatorName: localStorage.getItem('investigatorName'),
+                organization: localStorage.getItem('organization'),
+                socStatus: localStorage.getItem('socStatus'),
+                discoveryMethod: localStorage.getItem('discoveryMethod'),
+                safetyAssessment: localStorage.getItem('safetyAssessment'),
+                studentInfo: localStorage.getItem('studentInfo') ? JSON.parse(localStorage.getItem('studentInfo')) : null
+            };
+
+            try {
+                const response = await fetch('/api/save-case', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(caseData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to save case data');
+                }
+
+                // If successful, submit the form to continue
+                summaryForm.submit();
+            } catch (error) {
+                console.error('Error saving case data:', error);
+                alert('Failed to save case data. Please try again.');
+            }
+        });
+    }
     
     // Pre-fill forms with stored data
     prefillForms();

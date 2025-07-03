@@ -185,6 +185,47 @@ app.get('/platform/:platform', (req, res) => {
 });
 
 // API Routes
+// Get case data
+app.get('/api/case-data', (req, res) => {
+  try {
+    const data = readData();
+    
+    if (!data.case) {
+      return res.status(404).json({ error: 'Case data not found' });
+    }
+    
+    res.json({ case: data.case });
+  } catch (error) {
+    console.error('Error fetching case data:', error);
+    res.status(500).json({ error: 'Failed to fetch case data' });
+  }
+});
+
+// Save case data
+app.post('/api/save-case', (req, res) => {
+  try {
+    const data = readData();
+    
+    // Add case section while preserving platforms
+    data.case = {
+      caseId: req.body.caseId,
+      date: req.body.date,
+      investigatorName: req.body.investigatorName,
+      organization: req.body.organization,
+      socStatus: req.body.socStatus,
+      discoveryMethod: req.body.discoveryMethod,
+      safetyAssessment: req.body.safetyAssessment,
+      studentInfo: req.body.studentInfo
+    };
+    
+    writeData(data);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error saving case data:', error);
+    res.status(500).json({ error: 'Failed to save case data' });
+  }
+});
+
 // Get platform data
 app.get('/api/platform/:platform', (req, res) => {
   const platform = req.params.platform;
@@ -361,6 +402,7 @@ app.post('/api/clear-session', async (req, res) => {
     
     // Reset app-data.json to initial state
     const initialData = {
+      case: null,
       platforms: {
         instagram: {
           username: '',
