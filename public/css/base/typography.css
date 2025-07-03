@@ -1,0 +1,209 @@
+/* Typography Styles */
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    color: #333;
+}
+
+/* Headings */
+.platform-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #262626;
+}
+
+.gallery-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #262626;
+}
+
+.case-context-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #0066cc;
+    display: flex;
+    align-items: center;
+}
+
+.help-panel-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2e7d32;
+    display: flex;
+    align-items: center;
+}
+
+.help-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2e7d32;
+    margin-bottom: 12px;
+    padding-left: 8px;
+    border-left: 3px solid #2e7d32;
+}
+
+.case-detail-label {
+    color: #5a7a9f;
+    font-weight: 600;
+    min-width: 100px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-label {
+    color: #8e8e8e;
+}
+
+.detail-value {
+    font-weight: 500;
+    color: #262626;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.analysis-title {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.file-upload-title {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.tag-options-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #262626;
+}
+
+.empty-state-message {
+    font-size: 16px;
+    margin-bottom: 24px;
+}
+
+.no-photos-message {
+    text-align: center;
+    padding: 40px 0;
+    color: #8e8e8e;
+    font-size: 16px;
+}
+
+/* Text styles */
+.progress-indicator {
+    font-size: 14px;
+    color: #666;
+}
+
+.user-info {
+    color: #8e8e8e;
+    font-size: 14px;
+}
+
+.platform-icon span {
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.platform-progress {
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.add-photos-btn {
+    font-size: 14px;
+}
+
+.tool-btn {
+    font-size: 14px;
+}
+
+.tag {
+    font-size: 13px;
+}
+
+.tag.analysis-tag {
+    color: #92400e;
+}
+
+.add-tag-input {
+    font-size: 14px;
+}
+
+.notes-textarea {
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.image-details {
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.btn {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.save-indicator {
+    color: #00d632;
+    font-size: 13px;
+}
+
+.learning-content {
+    line-height: 1.6;
+}
+
+.learning-content h3 {
+    color: #0066cc;
+    margin-bottom: 12px;
+    font-size: 18px;
+}
+
+.learning-content p {
+    color: #333;
+    margin-bottom: 12px;
+}
+
+.learning-content ul {
+    color: #555;
+}
+
+.learning-content li {
+    margin-bottom: 8px;
+}
+
+.help-tips-list li {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.help-action-link {
+    font-weight: 500;
+}
+
+.warning-title {
+    color: #e60000;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.proceed-title {
+    color: #38a169;
+    font-size: 18px;
+    font-weight: 600;
+}

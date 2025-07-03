@@ -1,0 +1,193 @@
+/* Navigation Styles */
+
+/* Header */
+.header {
+    background-color: #fff;
+    border-bottom: 1px solid #dbdbdb;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.sst-logo {
+    background-color: #0066cc;
+    color: white;
+    padding: 8px 16px;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+.progress-indicator {
+    background-color: #f0f0f0;
+    padding: 8px 16px;
+    border-radius: 20px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 80px;
+    background-color: #262626;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+.platform-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.platform-icon.active {
+    background: linear-gradient(45deg, #f58529, #dd2a7b, #8134af, #515bd4);
+}
+
+.platform-icon:not(.active) {
+    background-color: #3a3a3a;
+    border: 2px solid #3a3a3a;
+}
+
+.platform-icon:hover:not(.active) {
+    border-color: #666;
+    background-color: #444;
+}
+
+.platform-progress {
+    position: absolute;
+    bottom: -8px;
+    right: -8px;
+    background-color: #00d632;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+/* Action Bar */
+.action-bar {
+    background-color: #fff;
+    border-top: 1px solid #dbdbdb;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.action-group {
+    display: flex;
+    gap: 12px;
+}
+
+/* SOC Selector */
+.soc-selector-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 20px;
+    background-color: #f0f0f0;
+    padding: 6px 12px;
+    border-radius: 20px;
+}
+
+.soc-selector {
+    padding: 6px 10px;
+    border: 1px solid #dbdbdb;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+    min-width: 150px;
+}
+
+.soc-selector:focus {
+    outline: none;
+    border-color: #0095f6;
+}
+
+.active-soc {
+    font-weight: bold;
+    color: #0095f6;
+}
+
+.add-new-option {
+    color: #0095f6;
+    font-weight: bold;
+    border-top: 1px solid #dbdbdb;
+    margin-top: 5px;
+    padding-top: 5px;
+}
+
+/* Image Tools */
+.image-tools {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    background-color: rgba(0,0,0,0.8);
+    padding: 12px 20px;
+    border-radius: 30px;
+}
+
+.tool-btn {
+    background: none;
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tool-btn:hover {
+    background-color: rgba(255,255,255,0.2);
+}
+
+/* Save Indicator */
+.save-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Icons */
+.icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}

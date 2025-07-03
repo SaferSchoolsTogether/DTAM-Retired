@@ -1,0 +1,219 @@
+/* Photo Grid Styles */
+
+/* Photo Gallery */
+.photo-gallery {
+    width: 320px;
+    background-color: #fff;
+    border-right: 1px solid #dbdbdb;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.gallery-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.add-photos-btn {
+    background-color: #0095f6;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s;
+}
+
+.add-photos-btn:hover {
+    background-color: #0074cc;
+}
+
+.photo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.photo-thumb {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.2s;
+}
+
+.photo-thumb:hover {
+    transform: scale(1.05);
+}
+
+.photo-thumb.active {
+    outline: 3px solid #0095f6;
+    outline-offset: 2px;
+}
+
+.photo-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photo-status {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 24px;
+    height: 24px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.photo-status.analyzed {
+    background-color: #00d632;
+}
+
+/* Photo Delete Button */
+.photo-delete-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    background-color: rgba(255, 0, 0, 0.7);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    opacity: 0.8;
+    transition: all 0.2s;
+}
+
+.photo-delete-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+    background-color: rgba(255, 0, 0, 0.9);
+}
+
+/* No Photos Message */
+.no-photos-message {
+    text-align: center;
+    padding: 40px 0;
+    color: #8e8e8e;
+    font-size: 16px;
+}
+
+/* Tags Container */
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.tag {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    padding: 6px 12px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tag-remove {
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.tag.analysis-tag {
+    background-color: #fef3c7;
+}
+
+/* Image Details */
+.image-details {
+    background-color: #f5f5f5;
+    padding: 16px;
+    border-radius: 8px;
+    line-height: 1.6;
+}
+
+/* Platform Selection */
+.platform-selection {
+    margin-bottom: 24px;
+}
+
+.platform-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.platform-option {
+    background-color: #f0f0f0;
+    border: 2px solid #f0f0f0;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.platform-option:hover {
+    border-color: #0095f6;
+    background-color: #e8f5ff;
+}
+
+.platform-option.selected {
+    border-color: #0095f6;
+    background-color: #e8f5ff;
+}
+
+.platform-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.platform-name {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Analyze Button */
+.analyze-btn {
+    background-color: #0095f6;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 20px;
+    width: 100%;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.analyze-btn:hover {
+    background-color: #0074cc;
+}

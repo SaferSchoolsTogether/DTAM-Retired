@@ -219,7 +219,23 @@
           "username": "",
           "displayName": "",
           "url": "",
-          "photos": []
+          "photos": [
+            {
+              "id": "f5f4c68c-e1f8-47a3-937a-c9246253b977",
+              "path": "/uploads/soc_6fe71fd3/instagram/9362c8cf-542e-4caf-abf5-f449c820093f.jpeg",
+              "thumbnail": "/uploads/soc_6fe71fd3/instagram/9362c8cf-542e-4caf-abf5-f449c820093f.jpeg",
+              "uploadDate": "2025-07-03T21:36:32.788Z",
+              "tags": [],
+              "analysisTags": {},
+              "notes": "",
+              "metadata": {
+                "posted": "2025-07-03",
+                "likes": 0,
+                "comments": 0,
+                "engagementRate": "0%"
+              }
+            }
+          ]
         },
         "tiktok": {
           "username": "",
