@@ -34,21 +34,36 @@ The Digital Threat Assessment Management (DTAM) tool is a specialized applicatio
 
 - File-based storage system using JSON
 - Structured data stored in `data/app-data.json`
-- Photo uploads organized by platform in `public/uploads/[platform]`
-- Separate directories for each supported social media platform
+- Photo uploads organized by SOC and platform in `public/uploads/[soc_id]/[platform]`
+- Separate directories for each SOC and each supported social media platform
+- Multi-SOC architecture allows tracking multiple subjects of concern within a single case
 
 ### API Endpoints
 
+#### Case Management
+- `GET /api/case-data` - Retrieve case data
+- `POST /api/save-case` - Save case data
+- `GET /api/case/report` - Generate report for the entire case
+
+#### SOC Management
+- `GET /api/socs` - Get all SOCs
+- `POST /api/socs` - Create new SOC
+- `GET /api/soc/:socId` - Get SOC data
+- `PUT /api/soc/:socId` - Update SOC
+- `GET /api/soc/:socId/report` - Generate report for a SOC
+- `POST /api/active-soc/:socId` - Set active SOC
+- `GET /api/active-soc` - Get active SOC
+
 #### Platform Management
-- `GET /api/platform/:platform` - Retrieve platform data
-- `POST /api/platform/:platform` - Update platform information
-- `GET /api/platform/:platform/report` - Generate platform report
+- `GET /api/soc/:socId/platform/:platform` - Retrieve platform data
+- `POST /api/soc/:socId/platform/:platform` - Update platform information
+- `GET /api/soc/:socId/platform/:platform/report` - Generate platform report
 
 #### Photo Management
-- `POST /api/platform/:platform/upload` - Upload new photos
-- `GET /api/platform/:platform/photo/:photoId` - Retrieve photo data
-- `PUT /api/platform/:platform/photo/:photoId` - Update photo metadata
-- `DELETE /api/platform/:platform/photo/:photoId` - Remove photo
+- `POST /api/soc/:socId/platform/:platform/upload` - Upload new photos
+- `GET /api/soc/:socId/platform/:platform/photo/:photoId` - Retrieve photo data
+- `PUT /api/soc/:socId/platform/:platform/photo/:photoId` - Update photo metadata
+- `DELETE /api/soc/:socId/platform/:platform/photo/:photoId` - Remove photo
 
 #### Session Management
 - `POST /api/clear-session` - Reset application state
@@ -57,12 +72,14 @@ The Digital Threat Assessment Management (DTAM) tool is a specialized applicatio
 
 ### Multi-Platform Support
 
-The application supports analysis across five major social media platforms:
+The application supports analysis across seven major social media platforms:
 - Instagram
 - Facebook
-- Twitter
+- X (formerly Twitter)
 - TikTok
-- YouTube
+- Snapchat
+- Discord
+- Other (for additional platforms like YouTube)
 
 For each platform, the system tracks:
 - Username
@@ -157,35 +174,69 @@ For each platform, the system tracks:
 
 ## Data Structure
 
-### Platform Data Model
+### Data Model
 ```json
 {
-  "platforms": {
-    "[platform_name]": {
-      "username": "string",
-      "displayName": "string",
-      "url": "string",
-      "photos": [
-        {
-          "id": "uuid",
-          "path": "string",
-          "thumbnail": "string",
-          "uploadDate": "timestamp",
-          "tags": ["string"],
-          "analysisTags": {
-            "category": "value"
-          },
-          "notes": "string",
-          "metadata": {
-            "posted": "date",
-            "likes": "number",
-            "comments": "number",
-            "engagementRate": "string"
-          }
-        }
-      ]
+  "case": {
+    "caseId": "string",
+    "date": "string",
+    "investigatorName": "string",
+    "organization": "string",
+    "discoveryMethod": "string",
+    "safetyAssessment": "string"
+  },
+  "socs": {
+    "soc_1": {
+      "id": "string",
+      "name": "string",
+      "studentId": "string",
+      "grade": "string",
+      "school": "string",
+      "dob": "string",
+      "supportPlans": ["string"],
+      "otherPlanText": "string",
+      "status": "known|potential",
+      "platforms": {
+        "instagram": {
+          "username": "string",
+          "displayName": "string",
+          "url": "string",
+          "photos": [
+            {
+              "id": "uuid",
+              "path": "string",
+              "thumbnail": "string",
+              "uploadDate": "timestamp",
+              "tags": ["string"],
+              "analysisTags": {
+                "category": "value"
+              },
+              "notes": "string",
+              "metadata": {
+                "posted": "date",
+                "likes": "number",
+                "comments": "number",
+                "engagementRate": "string"
+              }
+            }
+          ]
+        },
+        "facebook": {},
+        "x": {},
+        "tiktok": {},
+        "snapchat": {},
+        "discord": {},
+        "other": {}
+      }
+    },
+    "soc_2": {
+      "id": "string",
+      "name": "string",
+      "status": "known|potential",
+      "platforms": {}
     }
-  }
+  },
+  "activeSocId": "string"
 }
 ```
 
@@ -197,20 +248,68 @@ DTAM/
 │   └── app-data.json
 ├── public/
 │   ├── css/
+│   │   ├── base/
+│   │   │   ├── layout.css
+│   │   │   └── typography.css
+│   │   ├── components/
+│   │   │   ├── case-context.css
+│   │   │   ├── forms.css
+│   │   │   ├── modals.css
+│   │   │   ├── navigation.css
+│   │   │   └── photo-grid.css
+│   │   ├── onboarding.css
+│   │   └── styles.css
 │   ├── js/
+│   │   ├── modules/
+│   │   │   ├── api-service.js
+│   │   │   ├── core.js
+│   │   │   ├── event-handlers.js
+│   │   │   └── ui-state.js
+│   │   ├── analysis.js
+│   │   ├── case-context.js
+│   │   ├── navigation.js
+│   │   ├── onboarding.js
+│   │   ├── photo-management.js
+│   │   ├── profile-info.js
+│   │   └── workstation.js
 │   └── uploads/
-│       ├── facebook/
-│       ├── instagram/
-│       ├── twitter/
-│       ├── tiktok/
-│       └── youtube/
+│       ├── soc_1/
+│       │   ├── discord/
+│       │   ├── facebook/
+│       │   ├── instagram/
+│       │   ├── other/
+│       │   ├── snapchat/
+│       │   ├── tiktok/
+│       │   └── x/
+│       └── soc_2/
+│           ├── discord/
+│           ├── facebook/
+│           ├── instagram/
+│           ├── other/
+│           ├── snapchat/
+│           ├── tiktok/
+│           └── x/
+├── scripts/
+│   └── migrate-to-multi-soc.js
 └── views/
-    ├── welcome.ejs
+    ├── partials/
+    │   ├── analysis-modal.ejs
+    │   ├── case-context-bar.ejs
+    │   ├── help-panel.ejs
+    │   ├── navigation.ejs
+    │   ├── photo-grid.ejs
+    │   └── upload-modal.ejs
     ├── case-info.ejs
-    ├── soc-status.ejs
+    ├── cases.ejs
+    ├── dashboard.ejs
+    ├── discovery-method.ejs
+    ├── platform-info.ejs
     ├── safety-assessment.ejs
-    ├── workstation.ejs
-    └── summary.ejs
+    ├── soc-status.ejs
+    ├── summary.ejs
+    ├── tips.ejs
+    ├── welcome.ejs
+    └── workstation.ejs
 ```
 
 ## Security Considerations
@@ -229,11 +328,18 @@ DTAM/
 ## Recent Updates
 
 The application currently implements core functionality for:
-- Multi-platform social media analysis
-- Photo upload and management
+- Multi-SOC support for tracking multiple subjects of concern
+- Multi-platform social media analysis across seven platforms
+- Photo upload and management with organized directory structure
 - Analysis tagging system
-- Report generation
+- Report generation for individual platforms, SOCs, and entire cases
 - Session management
+
+Recent enhancements include:
+- Migration to multi-SOC architecture (see scripts/migrate-to-multi-soc.js)
+- Support for additional platforms (Snapchat, Discord)
+- Improved file organization with SOC-specific directories
+- Enhanced API endpoints for SOC management
 
 Future enhancements may include:
 - Enhanced authentication system

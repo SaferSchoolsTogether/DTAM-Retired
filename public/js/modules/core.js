@@ -9,8 +9,7 @@ const state = {
     selectedAnalysisType: null,
     selectedAnalysisValue: null,
     unsavedChanges: false,
-    caseContextCollapsed: false,
-    helpPanelCollapsed: true
+    caseContextCollapsed: false
 };
 
 // Initialize
@@ -29,12 +28,6 @@ function initializeWorkstation() {
     if (savedState === 'true') {
         toggleCaseContext(true);
     }
-    
-    // Check if help panel state is saved in localStorage
-    const helpPanelState = localStorage.getItem('helpPanelCollapsed');
-    if (helpPanelState === 'false') {
-        toggleHelpPanel(false);
-    }
 
     // Event listeners
     initEventListeners();
@@ -47,5 +40,5 @@ export {
 };
 
 // Import other modules
-import { loadCaseData, toggleCaseContext, toggleHelpPanel } from './ui-state.js';
+import { loadCaseData, toggleCaseContext } from './ui-state.js';
 import { initEventListeners } from './event-handlers.js';

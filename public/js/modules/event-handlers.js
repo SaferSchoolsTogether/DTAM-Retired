@@ -13,8 +13,7 @@ import {
     backToOptions, 
     showClearSessionModal, 
     hideClearSessionModal,
-    toggleCaseContext,
-    toggleHelpPanel
+    toggleCaseContext
 } from './ui-state.js';
 import { 
     updatePhoto, 
@@ -66,12 +65,6 @@ function initEventListeners() {
     // Case context toggle
     if (caseContextToggle) {
         caseContextToggle.addEventListener('click', () => toggleCaseContext());
-    }
-    
-    // Help panel toggle
-    const helpPanelToggle = document.getElementById('helpPanelToggle');
-    if (helpPanelToggle) {
-        helpPanelToggle.addEventListener('click', () => toggleHelpPanel());
     }
 
     // Photo upload

@@ -111,12 +111,6 @@ body {
     gap: 20px;
 }
 
-.help-panel-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 20px;
-}
-
 /* Animation Keyframes */
 @keyframes spin {
     to { transform: rotate(360deg); }

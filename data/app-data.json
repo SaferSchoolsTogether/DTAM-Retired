@@ -1,21 +1,20 @@
 {
   "case": {
-    "caseId": "23423",
+    "caseId": "456231",
     "date": "2025-07-03",
-    "investigatorName": "James Thomas",
-    "organization": "SST",
-    "socStatus": "known",
-    "discoveryMethod": "{\"method\":\"social\",\"sourcePlatform\":\"other\",\"physicalDetails\":{\"finder\":null,\"date\":null,\"location\":null,\"witnesses\":null}}",
+    "investigatorName": "TEST NAME",
+    "organization": "TEST ORG",
+    "socStatus": "unknown",
+    "discoveryMethod": "{\"method\":\"social\",\"sourcePlatform\":\"twitter\",\"physicalDetails\":{\"finder\":\"Test Name\",\"date\":null,\"location\":\"Test \",\"witnesses\":\"Test names\"}}",
     "safetyAssessment": "{\"enforcement\":\"no\",\"means\":\"no\"}",
     "studentInfo": {
-      "name": "Jennifer Chambers",
-      "id": "987654321",
-      "grade": "12",
-      "school": "Riverside High School",
+      "name": "Test Student",
+      "id": "123450034",
+      "grade": "9",
+      "school": "Test High School",
       "dob": "1990-10-16",
       "supportPlans": [
-        "Safety",
-        "Other"
+        "IEP"
       ],
       "otherPlanText": "Some other plan"
     }

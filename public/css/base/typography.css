@@ -32,23 +32,6 @@ body {
     align-items: center;
 }
 
-.help-panel-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #2e7d32;
-    display: flex;
-    align-items: center;
-}
-
-.help-section-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #2e7d32;
-    margin-bottom: 12px;
-    padding-left: 8px;
-    border-left: 3px solid #2e7d32;
-}
-
 .case-detail-label {
     color: #5a7a9f;
     font-weight: 600;
@@ -185,15 +168,6 @@ body {
 
 .learning-content li {
     margin-bottom: 8px;
-}
-
-.help-tips-list li {
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-.help-action-link {
-    font-weight: 500;
 }
 
 .warning-title {

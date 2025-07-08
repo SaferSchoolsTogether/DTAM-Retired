@@ -71,27 +71,6 @@ function toggleCaseContext(forceCollapse) {
     localStorage.setItem('caseContextCollapsed', state.caseContextCollapsed);
 }
 
-// Toggle help panel
-function toggleHelpPanel(forceCollapse) {
-    const helpPanel = document.getElementById('helpPanel');
-    const toggleText = document.querySelector('.help-panel-toggle-text');
-    
-    if (forceCollapse === true || !helpPanel.classList.contains('collapsed')) {
-        // Collapse
-        helpPanel.classList.add('collapsed');
-        state.helpPanelCollapsed = true;
-        if (toggleText) toggleText.textContent = 'Expand';
-    } else {
-        // Expand
-        helpPanel.classList.remove('collapsed');
-        state.helpPanelCollapsed = false;
-        if (toggleText) toggleText.textContent = 'Collapse';
-    }
-    
-    // Save state to localStorage
-    localStorage.setItem('helpPanelCollapsed', state.helpPanelCollapsed);
-}
-
 // Show upload modal
 function showUploadModal() {
     document.getElementById('fileUploadContainer').classList.add('active');
@@ -217,7 +196,6 @@ export {
     loadCaseData,
     populateCaseContext,
     toggleCaseContext,
-    toggleHelpPanel,
     showUploadModal,
     hideUploadModal,
     resetUploadForm,

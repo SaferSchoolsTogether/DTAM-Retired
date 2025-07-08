@@ -209,6 +209,12 @@ app.get('/', (req, res) => {
   }
 });
 
+// New case route - always show welcome page
+app.get('/new-case', (req, res) => {
+  // Always render the welcome page to start a new case
+  res.render('welcome');
+});
+
 // Onboarding routes
 app.post('/soc-status', (req, res) => {
   // In a real app, we would store this in the session
