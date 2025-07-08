@@ -151,7 +151,7 @@
                     </div>
                 </div>
                 
-                <form action="/platform/instagram" method="GET" id="summaryForm">
+                <form action="/dashboard" method="GET" id="summaryForm">
                     <input type="hidden" name="onboardingData" id="onboardingDataInput">
                     
                     <div class="nav-buttons">
@@ -294,8 +294,7 @@
             
             document.getElementById('onboardingDataInput').value = JSON.stringify(onboardingData);
             
-            // Set form action to go to the workstation
-            document.getElementById('summaryForm').action = `/platform/instagram`;
+            // Form action is already set to dashboard in the HTML
         });
         
         // Format safety value for display

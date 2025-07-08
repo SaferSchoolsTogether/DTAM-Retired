@@ -102,6 +102,8 @@
     </style>
 </head>
 <body data-soc-id="<%= socId %>">
+    <%- include('partials/navigation', { activePage: 'workstation' }) %>
+    
     <!-- Header -->
     <header class="header">
         <div class="logo-section">
@@ -363,6 +365,7 @@
         </div>
     </div>
 
+<script src="/js/navigation.js"></script>
 <script src="/js/workstation.js?v=<%= new Date().getTime() %>" type="module"></script>
 </body>
 </html>

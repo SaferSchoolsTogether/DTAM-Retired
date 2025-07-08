@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Digital Threat Assessment Management</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/onboarding.css">
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .dashboard-header {
+            margin-bottom: 32px;
+        }
+        
+        .dashboard-title {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .dashboard-subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .dashboard-card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 24px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background-color: #0066cc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+        }
+        
+        .card-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .card-content {
+            margin-bottom: 16px;
+        }
+        
+        .card-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .cases-list {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .cases-header {
+            background-color: #f5f5f5;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .cases-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .cases-filter {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .filter-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+        }
+        
+        .cases-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .cases-table th {
+            text-align: left;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .cases-table td {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .cases-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .case-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background-color: #e6f7ff;
+            color: #0066cc;
+        }
+        
+        .status-completed {
+            background-color: #e6f9f0;
+            color: #00a854;
+        }
+        
+        .status-new {
+            background-color: #fff7e6;
+            color: #fa8c16;
+        }
+        
+        .case-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #0066cc;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .action-btn:hover {
+            background-color: rgba(0,102,204,0.1);
+        }
+        
+        .empty-state {
+            padding: 48px 24px;
+            text-align: center;
+            color: #666;
+        }
+        
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .empty-message {
+            margin-bottom: 24px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .cases-table th:nth-child(3),
+            .cases-table td:nth-child(3) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/navigation', { activePage: 'dashboard' }) %>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Digital Threat Assessment Dashboard</h1>
+            <p class="dashboard-subtitle">Manage your cases and access tools for digital threat assessment</p>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                    </div>
+                    <h2 class="card-title">New Case</h2>
+                </div>
+                <div class="card-content">
+                    <p>Start a new digital threat assessment case. You'll be guided through the initial setup process.</p>
+                </div>
+                <div class="card-actions">
+                    <a href="/" class="btn btn-primary">Start New Case</a>
+                </div>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon" style="background-color: #00a854;">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/>
+                        </svg>
+                    </div>
+                    <h2 class="card-title">My Cases</h2>
+                </div>
+                <div class="card-content">
+                    <p>View and manage your existing cases. Continue working on active cases or review completed ones.</p>
+                </div>
+                <div class="card-actions">
+                    <a href="/cases" class="btn btn-secondary">View All Cases</a>
+                </div>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon" style="background-color: #fa8c16;">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                        </svg>
+                    </div>
+                    <h2 class="card-title">Search Tips</h2>
+                </div>
+                <div class="card-content">
+                    <p>Access helpful tips and techniques for conducting effective digital threat assessments.</p>
+                </div>
+                <div class="card-actions">
+                    <a href="/tips" class="btn btn-secondary">View Tips</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="cases-list">
+            <div class="cases-header">
+                <h2 class="cases-title">Recent Cases</h2>
+                <div class="cases-filter">
+                    <span class="filter-label">Filter:</span>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="all">All Cases</option>
+                        <option value="active">Active</option>
+                        <option value="completed">Completed</option>
+                        <option value="new">New</option>
+                    </select>
+                </div>
+            </div>
+            
+            <% if (locals.cases && locals.cases.length > 0) { %>
+                <table class="cases-table">
+                    <thead>
+                        <tr>
+                            <th>Case ID</th>
+                            <th>Date</th>
+                            <th>Investigator</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% locals.cases.forEach(function(caseItem) { %>
+                            <tr>
+                                <td><%= caseItem.caseId %></td>
+                                <td><%= caseItem.date %></td>
+                                <td><%= caseItem.investigatorName %></td>
+                                <td>
+                                    <span class="case-status status-<%= caseItem.status.toLowerCase() %>">
+                                        <%= caseItem.status %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="case-actions">
+                                        <a href="/platform/instagram?caseId=<%= caseItem.caseId %>" class="action-btn" title="Open Case">
+                                            <svg class="icon" viewBox="0 0 24 24">
+                                                <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+                                            </svg>
+                                        </a>
+                                        <button class="action-btn" title="Delete Case">
+                                            <svg class="icon" viewBox="0 0 24 24">
+                                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <div class="empty-state">
+                    <div class="empty-icon">📁</div>
+                    <div class="empty-message">No cases found. Start by creating a new case.</div>
+                    <a href="/" class="btn btn-primary">Create New Case</a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <script src="/js/navigation.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Status filter functionality
+            const statusFilter = document.getElementById('statusFilter');
+            if (statusFilter) {
+                statusFilter.addEventListener('change', function() {
+                    const selectedStatus = this.value.toLowerCase();
+                    const rows = document.querySelectorAll('.cases-table tbody tr');
+                    
+                    rows.forEach(row => {
+                        const statusCell = row.querySelector('.case-status');
+                        if (!statusCell) return;
+                        
+                        const rowStatus = statusCell.textContent.trim().toLowerCase();
+                        
+                        if (selectedStatus === 'all' || rowStatus === selectedStatus) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

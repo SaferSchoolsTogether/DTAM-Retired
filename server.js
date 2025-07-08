@@ -135,9 +135,78 @@ function writeData(data) {
 }
 
 // Routes
-// Home route - show welcome page
+// Dashboard route
+app.get('/dashboard', (req, res) => {
+  // Get case data for the dashboard
+  const data = readData();
+  
+  // Format case data for display
+  const cases = [];
+  if (data.case && data.case.caseId) {
+    // Add status field to case data
+    const caseWithStatus = {
+      ...data.case,
+      status: 'Active', // Default status
+      socName: data.socs[data.activeSocId]?.name || 'Unknown',
+      platforms: {}
+    };
+    
+    // Check which platforms have data
+    Object.keys(data.socs[data.activeSocId].platforms).forEach(platform => {
+      const platformData = data.socs[data.activeSocId].platforms[platform];
+      caseWithStatus.platforms[platform] = platformData.username || platformData.photos.length > 0;
+    });
+    
+    cases.push(caseWithStatus);
+  }
+  
+  res.render('dashboard', { cases });
+});
+
+// Cases route
+app.get('/cases', (req, res) => {
+  // Get case data
+  const data = readData();
+  
+  // Format case data for display
+  const cases = [];
+  if (data.case && data.case.caseId) {
+    // Add status field to case data
+    const caseWithStatus = {
+      ...data.case,
+      status: 'Active', // Default status
+      socName: data.socs[data.activeSocId]?.name || 'Unknown',
+      platforms: {}
+    };
+    
+    // Check which platforms have data
+    Object.keys(data.socs[data.activeSocId].platforms).forEach(platform => {
+      const platformData = data.socs[data.activeSocId].platforms[platform];
+      caseWithStatus.platforms[platform] = platformData.username || platformData.photos.length > 0;
+    });
+    
+    cases.push(caseWithStatus);
+  }
+  
+  res.render('cases', { cases });
+});
+
+// Search tips route
+app.get('/tips', (req, res) => {
+  res.render('tips');
+});
+
+// Home route - redirect to dashboard or show welcome page
 app.get('/', (req, res) => {
-  res.render('welcome');
+  const data = readData();
+  
+  // If there's existing case data, redirect to dashboard
+  if (data.case && data.case.caseId) {
+    res.redirect('/dashboard');
+  } else {
+    // Otherwise show welcome page
+    res.render('welcome');
+  }
 });
 
 // Onboarding routes

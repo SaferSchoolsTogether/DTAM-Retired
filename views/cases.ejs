@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cases - Digital Threat Assessment Management</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/onboarding.css">
+    <style>
+        .cases-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .cases-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .cases-title {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .cases-subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .cases-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .search-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 16px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #0066cc;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: 16px;
+        }
+        
+        .filter-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .filter-select {
+            padding: 10px 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+            min-width: 120px;
+        }
+        
+        .cases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+        }
+        
+        .case-card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .case-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .case-header {
+            padding: 16px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .case-id {
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        .case-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background-color: #e6f7ff;
+            color: #0066cc;
+        }
+        
+        .status-completed {
+            background-color: #e6f9f0;
+            color: #00a854;
+        }
+        
+        .status-new {
+            background-color: #fff7e6;
+            color: #fa8c16;
+        }
+        
+        .case-body {
+            padding: 16px;
+        }
+        
+        .case-detail {
+            margin-bottom: 12px;
+        }
+        
+        .detail-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .detail-value {
+            font-size: 14px;
+        }
+        
+        .case-platforms {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .platform-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 500;
+            color: white;
+        }
+        
+        .platform-instagram {
+            background: linear-gradient(45deg, #f58529, #dd2a7b, #8134af, #515bd4);
+        }
+        
+        .platform-tiktok {
+            background-color: #000000;
+        }
+        
+        .platform-snapchat {
+            background-color: #fffc00;
+            color: #000;
+        }
+        
+        .platform-x {
+            background-color: #000000;
+        }
+        
+        .platform-discord {
+            background-color: #5865F2;
+        }
+        
+        .platform-facebook {
+            background-color: #1877F2;
+        }
+        
+        .platform-other {
+            background-color: #666666;
+        }
+        
+        .case-footer {
+            padding: 16px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .case-date {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .case-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #0066cc;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .action-btn:hover {
+            background-color: rgba(0,102,204,0.1);
+        }
+        
+        .empty-state {
+            padding: 48px 24px;
+            text-align: center;
+            color: #666;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .empty-message {
+            margin-bottom: 24px;
+        }
+        
+        @media (max-width: 768px) {
+            .cases-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .search-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .filter-group {
+                margin-left: 0;
+            }
+            
+            .cases-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/navigation', { activePage: 'cases' }) %>
+
+    <div class="cases-container">
+        <div class="cases-header">
+            <div>
+                <h1 class="cases-title">My Cases</h1>
+                <p class="cases-subtitle">View and manage your digital threat assessment cases</p>
+            </div>
+            <div class="cases-actions">
+                <a href="/" class="btn btn-primary">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                    </svg>
+                    New Case
+                </a>
+            </div>
+        </div>
+        
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search cases..." id="caseSearch">
+            <div class="filter-group">
+                <span class="filter-label">Status:</span>
+                <select class="filter-select" id="statusFilter">
+                    <option value="all">All Cases</option>
+                    <option value="active">Active</option>
+                    <option value="completed">Completed</option>
+                    <option value="new">New</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">Sort by:</span>
+                <select class="filter-select" id="sortFilter">
+                    <option value="date-desc">Date (Newest)</option>
+                    <option value="date-asc">Date (Oldest)</option>
+                    <option value="id-asc">Case ID (A-Z)</option>
+                    <option value="id-desc">Case ID (Z-A)</option>
+                </select>
+            </div>
+        </div>
+        
+        <% if (locals.cases && locals.cases.length > 0) { %>
+            <div class="cases-grid" id="casesGrid">
+                <% locals.cases.forEach(function(caseItem) { %>
+                    <div class="case-card" data-status="<%= caseItem.status.toLowerCase() %>" data-case-id="<%= caseItem.caseId %>">
+                        <div class="case-header">
+                            <div class="case-id"><%= caseItem.caseId %></div>
+                            <span class="case-status status-<%= caseItem.status.toLowerCase() %>">
+                                <%= caseItem.status %>
+                            </span>
+                        </div>
+                        <div class="case-body">
+                            <div class="case-detail">
+                                <div class="detail-label">Investigator</div>
+                                <div class="detail-value"><%= caseItem.investigatorName %></div>
+                            </div>
+                            <div class="case-detail">
+                                <div class="detail-label">Organization</div>
+                                <div class="detail-value"><%= caseItem.organization || 'N/A' %></div>
+                            </div>
+                            <div class="case-detail">
+                                <div class="detail-label">Subject of Concern</div>
+                                <div class="detail-value"><%= caseItem.socName || 'Unknown' %></div>
+                            </div>
+                            <div class="case-platforms">
+                                <% if (caseItem.platforms) { %>
+                                    <% if (caseItem.platforms.instagram) { %>
+                                        <div class="platform-badge platform-instagram" title="Instagram">IG</div>
+                                    <% } %>
+                                    <% if (caseItem.platforms.tiktok) { %>
+                                        <div class="platform-badge platform-tiktok" title="TikTok">TT</div>
+                                    <% } %>
+                                    <% if (caseItem.platforms.snapchat) { %>
+                                        <div class="platform-badge platform-snapchat" title="Snapchat">SC</div>
+                                    <% } %>
+                                    <% if (caseItem.platforms.x) { %>
+                                        <div class="platform-badge platform-x" title="X (Twitter)">X</div>
+                                    <% } %>
+                                    <% if (caseItem.platforms.discord) { %>
+                                        <div class="platform-badge platform-discord" title="Discord">DC</div>
+                                    <% } %>
+                                    <% if (caseItem.platforms.facebook) { %>
+                                        <div class="platform-badge platform-facebook" title="Facebook">FB</div>
+                                    <% } %>
+                                    <% if (caseItem.platforms.other) { %>
+                                        <div class="platform-badge platform-other" title="Other">OT</div>
+                                    <% } %>
+                                <% } %>
+                            </div>
+                        </div>
+                        <div class="case-footer">
+                            <div class="case-date"><%= caseItem.date %></div>
+                            <div class="case-actions">
+                                <a href="/platform/instagram?caseId=<%= caseItem.caseId %>" class="action-btn" title="Open Case">
+                                    <svg class="icon" viewBox="0 0 24 24">
+                                        <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+                                    </svg>
+                                </a>
+                                <button class="action-btn" title="Delete Case">
+                                    <svg class="icon" viewBox="0 0 24 24">
+                                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <div class="empty-state">
+                <div class="empty-icon">📁</div>
+                <div class="empty-message">No cases found. Start by creating a new case.</div>
+                <a href="/" class="btn btn-primary">Create New Case</a>
+            </div>
+        <% } %>
+    </div>
+
+    <script src="/js/navigation.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const caseSearch = document.getElementById('caseSearch');
+            const statusFilter = document.getElementById('statusFilter');
+            const sortFilter = document.getElementById('sortFilter');
+            const casesGrid = document.getElementById('casesGrid');
+            
+            if (!casesGrid) return;
+            
+            // Function to filter and sort cases
+            function filterAndSortCases() {
+                const searchTerm = caseSearch.value.toLowerCase();
+                const statusValue = statusFilter.value.toLowerCase();
+                const sortValue = sortFilter.value;
+                
+                // Get all case cards
+                const caseCards = Array.from(document.querySelectorAll('.case-card'));
+                
+                // Filter cases
+                caseCards.forEach(card => {
+                    const caseId = card.querySelector('.case-id').textContent.toLowerCase();
+                    const caseStatus = card.dataset.status;
+                    const investigator = card.querySelector('.detail-value').textContent.toLowerCase();
+                    
+                    const matchesSearch = caseId.includes(searchTerm) || 
+                                         investigator.includes(searchTerm);
+                    const matchesStatus = statusValue === 'all' || caseStatus === statusValue;
+                    
+                    if (matchesSearch && matchesStatus) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                // Sort visible cases
+                const visibleCards = caseCards.filter(card => card.style.display !== 'none');
+                
+                visibleCards.sort((a, b) => {
+                    const aId = a.dataset.caseId;
+                    const bId = b.dataset.caseId;
+                    const aDate = new Date(a.querySelector('.case-date').textContent);
+                    const bDate = new Date(b.querySelector('.case-date').textContent);
+                    
+                    switch (sortValue) {
+                        case 'date-desc':
+                            return bDate - aDate;
+                        case 'date-asc':
+                            return aDate - bDate;
+                        case 'id-asc':
+                            return aId.localeCompare(bId);
+                        case 'id-desc':
+                            return bId.localeCompare(aId);
+                        default:
+                            return 0;
+                    }
+                });
+                
+                // Reorder the cards in the DOM
+                visibleCards.forEach(card => {
+                    casesGrid.appendChild(card);
+                });
+            }
+            
+            // Add event listeners
+            if (caseSearch) {
+                caseSearch.addEventListener('input', filterAndSortCases);
+            }
+            
+            if (statusFilter) {
+                statusFilter.addEventListener('change', filterAndSortCases);
+            }
+            
+            if (sortFilter) {
+                sortFilter.addEventListener('change', filterAndSortCases);
+            }
+        });
+    </script>
+</body>
+</html>

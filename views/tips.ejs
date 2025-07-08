@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Tips - Digital Threat Assessment Management</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/onboarding.css">
+    <style>
+        .tips-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .tips-header {
+            margin-bottom: 32px;
+        }
+        
+        .tips-title {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .tips-subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .search-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 16px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #0066cc;
+        }
+        
+        .tips-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 24px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .tips-sidebar {
+            background-color: #f5f5f5;
+            padding: 24px 0;
+            border-right: 1px solid #e0e0e0;
+        }
+        
+        .tips-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .tips-nav-item {
+            margin-bottom: 4px;
+        }
+        
+        .tips-nav-link {
+            display: block;
+            padding: 12px 24px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        
+        .tips-nav-link:hover, .tips-nav-link.active {
+            background-color: #e0e0e0;
+            border-left-color: #0066cc;
+            color: #0066cc;
+        }
+        
+        .tips-nav-header {
+            padding: 12px 24px;
+            font-weight: 500;
+            color: #666;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .tips-content {
+            padding: 32px;
+            overflow-y: auto;
+        }
+        
+        .tip-section {
+            margin-bottom: 48px;
+        }
+        
+        .tip-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .tip-section-title {
+            font-size: 24px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .tip-subsection {
+            margin-bottom: 32px;
+        }
+        
+        .tip-subsection-title {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #0066cc;
+        }
+        
+        .tips-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .tip-item {
+            margin-bottom: 16px;
+            padding-left: 28px;
+            position: relative;
+        }
+        
+        .tip-item:before {
+            content: "•";
+            color: #0066cc;
+            font-size: 20px;
+            position: absolute;
+            left: 8px;
+            top: -2px;
+        }
+        
+        .tip-highlight {
+            background-color: #f0f7ff;
+            border-left: 3px solid #0066cc;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .tip-highlight-title {
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #0066cc;
+        }
+        
+        .tip-example {
+            background-color: #f5f5f5;
+            padding: 16px;
+            border-radius: 4px;
+            margin: 16px 0;
+            font-family: monospace;
+        }
+        
+        .tip-note {
+            font-style: italic;
+            color: #666;
+            margin: 8px 0;
+        }
+        
+        .platform-specific {
+            border-top: 1px solid #e0e0e0;
+            margin-top: 24px;
+            padding-top: 24px;
+        }
+        
+        .platform-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .platform-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+        }
+        
+        .platform-instagram {
+            background: linear-gradient(45deg, #f58529, #dd2a7b, #8134af, #515bd4);
+        }
+        
+        .platform-tiktok {
+            background-color: #000000;
+        }
+        
+        .platform-snapchat {
+            background-color: #fffc00;
+            color: #000;
+        }
+        
+        .platform-x {
+            background-color: #000000;
+        }
+        
+        .platform-discord {
+            background-color: #5865F2;
+        }
+        
+        .platform-facebook {
+            background-color: #1877F2;
+        }
+        
+        .platform-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .tips-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .tips-sidebar {
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+                padding: 16px;
+            }
+            
+            .tips-nav {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .tips-nav-item {
+                margin-bottom: 0;
+            }
+            
+            .tips-nav-link {
+                padding: 8px 16px;
+                border-left: none;
+                border-radius: 4px;
+            }
+            
+            .tips-nav-header {
+                width: 100%;
+                padding: 8px 0;
+                margin-top: 12px;
+            }
+            
+            .tips-content {
+                padding: 24px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/navigation', { activePage: 'tips' }) %>
+
+    <div class="tips-container">
+        <div class="tips-header">
+            <h1 class="tips-title">Digital Threat Assessment Search Tips</h1>
+            <p class="tips-subtitle">Techniques and strategies for effective digital investigations</p>
+        </div>
+        
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search tips..." id="tipsSearch">
+        </div>
+        
+        <div class="tips-layout">
+            <div class="tips-sidebar">
+                <ul class="tips-nav">
+                    <li class="tips-nav-item">
+                        <a href="#general" class="tips-nav-link active">General Search Techniques</a>
+                    </li>
+                    <li class="tips-nav-item">
+                        <a href="#username" class="tips-nav-link">Username Search</a>
+                    </li>
+                    <li class="tips-nav-item">
+                        <a href="#boolean" class="tips-nav-link">Boolean Search Operators</a>
+                    </li>
+                    <li class="tips-nav-item">
+                        <a href="#image" class="tips-nav-link">Image Search</a>
+                    </li>
+                    
+                    <div class="tips-nav-header">Platforms</div>
+                    
+                    <li class="tips-nav-item">
+                        <a href="#instagram" class="tips-nav-link">Instagram</a>
+                    </li>
+                    <li class="tips-nav-item">
+                        <a href="#tiktok" class="tips-nav-link">TikTok</a>
+                    </li>
+                    <li class="tips-nav-item">
+                        <a href="#snapchat" class="tips-nav-link">Snapchat</a>
+                    </li>
+                    <li class="tips-nav-item">
+                        <a href="#x" class="tips-nav-link">X (Twitter)</a>
+                    </li>
+                    <li class="tips-nav-item">
+                        <a href="#discord" class="tips-nav-link">Discord</a>
+                    </li>
+                    <li class="tips-nav-item">
+                        <a href="#facebook" class="tips-nav-link">Facebook</a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="tips-content">
+                <div class="tip-section" id="general">
+                    <h2 class="tip-section-title">General Search Techniques</h2>
+                    
+                    <div class="tip-subsection">
+                        <h3 class="tip-subsection-title">Finding Social Media Accounts</h3>
+                        <ul class="tips-list">
+                            <li class="tip-item">Don't know their username? Start by searching their real name on each platform</li>
+                            <li class="tip-item">Username vs Display Name: Username is @johndoe123, Display Name is 'John Doe'</li>
+                            <li class="tip-item">Try variations: nicknames, initials, first name + graduation year</li>
+                            <li class="tip-item">Check school social media pages for comments and tags</li>
+                            <li class="tip-item">Look for the same profile picture across different platforms</li>
+                        </ul>
+                        
+                        <div class="tip-highlight">
+                            <div class="tip-highlight-title">Pro Tip</div>
+                            <p>Many users maintain similar usernames across platforms. If you find an account on one platform, try searching for the same or similar username on other platforms.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tip-subsection">
+                        <h3 class="tip-subsection-title">Search Engines</h3>
+                        <ul class="tips-list">
+                            <li class="tip-item">Use multiple search engines (Google, Bing, DuckDuckGo) as they may yield different results</li>
+                            <li class="tip-item">Try specialized search engines like Social Searcher or Pipl for social media specific searches</li>
+                            <li class="tip-item">Use quotation marks for exact phrase searches: "John Smith Springfield High"</li>
+                            <li class="tip-item">Add relevant keywords like school name, sports team, or graduation year</li>
+                            <li class="tip-item">Use the site: operator to search specific websites (e.g., site:instagram.com "John Smith")</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="tip-section" id="username">
+                    <h2 class="tip-section-title">Username Search</h2>
+                    
+                    <div class="tip-subsection">
+                        <h3 class="tip-subsection-title">Username Patterns</h3>
+                        <ul class="tips-list">
+                            <li class="tip-item">Common patterns include: firstname.lastname, firstinitial_lastname, firstname_birthyear</li>
+                            <li class="tip-item">Look for usernames that include graduation year (e.g., jsmith2025)</li>
+                            <li class="tip-item">Check for usernames that include school mascots or sports team numbers</li>
+                            <li class="tip-item">Many users add underscores or periods between words in their username</li>
+                            <li class="tip-item">Some users replace letters with numbers (e.g., "a" with "4", "e" with "3", "i" with "1")</li>
+                        </ul>
+                        
+                        <div class="tip-example">
+                            Common username variations for "John Smith":<br>
+                            - johnsmith<br>
+                            - john.smith<br>
+                            - john_smith<br>
+                            - jsmith<br>
+                            - johnsmith2025<br>
+                            - john.s<br>
+                            - j.smith<br>
+                            - j0hn5m1th
+                        </div>
+                    </div>
+                    
+                    <div class="tip-subsection">
+                        <h3 class="tip-subsection-title">Username Search Tools</h3>
+                        <ul class="tips-list">
+                            <li class="tip-item">Use tools like NameChk or KnowEm to check username availability across multiple platforms</li>
+                            <li class="tip-item">Try Sherlock, a command-line tool that searches for usernames across social networks</li>
+                            <li class="tip-item">WhatsMyName is an open-source tool for username searches</li>
+                            <li class="tip-item">Use Google dorks to find specific username patterns (e.g., intext:@username site:twitter.com)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="tip-section" id="boolean">
+                    <h2 class="tip-section-title">Boolean Search Operators</h2>
+                    
+                    <div class="tip-subsection">
+                        <h3 class="tip-subsection-title">Basic Boolean Operators</h3>
+                        <ul class="tips-list">
+                            <li class="tip-item">AND: Requires both terms to be present (e.g., John AND Smith)</li>
+                            <li class="tip-item">OR: Requires either term to be present (e.g., John OR Johnny)</li>
+                            <li class="tip-item">NOT: Excludes a term (e.g., Smith NOT John)</li>
+                            <li class="tip-item">Quotation marks: Searches for an exact phrase (e.g., "John Smith")</li>
+                            <li class="tip-item">Parentheses: Groups terms together (e.g., (John OR Johnny) AND Smith)</li>
+                        </ul>
+                        
+                        <div class="tip-example">
+                            Example Boolean search:<br>
+                            ("John Smith" OR "Johnny Smith") AND "Springfield High" AND (basketball OR football) -teacher
+                        </div>
+                        
+                        <p class="tip-note">This search would find mentions of John or Johnny Smith from Springfield High who plays basketball or football, but excludes results about teachers.</p>
+                    </div>
+                    
+                    <div class="tip-subsection">
+                        <h3 class="tip-subsection-title">Advanced Search Operators</h3>
+                        <ul class="tips-list">
+                            <li class="tip-item">site: Limits results to a specific website (e.g., site:instagram.com)</li>
+                            <li class="tip-item">filetype: Searches for specific file types (e.g., filetype:pdf)</li>
+                            <li class="tip-item">inurl: Searches for text in the URL (e.g., inurl:johnsmith)</li>
+                            <li class="tip-item">intitle: Searches for text in the page title (e.g., intitle:"John Smith")</li>
+                            <li class="tip-item">intext: Searches for text in the page content (e.g., intext:@johnsmith)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="tip-section" id="image">
+                    <h2 class="tip-section-title">Image Search</h2>
+                    
+                    <div class="tip-subsection">
+                        <h3 class="tip-subsection-title">Reverse Image Search</h3>
+                        <ul class="tips-list">
+                            <li class="tip-item">Use Google Images, TinEye, or Yandex for reverse image searches</li>
+                            <li class="tip-item">Try multiple reverse image search engines as they use different algorithms</li>
+                            <li class="tip-item">Crop the image to focus on the face or distinctive features before searching</li>
+                            <li class="tip-item">Look for the same profile picture used across different platforms</li>
+                            <li class="tip-item">Check image metadata for location information or device details</li>
+                        </ul>
+                        
+                        <div class="tip-highlight">
+                            <div class="tip-highlight-title">Pro Tip</div>
+                            <p>If a reverse image search doesn't yield results, try flipping the image horizontally or adjusting the brightness/contrast before searching again.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tip-subsection">
+                        <h3 class="tip-subsection-title">Image Analysis</h3>
+                        <ul class="tips-list">
+                            <li class="tip-item">Look for background details in photos that might reveal location information</li>
+                            <li class="tip-item">Check for reflections in mirrors, windows, or sunglasses</li>
+                            <li class="tip-item">Examine clothing for school logos, team names, or other identifying information</li>
+                            <li class="tip-item">Look for consistent friends or locations across multiple photos</li>
+                            <li class="tip-item">Pay attention to timestamps and seasonal indicators in photos</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="platform-specific">
+                    <div class="tip-section" id="instagram">
+                        <div class="platform-header">
+                            <div class="platform-icon platform-instagram">IG</div>
+                            <h2 class="platform-title">Instagram Search Tips</h2>
+                        </div>
+                        
+                        <ul class="tips-list">
+                            <li class="tip-item">Search by username, full name, or hashtags</li>
+                            <li class="tip-item">Check tagged photos to find connections</li>
+                            <li class="tip-item">Look at followers and following lists for connections</li>
+                            <li class="tip-item">Use location tags to find posts from specific areas</li>
+                            <li class="tip-item">Check for Instagram stories highlights for additional content</li>
+                            <li class="tip-item">Use third-party tools like Gramhir or Picuki to view profiles anonymously</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="tip-section" id="tiktok">
+                        <div class="platform-header">
+                            <div class="platform-icon platform-tiktok">TT</div>
+                            <h2 class="platform-title">TikTok Search Tips</h2>
+                        </div>
+                        
+                        <ul class="tips-list">
+                            <li class="tip-item">Search by username, nickname, or real name</li>
+                            <li class="tip-item">Use hashtags related to schools, sports teams, or local areas</li>
+                            <li class="tip-item">Check the "Friends" tab to see connections</li>
+                            <li class="tip-item">Look for duets and collaborations with other users</li>
+                            <li class="tip-item">Use TikTok's "Discover" feature to find content by location</li>
+                            <li class="tip-item">Check comments on popular local content</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="tip-section" id="snapchat">
+                        <div class="platform-header">
+                            <div class="platform-icon platform-snapchat">SC</div>
+                            <h2 class="platform-title">Snapchat Search Tips</h2>
+                        </div>
+                        
+                        <ul class="tips-list">
+                            <li class="tip-item">Use the "Add Friends" feature to search by username or real name</li>
+                            <li class="tip-item">Check Snap Map for location-based content</li>
+                            <li class="tip-item">Look for usernames that match patterns from other platforms</li>
+                            <li class="tip-item">Use the "Quick Add" feature to find potential connections</li>
+                            <li class="tip-item">Search for public stories in specific locations</li>
+                            <li class="tip-item">Check for Snapchat usernames shared on other social platforms</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="tip-section" id="x">
+                        <div class="platform-header">
+                            <div class="platform-icon platform-x">X</div>
+                            <h2 class="platform-title">X (Twitter) Search Tips</h2>
+                        </div>
+                        
+                        <ul class="tips-list">
+                            <li class="tip-item">Use Twitter's advanced search to filter by date, location, and keywords</li>
+                            <li class="tip-item">Search for mentions of usernames with the @ symbol</li>
+                            <li class="tip-item">Use the "from:" operator to see all tweets from a specific user</li>
+                            <li class="tip-item">Check who a user follows and who follows them</li>
+                            <li class="tip-item">Look for location tags in tweets</li>
+                            <li class="tip-item">Search for school hashtags or local event hashtags</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="tip-section" id="discord">
+                        <div class="platform-header">
+                            <div class="platform-icon platform-discord">DC</div>
+                            <h2 class="platform-title">Discord Search Tips</h2>
+                        </div>
+                        
+                        <ul class="tips-list">
+                            <li class="tip-item">Search for public Discord servers related to schools or local communities</li>
+                            <li class="tip-item">Look for Discord usernames shared on other platforms</li>
+                            <li class="tip-item">Check for Discord links in gaming forums or social media profiles</li>
+                            <li class="tip-item">Use Discord's search feature within servers to find specific content</li>
+                            <li class="tip-item">Note that Discord usernames include a # followed by a number (e.g., username#1234)</li>
+                            <li class="tip-item">Look for Discord servers advertised on school websites or community pages</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="tip-section" id="facebook">
+                        <div class="platform-header">
+                            <div class="platform-icon platform-facebook">FB</div>
+                            <h2 class="platform-title">Facebook Search Tips</h2>
+                        </div>
+                        
+                        <ul class="tips-list">
+                            <li class="tip-item">Use Facebook's search filters to narrow results by city, education, or workplace</li>
+                            <li class="tip-item">Check mutual friends to find connections</li>
+                            <li class="tip-item">Look for membership in school groups or local community groups</li>
+                            <li class="tip-item">Search for tagged photos to find connections</li>
+                            <li class="tip-item">Check event attendees for local school events</li>
+                            <li class="tip-item">Use Graph Search syntax for advanced searches (e.g., "people who live in [city] and attend [school]")</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/navigation.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('.tips-nav-link').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    document.querySelectorAll('.tips-nav-link').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Get the target section
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetSection = document.getElementById(targetId);
+                    
+                    if (targetSection) {
+                        // Scroll to the target section
+                        targetSection.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // Search functionality
+            const searchInput = document.getElementById('tipsSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    
+                    if (searchTerm.length < 2) {
+                        // Show all sections if search term is too short
+                        document.querySelectorAll('.tip-section, .tip-subsection, .tip-item').forEach(el => {
+                            el.style.display = '';
+                        });
+                        return;
+                    }
+                    
+                    // Hide all sections initially
+                    document.querySelectorAll('.tip-section').forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Search in section titles, subsection titles, and list items
+                    document.querySelectorAll('.tip-section-title, .tip-subsection-title, .tip-item').forEach(el => {
+                        const text = el.textContent.toLowerCase();
+                        
+                        if (text.includes(searchTerm)) {
+                            // Show this element and its parent section
+                            el.style.display = '';
+                            
+                            let parent = el;
+                            while (parent && !parent.classList.contains('tip-section')) {
+                                parent = parent.parentElement;
+                            }
+                            
+                            if (parent) {
+                                parent.style.display = '';
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
