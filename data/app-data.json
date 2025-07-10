@@ -2,9 +2,9 @@
   "case": {
     "caseId": "34234234235",
     "date": "2025-07-03",
-    "team_member_name": "Colton Test2",
+    "investigatorName": "Colton Test2",
     "organization": "Test Org2",
-    "socStatus": "unknown",
+    "socStatus": "known",
     "discoveryMethod": "{\"method\":\"social\",\"sourcePlatform\":\"twitter\",\"physicalDetails\":{\"finder\":null,\"date\":null,\"location\":null,\"witnesses\":null}}",
     "safetyAssessment": "{\"enforcement\":\"no\",\"means\":\"no\"}",
     "studentInfo": {

@@ -24,62 +24,188 @@ function writeData(data) {
 }
 
 // Dashboard route
-router.get('/dashboard', (req, res) => {
-  // Get case data for the dashboard
-  const data = readData();
-  
-  // Format case data for display
-  const cases = [];
-  if (data.case && data.case.caseId) {
-    // Add status field to case data
-    const caseWithStatus = {
-      ...data.case,
-      status: 'Active', // Default status
-      socName: data.socs[data.activeSocId]?.name || 'Unknown',
-      platforms: {}
-    };
+router.get('/dashboard', async (req, res) => {
+  try {
+    // Get all cases from Supabase
+    const { data: casesData, error } = await supabase
+      .from('cases')
+      .select('*')
+      .order('date', { ascending: false });
+      
+    if (error) {
+      console.error('Supabase error:', error);
+      // Fallback to local JSON file if Supabase fails
+      const data = readData();
+      const cases = [];
+      
+      if (data.case && data.case.caseId) {
+        const caseWithStatus = {
+          ...data.case,
+          status: 'Active', // Default status
+          socName: data.socs[data.activeSocId]?.name || 'Unknown',
+          platforms: {}
+        };
+        
+        // Check which platforms have data
+        Object.keys(data.socs[data.activeSocId].platforms).forEach(platform => {
+          const platformData = data.socs[data.activeSocId].platforms[platform];
+          caseWithStatus.platforms[platform] = platformData.username || platformData.photos.length > 0;
+        });
+        
+        cases.push(caseWithStatus);
+      }
+      
+      return res.render('dashboard', { cases, activeCaseId: data.case?.caseId });
+    }
     
-    // Check which platforms have data
-    Object.keys(data.socs[data.activeSocId].platforms).forEach(platform => {
-      const platformData = data.socs[data.activeSocId].platforms[platform];
-      caseWithStatus.platforms[platform] = platformData.username || platformData.photos.length > 0;
-    });
+    // Format case data for display
+    const cases = [];
+    const localData = readData();
+    const activeCaseId = localData.case?.caseId;
     
-    cases.push(caseWithStatus);
+    for (const caseData of casesData) {
+      // Parse student info if available
+      const studentInfo = caseData.student_info ? JSON.parse(caseData.student_info) : null;
+      
+      // Format case data
+      const formattedCase = {
+        caseId: caseData.id,
+        date: caseData.date,
+        investigatorName: caseData.team_member_name,
+        organization: caseData.organization,
+        socStatus: caseData.soc_status || 'Unknown',
+        studentName: studentInfo?.name || 'Unknown',
+        status: 'Active', // Default status
+      };
+      
+      cases.push(formattedCase);
+    }
+    
+    res.render('dashboard', { cases, activeCaseId });
+  } catch (error) {
+    console.error('Error fetching cases:', error);
+    res.status(500).render('error', { message: 'Failed to load dashboard' });
   }
-  
-  res.render('dashboard', { cases });
 });
 
 // Cases route
-router.get('/cases', (req, res) => {
-  // Get case data
-  const data = readData();
-  
-  // Format case data for display
-  const cases = [];
-  if (data.case && data.case.caseId) {
-    // Add status field to case data
-    const caseWithStatus = {
-      ...data.case,
-      status: 'Active', // Default status
-      socName: data.socs[data.activeSocId]?.name || 'Unknown',
-      platforms: {}
-    };
+router.get('/cases', async (req, res) => {
+  try {
+    // Get all cases from Supabase
+    const { data: casesData, error } = await supabase
+      .from('cases')
+      .select('*')
+      .order('date', { ascending: false });
+      
+    if (error) {
+      console.error('Supabase error:', error);
+      // Fallback to local JSON file if Supabase fails
+      const data = readData();
+      const cases = [];
+      
+      if (data.case && data.case.caseId) {
+        const caseWithStatus = {
+          ...data.case,
+          status: 'Active', // Default status
+          socName: data.socs[data.activeSocId]?.name || 'Unknown',
+          platforms: {}
+        };
+        
+        // Check which platforms have data
+        Object.keys(data.socs[data.activeSocId].platforms).forEach(platform => {
+          const platformData = data.socs[data.activeSocId].platforms[platform];
+          caseWithStatus.platforms[platform] = platformData.username || platformData.photos.length > 0;
+        });
+        
+        cases.push(caseWithStatus);
+      }
+      
+      return res.render('cases', { cases, activeCaseId: data.case?.caseId });
+    }
     
-    // Check which platforms have data
-    Object.keys(data.socs[data.activeSocId].platforms).forEach(platform => {
-      const platformData = data.socs[data.activeSocId].platforms[platform];
-      caseWithStatus.platforms[platform] = platformData.username || platformData.photos.length > 0;
-    });
+    // Format case data for display
+    const cases = [];
+    const localData = readData();
+    const activeCaseId = localData.case?.caseId;
     
-    cases.push(caseWithStatus);
+    for (const caseData of casesData) {
+      // Parse student info if available
+      const studentInfo = caseData.student_info ? JSON.parse(caseData.student_info) : null;
+      
+      // Format case data
+      const formattedCase = {
+        caseId: caseData.id,
+        date: caseData.date,
+        investigatorName: caseData.team_member_name,
+        organization: caseData.organization,
+        socStatus: caseData.soc_status || 'Unknown',
+        socName: studentInfo?.name || 'Unknown',
+        status: 'Active', // Default status
+        // Add empty platforms object for compatibility with the template
+        platforms: {
+          instagram: false,
+          tiktok: false,
+          snapchat: false,
+          x: false,
+          discord: false,
+          facebook: false,
+          other: false
+        }
+      };
+      
+      cases.push(formattedCase);
+    }
+    
+    res.render('cases', { cases, activeCaseId });
+  } catch (error) {
+    console.error('Error fetching cases:', error);
+    res.status(500).render('error', { message: 'Failed to load cases' });
   }
-  
-  res.render('cases', { cases });
 });
 
 // API Routes
+// Get all cases API endpoint
+router.get('/api/cases', async (req, res) => {
+  try {
+    // Get all cases from Supabase
+    const { data: casesData, error } = await supabase
+      .from('cases')
+      .select('*')
+      .order('date', { ascending: false });
+      
+    if (error) {
+      console.error('Supabase error:', error);
+      return res.status(500).json({ error: 'Failed to fetch cases' });
+    }
+    
+    // Format case data for response
+    const cases = [];
+    
+    for (const caseData of casesData) {
+      // Parse student info if available
+      const studentInfo = caseData.student_info ? JSON.parse(caseData.student_info) : null;
+      
+      // Format case data
+      const formattedCase = {
+        caseId: caseData.id,
+        date: caseData.date,
+        investigatorName: caseData.team_member_name,
+        organization: caseData.organization,
+        socStatus: caseData.soc_status || 'Unknown',
+        studentName: studentInfo?.name || 'Unknown',
+        status: 'Active', // Default status
+      };
+      
+      cases.push(formattedCase);
+    }
+    
+    res.json({ cases });
+  } catch (error) {
+    console.error('Error fetching cases:', error);
+    res.status(500).json({ error: 'Failed to fetch cases' });
+  }
+});
+
 // Get case data
 router.get('/api/case-data', async (req, res) => {
   try {
@@ -122,6 +248,49 @@ router.get('/api/case-data', async (req, res) => {
   } catch (error) {
     console.error('Error fetching case data:', error);
     res.status(500).json({ error: 'Failed to fetch case data' });
+  }
+});
+
+// Set active case route
+router.get('/set-active-case/:caseId', async (req, res) => {
+  try {
+    const { caseId } = req.params;
+    const redirect = req.query.redirect || '/dashboard';
+    
+    // Get case data from Supabase
+    const { data: caseData, error } = await supabase
+      .from('cases')
+      .select('*')
+      .eq('id', caseId)
+      .single();
+      
+    if (error) {
+      console.error('Supabase error:', error);
+      return res.status(404).redirect('/dashboard?error=Case+not+found');
+    }
+    
+    // Update local data to set this as the active case
+    const localData = readData();
+    
+    // Format case data for local storage
+    localData.case = {
+      caseId: caseData.id,
+      date: caseData.date,
+      investigatorName: caseData.team_member_name,
+      organization: caseData.organization,
+      socStatus: caseData.soc_status,
+      discoveryMethod: caseData.discovery_method,
+      safetyAssessment: caseData.safety_assessment,
+      studentInfo: caseData.student_info ? JSON.parse(caseData.student_info) : null
+    };
+    
+    writeData(localData);
+    
+    // Redirect back to the referring page
+    res.redirect(redirect);
+  } catch (error) {
+    console.error('Error setting active case:', error);
+    res.status(500).redirect('/dashboard?error=Failed+to+set+active+case');
   }
 });
 

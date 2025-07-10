@@ -2,6 +2,9 @@
  * Navigation functionality
  */
 document.addEventListener('DOMContentLoaded', function() {
+    // Check for active case
+    checkActiveCase();
+    
     // Mobile menu toggle
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     const mobileMenu = document.getElementById('mobileMenu');
@@ -46,4 +49,39 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Function to check for active case and display indicator
+    function checkActiveCase() {
+        const activeCaseId = localStorage.getItem('activeCaseId');
+        
+        if (activeCaseId) {
+            // Check if indicator already exists
+            let indicator = document.querySelector('.active-case-indicator');
+            
+            if (!indicator) {
+                // Create indicator if it doesn't exist
+                indicator = document.createElement('div');
+                indicator.className = 'active-case-indicator';
+                indicator.innerHTML = `<span>Active Case: ${activeCaseId}</span>`;
+                
+                // Add to navigation
+                const nav = document.querySelector('.main-navigation');
+                if (nav) {
+                    nav.appendChild(indicator);
+                }
+            }
+            
+            // Add class to body
+            document.body.classList.add('has-active-case');
+        } else {
+            // Remove indicator if it exists
+            const indicator = document.querySelector('.active-case-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+            
+            // Remove class from body
+            document.body.classList.remove('has-active-case');
+        }
+    }
 });

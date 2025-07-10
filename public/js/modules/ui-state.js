@@ -8,6 +8,7 @@ import { updatePhoto } from './api-service.js';
 
 // Load case data
 function loadCaseData() {
+    // First try to get the active case
     fetch('/api/case-data')
         .then(response => {
             if (!response.ok) {
@@ -21,6 +22,15 @@ function loadCaseData() {
             // Check if we have case data
             if (data.case) {
                 populateCaseContext(data.case);
+                
+                // Add a class to the body to indicate we have an active case
+                document.body.classList.add('has-active-case');
+                
+                // Store the active case ID in localStorage for persistence
+                localStorage.setItem('activeCaseId', data.case.caseId);
+            } else {
+                document.body.classList.remove('has-active-case');
+                localStorage.removeItem('activeCaseId');
             }
         })
         .catch(error => {
@@ -31,23 +41,69 @@ function loadCaseData() {
 // Populate case context
 function populateCaseContext(caseData) {
     // Set case ID and date
-    document.getElementById('caseId').textContent = caseData.caseId || 'N/A';
-    document.getElementById('caseDate').textContent = caseData.date || 'N/A';
+    const caseIdElements = document.querySelectorAll('.case-id, #caseId');
+    const caseDateElements = document.querySelectorAll('.case-date, #caseDate');
+    
+    caseIdElements.forEach(el => {
+        if (el) el.textContent = caseData.caseId || 'N/A';
+    });
+    
+    caseDateElements.forEach(el => {
+        if (el) el.textContent = caseData.date || 'N/A';
+    });
     
     // Set investigator name
-    document.getElementById('investigatorName').textContent = caseData.investigatorName || 'N/A';
+    const investigatorElements = document.querySelectorAll('.investigator-name, #investigatorName');
+    investigatorElements.forEach(el => {
+        if (el) el.textContent = caseData.investigatorName || 'N/A';
+    });
     
     // Set student info
+    const studentNameElements = document.querySelectorAll('.student-name, #studentName');
+    const studentGradeElements = document.querySelectorAll('.student-grade, #studentGrade');
+    
     if (caseData.studentInfo) {
-        document.getElementById('studentName').textContent = caseData.studentInfo.name || 'N/A';
-        document.getElementById('studentGrade').textContent = caseData.studentInfo.grade || 'N/A';
+        studentNameElements.forEach(el => {
+            if (el) el.textContent = caseData.studentInfo.name || 'N/A';
+        });
+        
+        studentGradeElements.forEach(el => {
+            if (el) el.textContent = caseData.studentInfo.grade || 'N/A';
+        });
     } else {
-        document.getElementById('studentName').textContent = 'N/A';
-        document.getElementById('studentGrade').textContent = 'N/A';
+        studentNameElements.forEach(el => {
+            if (el) el.textContent = 'N/A';
+        });
+        
+        studentGradeElements.forEach(el => {
+            if (el) el.textContent = 'N/A';
+        });
     }
     
     // Set SOC status
-    document.getElementById('socStatus').textContent = caseData.socStatus || 'N/A';
+    const socStatusElements = document.querySelectorAll('.soc-status, #socStatus');
+    socStatusElements.forEach(el => {
+        if (el) el.textContent = caseData.socStatus || 'N/A';
+    });
+    
+    // Update page title to include case ID
+    document.title = `Case ${caseData.caseId} - Digital Threat Assessment Management`;
+    
+    // Add a visual indicator to the navigation
+    const navElement = document.querySelector('nav');
+    if (navElement) {
+        const caseIndicator = document.createElement('div');
+        caseIndicator.className = 'active-case-indicator';
+        caseIndicator.innerHTML = `<span>Active Case: ${caseData.caseId}</span>`;
+        
+        // Remove any existing indicators
+        const existingIndicator = navElement.querySelector('.active-case-indicator');
+        if (existingIndicator) {
+            existingIndicator.remove();
+        }
+        
+        navElement.appendChild(caseIndicator);
+    }
 }
 
 // Toggle case context

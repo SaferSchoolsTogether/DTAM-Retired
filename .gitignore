@@ -125,3 +125,6 @@ local.properties
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Local data files (now using Supabase instead)
+data/app-data.json
