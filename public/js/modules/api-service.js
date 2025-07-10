@@ -6,14 +6,57 @@
 import { state } from './core.js';
 import { updateTags, updateMetadata } from './ui-state.js';
 
+// Helper function to get platform name with fallbacks
+function getPlatformName() {
+  try {
+    const activeIcon = document.querySelector('.platform-icon.active');
+    if (!activeIcon) {
+      // Try to get platform from URL if no active icon
+      const urlPath = window.location.pathname;
+      const platformMatch = urlPath.match(/\/platform\/([^\/]+)/);
+      if (platformMatch && platformMatch[1]) {
+        return platformMatch[1];
+      }
+      
+      // If still no platform, check if there's a data attribute on the body
+      const bodyPlatform = document.body.dataset.platform;
+      if (bodyPlatform) {
+        return bodyPlatform;
+      }
+      
+      console.error('No active platform icon found and no fallback available');
+      return null;
+    }
+    
+    const platformUrl = activeIcon.getAttribute('href');
+    if (!platformUrl) {
+      console.error('Platform icon has no href attribute');
+      return null;
+    }
+    
+    return platformUrl.split('/').pop();
+  } catch (error) {
+    console.error('Error getting platform name:', error);
+    return null;
+  }
+}
+
 // Update photo
 function updatePhoto(data) {
     if (!state.currentPhotoId) return;
     
     const saveIndicator = document.getElementById('saveIndicator');
-    // Get the full platform name from the URL instead of the abbreviated text
-    const platformUrl = document.querySelector('.platform-icon.active').getAttribute('href');
-    const platform = platformUrl.split('/').pop(); // Extract platform name from URL
+    // Get the platform name using the helper function
+    const platform = getPlatformName();
+    if (!platform) {
+        saveIndicator.innerHTML = `
+            <svg class="icon" viewBox="0 0 24 24" style="color: #f44336;">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+            Error: Could not determine platform
+        `;
+        return;
+    }
     
     // Extract socId from the URL or from the body data attribute
     const socId = document.body.dataset.socId || 'soc_1';
@@ -60,9 +103,13 @@ function updatePhoto(data) {
 // Update photo view
 function updatePhotoView() {
     const currentImage = document.getElementById('currentImage');
-    // Get the full platform name from the URL instead of the abbreviated text
-    const platformUrl = document.querySelector('.platform-icon.active').getAttribute('href');
-    const platform = platformUrl.split('/').pop(); // Extract platform name from URL
+    // Get the platform name using the helper function
+    const platform = getPlatformName();
+    if (!platform) {
+        currentImage.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="600"%3E%3Crect width="600" height="600" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="24"%3EError: Could not determine platform%3C/text%3E%3C/svg%3E';
+        console.error('Could not determine platform for photo view');
+        return;
+    }
     
     // Extract socId from the URL or from the body data attribute
     const socId = document.body.dataset.socId || 'soc_1';
@@ -80,7 +127,7 @@ function updatePhotoView() {
         })
         .then(photo => {
             // Update image
-            currentImage.src = photo.path;
+            currentImage.src = photo.file_path;
             
             // Update tags
             updateTags(photo.tags);
@@ -113,9 +160,14 @@ function handleUpload(e) {
     
     const fileInput = document.getElementById('fileInput');
     const uploadBtn = document.getElementById('uploadBtn');
-    // Get the full platform name from the URL instead of the abbreviated text
-    const platformUrl = document.querySelector('.platform-icon.active').getAttribute('href');
-    const platform = platformUrl.split('/').pop(); // Extract platform name from URL
+    // Get the platform name using the helper function
+    const platform = getPlatformName();
+    if (!platform) {
+        uploadBtn.innerHTML = 'Upload';
+        uploadBtn.disabled = false;
+        alert('Error: Could not determine platform for upload. Please try again.');
+        return;
+    }
     
     // Extract socId from the URL or from the body data attribute
     const socId = document.body.dataset.socId || 'soc_1';
@@ -170,9 +222,12 @@ function handleUpload(e) {
 
 // Delete photo
 function deletePhoto(photoId, photoThumb, wasActive) {
-    // Get the full platform name from the URL instead of the abbreviated text
-    const platformUrl = document.querySelector('.platform-icon.active').getAttribute('href');
-    const platform = platformUrl.split('/').pop(); // Extract platform name from URL
+    // Get the platform name using the helper function
+    const platform = getPlatformName();
+    if (!platform) {
+        alert('Error: Could not determine platform for deletion. Please try again.');
+        return;
+    }
     
     // Extract socId from the URL or from the body data attribute
     const socId = document.body.dataset.socId || 'soc_1';
@@ -323,9 +378,12 @@ function saveProgress() {
 
 // Preview report
 function previewReport() {
-    // Get the full platform name from the URL instead of the abbreviated text
-    const platformUrl = document.querySelector('.platform-icon.active').getAttribute('href');
-    const platform = platformUrl.split('/').pop(); // Extract platform name from URL
+    // Get the platform name using the helper function
+    const platform = getPlatformName();
+    if (!platform) {
+        alert('Error: Could not determine platform for report preview. Please try again.');
+        return;
+    }
     
     // Extract socId from the URL or from the body data attribute
     const socId = document.body.dataset.socId || 'soc_1';
@@ -342,6 +400,7 @@ function generateReport() {
 
 // Export functions
 export {
+    getPlatformName,
     updatePhoto,
     updatePhotoView,
     handleUpload,

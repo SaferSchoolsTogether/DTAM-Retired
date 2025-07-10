@@ -16,6 +16,7 @@ import {
     toggleCaseContext
 } from './ui-state.js';
 import { 
+    getPlatformName,
     updatePhoto, 
     updatePhotoView, 
     handleUpload, 
@@ -410,9 +411,17 @@ function saveProfileInfo() {
     
     const saveIndicator = document.getElementById('saveIndicator');
     
-    // Get the full platform name from the URL instead of the abbreviated text
-    const platformUrl = document.querySelector('.platform-icon.active').getAttribute('href');
-    const platform = platformUrl.split('/').pop(); // Extract platform name from URL
+    // Get the platform name using the helper function
+    const platform = getPlatformName();
+    if (!platform) {
+        saveIndicator.innerHTML = `
+            <svg class="icon" viewBox="0 0 24 24" style="color: #f44336;">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+            Error: Could not determine platform
+        `;
+        return;
+    }
     
     // Extract socId from the URL or from the body data attribute
     const socId = document.body.dataset.socId || 'soc_1';

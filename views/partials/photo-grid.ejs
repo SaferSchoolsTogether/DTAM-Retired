@@ -13,7 +13,7 @@
         <% if (platformData.photos.length > 0) { %>
             <% platformData.photos.forEach(function(photo, index) { %>
                 <div class="photo-thumb <%= index === 0 ? 'active' : '' %>" data-photo-id="<%= photo.id %>">
-                    <img src="<%= photo.path %>" alt="Photo <%= index + 1 %>">
+                    <img src="<%= photo.file_path %>" alt="Photo <%= index + 1 %>">
                     <div class="photo-status <%= Object.keys(photo.analysisTags).length > 0 ? 'analyzed' : '' %>">
                         <%= Object.keys(photo.analysisTags).length > 0 ? '✓' : '○' %>
                     </div>
