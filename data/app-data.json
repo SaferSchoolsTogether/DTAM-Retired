@@ -1,22 +1,23 @@
 {
   "case": {
-    "caseId": "34234234235",
-    "date": "2025-07-03",
-    "investigatorName": "Colton Test2",
-    "organization": "Test Org2",
+    "caseId": "234234234",
+    "date": "2025-07-14",
+    "team_member_name": "Colton Easton",
+    "organization": "Safer Schools",
     "socStatus": "known",
-    "discoveryMethod": "{\"method\":\"social\",\"sourcePlatform\":\"twitter\",\"physicalDetails\":{\"finder\":null,\"date\":null,\"location\":null,\"witnesses\":null}}",
+    "discoveryMethod": "{\"method\":\"social\",\"sourcePlatform\":\"snapchat\",\"physicalDetails\":{\"finder\":null,\"date\":null,\"location\":null,\"witnesses\":null}}",
     "safetyAssessment": "{\"enforcement\":\"no\",\"means\":\"no\"}",
     "studentInfo": {
-      "name": "Test Student2",
-      "id": "13242352345",
-      "grade": "10",
-      "school": "Test2 High School4",
-      "dob": "1990-10-16",
+      "name": "Simran Sharma",
+      "id": "99999",
+      "grade": "9",
+      "school": "Something high school",
+      "dob": "2013-02-20",
       "supportPlans": [
-        "BIP"
+        "BIP",
+        "Other"
       ],
-      "otherPlanText": ""
+      "otherPlanText": "Terstest"
     }
   },
   "socs": {
@@ -35,23 +36,7 @@
           "username": "User_123",
           "displayName": "User_123",
           "url": "User-123",
-          "photos": [
-            {
-              "id": "c9dd5981-4bbd-4228-951c-9a9deeb0eccc",
-              "file_path": "https://kbioxezyfsatpkztuddh.supabase.co/storage/v1/object/public/dtam-photos/soc_1/instagram/c9dd5981-4bbd-4228-951c-9a9deeb0eccc.jpg",
-              "thumbnail": "https://kbioxezyfsatpkztuddh.supabase.co/storage/v1/object/public/dtam-photos/soc_1/instagram/c9dd5981-4bbd-4228-951c-9a9deeb0eccc.jpg",
-              "uploadDate": "2025-07-10T20:08:20.654Z",
-              "tags": [],
-              "analysisTags": {},
-              "notes": "",
-              "metadata": {
-                "posted": "2025-07-10",
-                "likes": 0,
-                "comments": 0,
-                "engagementRate": "0%"
-              }
-            }
-          ]
+          "photos": []
         },
         "tiktok": {
           "username": "",

@@ -25,6 +25,11 @@ function writeData(data) {
 
 // Dashboard route
 router.get('/dashboard', async (req, res) => {
+  // If onboarding data is present, redirect to workstation landing page
+  if (req.query.onboardingData) {
+    return res.redirect(`/workstation?onboardingData=${encodeURIComponent(req.query.onboardingData)}`);
+  }
+  
   try {
     // Get all cases from Supabase
     const { data: casesData, error } = await supabase

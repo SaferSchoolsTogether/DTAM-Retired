@@ -23,6 +23,54 @@ function writeData(data) {
   return fs.writeJsonSync(DATA_FILE, data, { spaces: 2 });
 }
 
+// Workstation landing page route
+router.get('/workstation', (req, res) => {
+  const data = readData();
+  const activeSocId = data.activeSocId || Object.keys(data.socs)[0] || 'soc_1';
+  
+  // Handle onboarding data if present
+  if (req.query.onboardingData) {
+    try {
+      // Parse the onboarding data
+      const onboardingData = JSON.parse(req.query.onboardingData);
+      
+      // Save the case data
+      if (onboardingData.caseInfo) {
+        data.case = {
+          caseId: onboardingData.caseInfo.caseId,
+          date: onboardingData.caseInfo.date,
+          investigatorName: onboardingData.caseInfo.investigatorName,
+          organization: onboardingData.caseInfo.organization
+        };
+      }
+      
+      // Update SOC data if available
+      if (onboardingData.studentInfo && activeSocId) {
+        data.socs[activeSocId].name = onboardingData.studentInfo.name || '';
+        data.socs[activeSocId].studentId = onboardingData.studentInfo.id || '';
+        data.socs[activeSocId].grade = onboardingData.studentInfo.grade || '';
+        data.socs[activeSocId].school = onboardingData.studentInfo.school || '';
+        data.socs[activeSocId].dob = onboardingData.studentInfo.dob || '';
+        data.socs[activeSocId].supportPlans = onboardingData.studentInfo.supportPlans || [];
+        data.socs[activeSocId].otherPlanText = onboardingData.studentInfo.otherPlanText || '';
+        data.socs[activeSocId].status = onboardingData.socStatus || 'known';
+      }
+      
+      // Save the updated data
+      writeData(data);
+    } catch (error) {
+      console.error('Error processing onboarding data:', error);
+    }
+  }
+  
+  res.render('workstation-landing', {
+    socId: activeSocId,
+    allSocs: Object.keys(data.socs),
+    allSocsData: data.socs,
+    activeSocId: activeSocId
+  });
+});
+
 // Platform workstation route
 router.get('/soc/:socId/platform/:platform', (req, res) => {
   const { socId, platform } = req.params;

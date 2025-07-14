@@ -1,0 +1,115 @@
+/* Workstation Landing Page Styles */
+
+.workstation-landing {
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 40px;
+}
+
+/* Platform Selection Grid */
+.platform-selection-container {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 30px;
+}
+
+.platform-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-top: 20px;
+}
+
+.platform-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f8f8;
+    border-radius: 12px;
+    padding: 24px;
+    text-decoration: none;
+    color: #262626;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.platform-card:hover {
+    background-color: #f0f0f0;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-color: #0066cc;
+}
+
+.platform-icon-large {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.platform-name {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+/* Help Section */
+.help-section {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.help-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #262626;
+    margin-bottom: 20px;
+}
+
+.help-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    font-size: 16px;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+    .platform-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .platform-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .workstation-landing {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .platform-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .platform-card {
+        padding: 16px;
+    }
+    
+    .platform-icon-large {
+        font-size: 36px;
+    }
+}

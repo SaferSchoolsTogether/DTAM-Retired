@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workstation</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/onboarding.css">
+</head>
+<body data-soc-id="<%= socId %>">
+    <%- include('partials/navigation', { activePage: 'workstation' }) %>
+    
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-section">
+            <div class="sst-logo">SST</div>
+            <h1 class="platform-title">Workstation</h1>
+        </div>
+        <div class="header-actions">
+            <button id="caseContextToggleBtn" class="btn btn-info">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                </svg>
+                Case Info
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Main Content -->
+        <div class="workstation-landing">
+            <div class="platform-selection-container">
+                <h2 class="section-title">Select a Platform to Begin Your Digital Threat Assessment</h2>
+                <div class="platform-grid">
+                    <a href="/soc/<%= socId %>/platform/instagram" class="platform-card">
+                        <div class="platform-icon-large">📷</div>
+                        <div class="platform-name">Instagram</div>
+                    </a>
+                    <a href="/soc/<%= socId %>/platform/tiktok" class="platform-card">
+                        <div class="platform-icon-large">🎵</div>
+                        <div class="platform-name">TikTok</div>
+                    </a>
+                    <a href="/soc/<%= socId %>/platform/facebook" class="platform-card">
+                        <div class="platform-icon-large">📘</div>
+                        <div class="platform-name">Facebook</div>
+                    </a>
+                    <a href="/soc/<%= socId %>/platform/x" class="platform-card">
+                        <div class="platform-icon-large">🐦</div>
+                        <div class="platform-name">Twitter/X</div>
+                    </a>
+                    <a href="/soc/<%= socId %>/platform/youtube" class="platform-card">
+                        <div class="platform-icon-large">📺</div>
+                        <div class="platform-name">YouTube</div>
+                    </a>
+                    <a href="/soc/<%= socId %>/platform/linkedin" class="platform-card">
+                        <div class="platform-icon-large">💼</div>
+                        <div class="platform-name">LinkedIn</div>
+                    </a>
+                    <a href="/soc/<%= socId %>/platform/discord" class="platform-card">
+                        <div class="platform-icon-large">🎮</div>
+                        <div class="platform-name">Discord</div>
+                    </a>
+                    <a href="/soc/<%= socId %>/platform/other" class="platform-card">
+                        <div class="platform-icon-large">📌</div>
+                        <div class="platform-name">Other</div>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="help-section">
+                <h3 class="help-title">I'm not sure where to start</h3>
+                <button class="btn btn-primary help-button">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                    Help me search for accounts
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/case-context-bar') %>
+
+    <script src="/js/navigation.js"></script>
+    <script src="/js/workstation-landing.js"></script>
+</body>
+</html>

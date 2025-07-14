@@ -151,7 +151,7 @@
                     </div>
                 </div>
                 
-                <form action="/dashboard" method="GET" id="summaryForm">
+                <form action="/workstation" method="GET" id="summaryForm">
                     <input type="hidden" name="onboardingData" id="onboardingDataInput">
                     
                     <div class="nav-buttons">
@@ -294,7 +294,7 @@
             
             document.getElementById('onboardingDataInput').value = JSON.stringify(onboardingData);
             
-            // Form action is already set to dashboard in the HTML
+            // Form action is set to workstation in the HTML
         });
         
         // Format safety value for display

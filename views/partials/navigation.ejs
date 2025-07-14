@@ -22,7 +22,7 @@
                 Cases
             </a>
             <div class="nav-dropdown">
-                <button class="nav-link dropdown-toggle <%= locals.activePage === 'workstation' ? 'active' : '' %>">
+                <a href="/workstation" class="nav-link dropdown-toggle <%= locals.activePage === 'workstation' ? 'active' : '' %>">
                     <svg class="nav-icon" viewBox="0 0 24 24">
                         <path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/>
                     </svg>
@@ -30,8 +30,9 @@
                     <svg class="dropdown-arrow" viewBox="0 0 24 24">
                         <path d="M7 10l5 5 5-5z"/>
                     </svg>
-                </button>
+                </a>
                 <div class="dropdown-content">
+                    <a href="/workstation" class="dropdown-item">All Platforms</a>
                     <a href="/platform/instagram" class="dropdown-item">Instagram</a>
                     <a href="/platform/tiktok" class="dropdown-item">TikTok</a>
                     <a href="/platform/snapchat" class="dropdown-item">Snapchat</a>
@@ -62,7 +63,7 @@
     <a href="/dashboard" class="mobile-nav-link <%= locals.activePage === 'dashboard' ? 'active' : '' %>">Dashboard</a>
     <a href="/cases" class="mobile-nav-link <%= locals.activePage === 'cases' ? 'active' : '' %>">Cases</a>
     <div class="mobile-nav-group">
-        <div class="mobile-nav-group-header">Workstation</div>
+        <a href="/workstation" class="mobile-nav-link <%= locals.activePage === 'workstation' ? 'active' : '' %>">Workstation</a>
         <a href="/platform/instagram" class="mobile-nav-link sub-link">Instagram</a>
         <a href="/platform/tiktok" class="mobile-nav-link sub-link">TikTok</a>
         <a href="/platform/snapchat" class="mobile-nav-link sub-link">Snapchat</a>
