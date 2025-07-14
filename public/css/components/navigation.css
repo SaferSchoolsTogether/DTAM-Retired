@@ -1,34 +1,7 @@
 /* Navigation Styles */
 
-/* Active Case Indicator */
-.active-case-indicator {
-    background-color: #0066cc;
-    color: white;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: 500;
-    position: absolute;
-    right: 24px;
-    top: 64px;
-    z-index: 999;
-    border-radius: 0 0 4px 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.active-case-indicator span {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.active-case-indicator span::before {
-    content: '';
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background-color: #00d632;
-    border-radius: 50%;
-}
+/* Active Case Indicator - Removed as no longer relevant */
+/* Styles removed to prevent any visual elements from appearing */
 
 /* Header */
 .header {
