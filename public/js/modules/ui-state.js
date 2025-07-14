@@ -88,43 +88,126 @@ function populateCaseContext(caseData) {
     
     // Update page title to include case ID
     document.title = `Case ${caseData.caseId} - Digital Threat Assessment Management`;
+}
+
+// Toggle case context panel
+function toggleCaseContext() {
+    const caseContextPanel = document.getElementById('caseContextPanel');
+    const caseContextOverlay = document.getElementById('caseContextOverlay');
     
-    // Add a visual indicator to the navigation
-    const navElement = document.querySelector('nav');
-    if (navElement) {
-        const caseIndicator = document.createElement('div');
-        caseIndicator.className = 'active-case-indicator';
-        caseIndicator.innerHTML = `<span>Active Case: ${caseData.caseId}</span>`;
+    if (caseContextPanel.classList.contains('active')) {
+        // Close panel
+        caseContextPanel.classList.remove('active');
+        caseContextOverlay.classList.remove('active');
+    } else {
+        // Open panel
+        caseContextPanel.classList.add('active');
+        caseContextOverlay.classList.add('active');
         
-        // Remove any existing indicators
-        const existingIndicator = navElement.querySelector('.active-case-indicator');
-        if (existingIndicator) {
-            existingIndicator.remove();
-        }
-        
-        navElement.appendChild(caseIndicator);
+        // Always load case data when opening the panel
+        loadCaseData();
     }
 }
 
-// Toggle case context
-function toggleCaseContext(forceCollapse) {
-    const caseContextBar = document.getElementById('caseContextBar');
-    const toggleText = document.querySelector('.case-context-toggle-text');
+// Toggle edit mode for case context
+function toggleCaseContextEditMode() {
+    const viewMode = document.getElementById('caseContextDetails');
+    const editMode = document.getElementById('caseContextEdit');
     
-    if (forceCollapse === true || !caseContextBar.classList.contains('collapsed')) {
-        // Collapse
-        caseContextBar.classList.add('collapsed');
-        state.caseContextCollapsed = true;
-        if (toggleText) toggleText.textContent = 'Expand';
+    if (editMode.style.display === 'none') {
+        // Switch to edit mode
+        viewMode.style.display = 'none';
+        editMode.style.display = 'block';
+        
+        // Populate form with current values
+        document.getElementById('editCaseId').value = document.getElementById('caseId').textContent;
+        document.getElementById('editCaseDate').value = formatDateForInput(document.getElementById('caseDate').textContent);
+        document.getElementById('editInvestigatorName').value = document.getElementById('investigatorName').textContent;
+        document.getElementById('editStudentName').value = document.getElementById('studentName').textContent;
+        document.getElementById('editStudentGrade').value = document.getElementById('studentGrade').textContent;
+        document.getElementById('editSocStatus').value = document.getElementById('socStatus').textContent;
     } else {
-        // Expand
-        caseContextBar.classList.remove('collapsed');
-        state.caseContextCollapsed = false;
-        if (toggleText) toggleText.textContent = 'Collapse';
+        // Switch back to view mode
+        viewMode.style.display = 'flex';
+        editMode.style.display = 'none';
     }
+}
+
+// Format date for input field (MM/DD/YYYY to YYYY-MM-DD)
+function formatDateForInput(dateStr) {
+    if (!dateStr || dateStr === 'N/A') return '';
     
-    // Save state to localStorage
-    localStorage.setItem('caseContextCollapsed', state.caseContextCollapsed);
+    try {
+        const parts = dateStr.split('/');
+        if (parts.length === 3) {
+            return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+        }
+        return '';
+    } catch (e) {
+        console.error('Error formatting date:', e);
+        return '';
+    }
+}
+
+// Save case context edits
+function saveCaseContextEdits(e) {
+    e.preventDefault();
+    
+    // Get form values
+    const caseId = document.getElementById('editCaseId').value;
+    const caseDate = document.getElementById('editCaseDate').value;
+    const investigatorName = document.getElementById('editInvestigatorName').value;
+    const studentName = document.getElementById('editStudentName').value;
+    const studentGrade = document.getElementById('editStudentGrade').value;
+    const socStatus = document.getElementById('editSocStatus').value;
+    
+    // Update the view mode values
+    document.getElementById('caseId').textContent = caseId || 'N/A';
+    document.getElementById('caseDate').textContent = caseDate ? formatDateForDisplay(caseDate) : 'N/A';
+    document.getElementById('investigatorName').textContent = investigatorName || 'N/A';
+    document.getElementById('studentName').textContent = studentName || 'N/A';
+    document.getElementById('studentGrade').textContent = studentGrade || 'N/A';
+    document.getElementById('socStatus').textContent = socStatus || 'N/A';
+    
+    // TODO: Save to server/database
+    // This would be implemented with a fetch call to the appropriate API endpoint
+    
+    // Switch back to view mode
+    toggleCaseContextEditMode();
+    
+    // Show save confirmation
+    const saveIndicator = document.getElementById('saveIndicator');
+    if (saveIndicator) {
+        saveIndicator.innerHTML = `
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+            </svg>
+            Case information saved
+        `;
+        
+        // Reset after 3 seconds
+        setTimeout(() => {
+            saveIndicator.innerHTML = `
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                </svg>
+                All changes saved
+            `;
+        }, 3000);
+    }
+}
+
+// Format date for display (YYYY-MM-DD to MM/DD/YYYY)
+function formatDateForDisplay(dateStr) {
+    if (!dateStr) return 'N/A';
+    
+    try {
+        const date = new Date(dateStr);
+        return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}/${date.getFullYear()}`;
+    } catch (e) {
+        console.error('Error formatting date for display:', e);
+        return dateStr;
+    }
 }
 
 // Show upload modal
@@ -252,6 +335,8 @@ export {
     loadCaseData,
     populateCaseContext,
     toggleCaseContext,
+    toggleCaseContextEditMode,
+    saveCaseContextEdits,
     showUploadModal,
     hideUploadModal,
     resetUploadForm,

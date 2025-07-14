@@ -1,0 +1,146 @@
+/* Platform Profile Styles */
+
+/* Platform Profile Section */
+.platform-profile-section {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+    border-left: 3px solid #0095f6;
+}
+
+.platform-profile-section .section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    color: #262626;
+}
+
+.platform-icon-small {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background-color: #0095f6;
+    color: white;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.profile-fields-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.profile-fields-container .profile-field {
+    margin-bottom: 0;
+}
+
+.profile-fields-container .profile-input {
+    width: 100%;
+    background-color: white;
+}
+
+/* Header actions */
+.header-actions {
+    display: flex;
+    align-items: center;
+}
+
+/* User info (moved from inline styles) */
+.user-info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Profile field styles */
+.profile-field {
+    display: flex;
+    flex-direction: column;
+    min-width: 180px;
+}
+
+.profile-input {
+    padding: 8px 12px;
+    border: 1px solid #dbdbdb;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.profile-input:focus {
+    outline: none;
+    border-color: #0095f6;
+}
+
+/* Tooltip styles */
+.label-with-tooltip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+.tooltip-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background-color: #e0e0e0;
+    color: #555;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: help;
+    transition: background-color 0.2s;
+    position: relative;
+}
+
+.tooltip-icon:hover {
+    background-color: #0095f6;
+    color: white;
+}
+
+.tooltip-icon .tooltip-text {
+    visibility: hidden;
+    width: 250px;
+    background-color: #333;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 8px 12px;
+    position: absolute;
+    z-index: 1000;
+    top: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-weight: normal;
+    font-size: 13px;
+    line-height: 1.4;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.tooltip-icon .tooltip-text::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent #333 transparent;
+}
+
+.tooltip-icon:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}

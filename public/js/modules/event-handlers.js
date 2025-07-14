@@ -13,7 +13,9 @@ import {
     backToOptions, 
     showClearSessionModal, 
     hideClearSessionModal,
-    toggleCaseContext
+    toggleCaseContext,
+    toggleCaseContextEditMode,
+    saveCaseContextEdits
 } from './ui-state.js';
 import { 
     getPlatformName,
@@ -63,9 +65,40 @@ function initEventListeners() {
     const confirmClearSessionBtn = document.getElementById('confirmClearSessionBtn');
     const caseContextToggle = document.getElementById('caseContextToggle');
     
-    // Case context toggle
-    if (caseContextToggle) {
-        caseContextToggle.addEventListener('click', () => toggleCaseContext());
+    // Case context panel toggle
+    const caseContextToggleBtn = document.getElementById('caseContextToggleBtn');
+    if (caseContextToggleBtn) {
+        caseContextToggleBtn.addEventListener('click', toggleCaseContext);
+    }
+    
+    // Case context close button
+    const caseContextCloseBtn = document.getElementById('caseContextCloseBtn');
+    if (caseContextCloseBtn) {
+        caseContextCloseBtn.addEventListener('click', toggleCaseContext);
+    }
+    
+    // Case context overlay (click to close)
+    const caseContextOverlay = document.getElementById('caseContextOverlay');
+    if (caseContextOverlay) {
+        caseContextOverlay.addEventListener('click', toggleCaseContext);
+    }
+    
+    // Case context edit button
+    const caseContextEditBtn = document.getElementById('caseContextEditBtn');
+    if (caseContextEditBtn) {
+        caseContextEditBtn.addEventListener('click', toggleCaseContextEditMode);
+    }
+    
+    // Case context cancel edit button
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    if (cancelEditBtn) {
+        cancelEditBtn.addEventListener('click', toggleCaseContextEditMode);
+    }
+    
+    // Case context save edit form
+    const caseEditForm = document.getElementById('caseEditForm');
+    if (caseEditForm) {
+        caseEditForm.addEventListener('submit', saveCaseContextEdits);
     }
 
     // Photo upload

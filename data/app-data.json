@@ -32,16 +32,18 @@
       "status": "known",
       "platforms": {
         "instagram": {
-          "username": "",
-          "displayName": "",
-          "url": "",
+          "username": "User_123",
+          "displayName": "User_123",
+          "url": "User-123",
           "photos": [
             {
               "id": "c9dd5981-4bbd-4228-951c-9a9deeb0eccc",
               "file_path": "https://kbioxezyfsatpkztuddh.supabase.co/storage/v1/object/public/dtam-photos/soc_1/instagram/c9dd5981-4bbd-4228-951c-9a9deeb0eccc.jpg",
               "thumbnail": "https://kbioxezyfsatpkztuddh.supabase.co/storage/v1/object/public/dtam-photos/soc_1/instagram/c9dd5981-4bbd-4228-951c-9a9deeb0eccc.jpg",
               "uploadDate": "2025-07-10T20:08:20.654Z",
-              "tags": [],
+              "tags": [
+                "Access to the means\n        "
+              ],
               "analysisTags": {},
               "notes": "",
               "metadata": {

@@ -1,21 +1,34 @@
-<!-- Case Context Bar -->
-<div class="case-context-bar" id="caseContextBar">
+<!-- Case Context Slide-Out Panel -->
+<div class="case-context-panel" id="caseContextPanel">
+    <div class="case-context-overlay" id="caseContextOverlay"></div>
     <div class="case-context-content">
         <div class="case-context-header">
-            <h2 class="case-context-title">Case Context</h2>
-            <button class="case-context-toggle" id="caseContextToggle">
-                <span class="case-context-toggle-text">Collapse</span>
-                <svg class="icon" viewBox="0 0 24 24">
-                    <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
-                </svg>
-            </button>
+            <h2 class="case-context-title">Case Information</h2>
+            <div class="case-context-actions">
+                <button class="btn btn-edit" id="caseContextEditBtn">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                    </svg>
+                    Edit
+                </button>
+                <button class="case-context-close" id="caseContextCloseBtn">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
         </div>
+        
+        <!-- View Mode -->
         <div class="case-context-details" id="caseContextDetails">
             <div class="case-context-section">
+                <h3 class="section-subtitle">Case Details</h3>
                 <div class="case-detail-row">
                     <span class="case-detail-label">Case ID</span>
                     <span class="case-detail-value" id="caseId"></span>
-                    <span class="case-detail-label case-date-label">Date</span>
+                </div>
+                <div class="case-detail-row">
+                    <span class="case-detail-label">Date</span>
                     <span class="case-detail-value" id="caseDate"></span>
                 </div>
                 <div class="case-detail-row">
@@ -23,11 +36,15 @@
                     <span class="case-detail-value" id="investigatorName"></span>
                 </div>
             </div>
+            
             <div class="case-context-section">
+                <h3 class="section-subtitle">Student Information</h3>
                 <div class="case-detail-row">
                     <span class="case-detail-label">Student</span>
                     <span class="case-detail-value" id="studentName"></span>
-                    <span class="case-detail-label case-date-label">Grade</span>
+                </div>
+                <div class="case-detail-row">
+                    <span class="case-detail-label">Grade</span>
                     <span class="case-detail-value" id="studentGrade"></span>
                 </div>
                 <div class="case-detail-row">
@@ -35,6 +52,52 @@
                     <span class="case-detail-value" id="socStatus"></span>
                 </div>
             </div>
+        </div>
+        
+        <!-- Edit Mode -->
+        <div class="case-context-edit" id="caseContextEdit" style="display: none;">
+            <form id="caseEditForm">
+                <div class="case-context-section">
+                    <h3 class="section-subtitle">Case Details</h3>
+                    <div class="form-group">
+                        <label for="editCaseId">Case ID</label>
+                        <input type="text" id="editCaseId" class="form-input" placeholder="Enter case ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="editCaseDate">Date</label>
+                        <input type="date" id="editCaseDate" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="editInvestigatorName">Investigator</label>
+                        <input type="text" id="editInvestigatorName" class="form-input" placeholder="Enter investigator name">
+                    </div>
+                </div>
+                
+                <div class="case-context-section">
+                    <h3 class="section-subtitle">Student Information</h3>
+                    <div class="form-group">
+                        <label for="editStudentName">Student</label>
+                        <input type="text" id="editStudentName" class="form-input" placeholder="Enter student name">
+                    </div>
+                    <div class="form-group">
+                        <label for="editStudentGrade">Grade</label>
+                        <input type="text" id="editStudentGrade" class="form-input" placeholder="Enter grade">
+                    </div>
+                    <div class="form-group">
+                        <label for="editSocStatus">SOC Status</label>
+                        <select id="editSocStatus" class="form-input">
+                            <option value="Known">Known</option>
+                            <option value="Potential">Potential</option>
+                            <option value="Unknown">Unknown</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveEditBtn">Save Changes</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

@@ -20,9 +20,6 @@ function initializeWorkstation() {
         state.currentPhotoId = photoThumbs[0].dataset.photoId;
     }
 
-    // Load case data
-    loadCaseData();
-
     // Check if case context bar state is saved in localStorage
     const savedState = localStorage.getItem('caseContextCollapsed');
     if (savedState === 'true') {
