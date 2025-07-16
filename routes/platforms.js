@@ -167,13 +167,14 @@ router.get('/soc/:socId/platform/:platform', async (req, res) => {
       };
     }
     
-    // Get photos for this platform
+    // Get photos for this platform - simple query by soc_id and platform
     const { data: photosData, error: photosError } = await supabase
       .from('photos')
       .select('*')
-      .eq('case_id', caseId)
       .eq('soc_id', socId)
       .eq('platform', platform);
+    
+    console.log('Raw photos data from workstation route:', JSON.stringify(photosData, null, 2));
       
     if (!photosError && photosData) {
       // Format photos for the frontend
@@ -187,6 +188,10 @@ router.get('/soc/:socId/platform/:platform', async (req, res) => {
         notes: photo.notes || '',
         metadata: photo.metadata ? JSON.parse(photo.metadata) : {}
       }));
+      
+      console.log('Transformed photos data for frontend:', JSON.stringify(platformInfo.photos, null, 2));
+    } else {
+      console.log('No photos found or error occurred:', photosError);
     }
     
     // Get all SOCs for this case
@@ -323,13 +328,14 @@ router.get('/api/soc/:socId/platform/:platform', async (req, res) => {
       });
     }
     
-    // Get photos for this platform
+    // Get photos for this platform - simple query by soc_id and platform
     const { data: photosData, error: photosError } = await supabase
       .from('photos')
       .select('*')
-      .eq('case_id', caseId)
       .eq('soc_id', socId)
       .eq('platform', platform);
+    
+    console.log('Raw photos data from API route:', JSON.stringify(photosData, null, 2));
       
     // Format response
     const response = {
@@ -351,6 +357,10 @@ router.get('/api/soc/:socId/platform/:platform', async (req, res) => {
         notes: photo.notes || '',
         metadata: photo.metadata ? JSON.parse(photo.metadata) : {}
       }));
+      
+      console.log('Transformed photos data for API response:', JSON.stringify(response.photos, null, 2));
+    } else {
+      console.log('No photos found or error occurred in API route:', photosError);
     }
     
     res.json(response);
@@ -364,7 +374,9 @@ router.get('/api/soc/:socId/platform/:platform', async (req, res) => {
 router.post('/api/soc/:socId/platform/:platform', async (req, res) => {
   try {
     const { socId, platform } = req.params;
-    const { username, displayName, profileUrl } = req.body;
+    // Ensure req.body exists before destructuring to prevent TypeError
+    const body = req.body || {};
+    const { username, displayName, profileUrl } = body;
     
     // Get the case ID from the query parameter or header
     const caseId = req.query.caseId || req.headers['x-case-id'];
@@ -436,13 +448,14 @@ router.post('/api/soc/:socId/platform/:platform', async (req, res) => {
       return res.status(500).json({ error: 'Failed to update platform' });
     }
     
-    // Get photos for this platform
+    // Get photos for this platform - simple query by soc_id and platform
     const { data: photosData, error: photosError } = await supabase
       .from('photos')
       .select('*')
-      .eq('case_id', caseId)
       .eq('soc_id', socId)
       .eq('platform', platform);
+    
+    console.log('Raw photos data from platform update route:', JSON.stringify(photosData, null, 2));
       
     // Format response
     const response = {
@@ -464,6 +477,10 @@ router.post('/api/soc/:socId/platform/:platform', async (req, res) => {
         notes: photo.notes || '',
         metadata: photo.metadata ? JSON.parse(photo.metadata) : {}
       }));
+      
+      console.log('Transformed photos data for platform update response:', JSON.stringify(response.photos, null, 2));
+    } else {
+      console.log('No photos found or error occurred in platform update route:', photosError);
     }
     
     res.json(response);

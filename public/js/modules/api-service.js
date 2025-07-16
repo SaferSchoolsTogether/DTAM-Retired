@@ -34,7 +34,9 @@ function getPlatformName() {
       return null;
     }
     
-    return platformUrl.split('/').pop();
+    // Extract platform name from URL, removing any query parameters
+    const platformWithQuery = platformUrl.split('/').pop();
+    return platformWithQuery.split('?')[0]; // Remove query parameters
   } catch (error) {
     console.error('Error getting platform name:', error);
     return null;
@@ -223,6 +225,7 @@ function handleUpload(e) {
     uploadBtn.disabled = true;
     
     // Use the correct API endpoint that includes socId and caseId
+    // The caseId is needed to verify the SOC belongs to the case, but photos are linked to SOCs
     fetch(`/api/soc/${socId}/platform/${platform}/upload?caseId=${caseId}`, {
         method: 'POST',
         headers: {

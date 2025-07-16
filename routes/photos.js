@@ -67,16 +67,17 @@ router.post('/api/soc/:socId/platform/:platform/upload', upload.single('photo'),
       return res.status(404).json({ error: 'Case not found' });
     }
     
-    // Check if SOC exists in Supabase
+    // Check if SOC exists and belongs to the case
     const { data: socData, error: socError } = await supabase
       .from('socs')
       .select('id')
       .eq('id', socId.toString()) // Ensure socId is treated as string
+      .eq('case_id', caseId.toString()) // Ensure SOC belongs to the case
       .single();
       
-    if (socError) {
+    if (socError || !socData) {
       console.error('Supabase error checking SOC:', socError);
-      return res.status(404).json({ error: 'SOC not found' });
+      return res.status(404).json({ error: 'SOC not found or does not belong to this case' });
     }
     
     // Generate unique filename
@@ -124,8 +125,7 @@ router.post('/api/soc/:socId/platform/:platform/upload', upload.single('photo'),
     // Create photo record in database
     const newPhotoRecord = {
       id: photoId,
-      case_id: caseId, // Associate photo with specific case
-      soc_id: socId,
+      soc_id: socId, // Photos are linked to SOCs, not directly to cases
       platform: platform,
       file_path: photoPath,
       thumbnail: photoPath, // For now, using the same path for thumbnail
@@ -136,10 +136,14 @@ router.post('/api/soc/:socId/platform/:platform/upload', upload.single('photo'),
       metadata: JSON.stringify(photoMetadata)
     };
     
+    console.log('Creating new photo record:', JSON.stringify(newPhotoRecord, null, 2));
+    
     const { data: photoData, error: photoError } = await supabase
       .from('photos')
       .insert(newPhotoRecord)
       .select();
+    
+    console.log('Photo record created, response:', JSON.stringify(photoData, null, 2));
       
     if (photoError) {
       console.error('Supabase database error:', photoError);
@@ -181,12 +185,11 @@ router.get('/api/soc/:socId/platform/:platform/photo/:photoId', async (req, res)
       return res.status(400).json({ error: 'Case ID is required' });
     }
     
-    // Get photo data from Supabase
+    // Get photo data from Supabase - simple query by id, soc_id and platform
     const { data: photoData, error } = await supabase
       .from('photos')
       .select('*')
       .eq('id', photoId)
-      .eq('case_id', caseId.toString()) // Filter by case ID to ensure isolation
       .eq('soc_id', socId.toString())
       .eq('platform', platform)
       .single();
@@ -236,12 +239,11 @@ router.put('/api/soc/:socId/platform/:platform/photo/:photoId', async (req, res)
       return res.status(400).json({ error: 'Case ID is required' });
     }
     
-    // First, get the current photo data from Supabase
+    // First, get the current photo data from Supabase - simple query by id, soc_id and platform
     const { data: photoData, error: getError } = await supabase
       .from('photos')
       .select('*')
       .eq('id', photoId)
-      .eq('case_id', caseId.toString()) // Filter by case ID to ensure isolation
       .eq('soc_id', socId.toString())
       .eq('platform', platform)
       .single();
@@ -322,12 +324,11 @@ router.delete('/api/soc/:socId/platform/:platform/photo/:photoId', async (req, r
       return res.status(400).json({ error: 'Case ID is required' });
     }
     
-    // First, get the photo data from Supabase to get the storage path
+    // First, get the photo data from Supabase to get the storage path - simple query by id, soc_id and platform
     const { data: photoData, error: getError } = await supabase
       .from('photos')
       .select('*')
       .eq('id', photoId)
-      .eq('case_id', caseId.toString()) // Filter by case ID to ensure isolation
       .eq('soc_id', socId.toString())
       .eq('platform', platform)
       .single();
