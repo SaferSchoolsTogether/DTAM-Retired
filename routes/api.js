@@ -8,19 +8,7 @@
 
 const express = require('express');
 const router = express.Router();
-const fs = require('fs-extra');
-const path = require('path');
-
-// Helper functions
-function readData() {
-  const DATA_FILE = path.join(__dirname, '..', 'data', 'app-data.json');
-  return fs.readJsonSync(DATA_FILE);
-}
-
-function writeData(data) {
-  const DATA_FILE = path.join(__dirname, '..', 'data', 'app-data.json');
-  return fs.writeJsonSync(DATA_FILE, data, { spaces: 2 });
-}
+const supabase = require('../config/supabase');
 
 // API status endpoint
 router.get('/api/status', (req, res) => {

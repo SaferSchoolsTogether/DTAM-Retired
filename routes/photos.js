@@ -49,6 +49,24 @@ router.post('/api/soc/:socId/platform/:platform/upload', upload.single('photo'),
       return res.status(400).json({ error: 'No file uploaded' });
     }
     
+    // Get the active case ID from the request query or header
+    const caseId = req.query.caseId || req.headers['x-case-id'];
+    if (!caseId) {
+      return res.status(400).json({ error: 'Case ID is required' });
+    }
+    
+    // Check if case exists in Supabase
+    const { data: caseData, error: caseError } = await supabase
+      .from('cases')
+      .select('id')
+      .eq('id', caseId.toString())
+      .single();
+      
+    if (caseError || !caseData) {
+      console.error('Supabase error checking case:', caseError);
+      return res.status(404).json({ error: 'Case not found' });
+    }
+    
     // Check if SOC exists in Supabase
     const { data: socData, error: socError } = await supabase
       .from('socs')
@@ -58,23 +76,15 @@ router.post('/api/soc/:socId/platform/:platform/upload', upload.single('photo'),
       
     if (socError) {
       console.error('Supabase error checking SOC:', socError);
-      
-      // Fallback to local JSON file if Supabase fails
-      const localData = readData();
-      if (!localData.socs[socId]) {
-        return res.status(404).json({ error: 'SOC not found' });
-      }
-      
-      if (!localData.socs[socId].platforms[platform]) {
-        return res.status(404).json({ error: 'Platform not found' });
-      }
+      return res.status(404).json({ error: 'SOC not found' });
     }
     
     // Generate unique filename
     const photoId = uuidv4();
     const fileExt = path.extname(req.file.originalname);
     const filename = `${photoId}${fileExt}`;
-    const storagePath = `${socId}/${platform}/${filename}`;
+    // Include caseId in the storage path to isolate photos between cases
+    const storagePath = `${caseId}/${socId}/${platform}/${filename}`;
     
     // Upload to Supabase Storage
     const { data: storageData, error: storageError } = await supabase.storage
@@ -114,6 +124,7 @@ router.post('/api/soc/:socId/platform/:platform/upload', upload.single('photo'),
     // Create photo record in database
     const newPhotoRecord = {
       id: photoId,
+      case_id: caseId, // Associate photo with specific case
       soc_id: socId,
       platform: platform,
       file_path: photoPath,
@@ -150,12 +161,7 @@ router.post('/api/soc/:socId/platform/:platform/upload', upload.single('photo'),
       metadata: photoMetadata
     };
     
-    // Also update the local JSON file for backward compatibility during migration
-    const localData = readData();
-    if (localData.socs[socId] && localData.socs[socId].platforms[platform]) {
-      localData.socs[socId].platforms[platform].photos.push(newPhoto);
-      writeData(localData);
-    }
+    // No longer updating local JSON file - using Supabase as single source of truth
     
     res.json(newPhoto);
   } catch (error) {
@@ -169,35 +175,25 @@ router.get('/api/soc/:socId/platform/:platform/photo/:photoId', async (req, res)
   const { socId, platform, photoId } = req.params;
   
   try {
+    // Get the case ID from the request query or header
+    const caseId = req.query.caseId || req.headers['x-case-id'];
+    if (!caseId) {
+      return res.status(400).json({ error: 'Case ID is required' });
+    }
+    
     // Get photo data from Supabase
     const { data: photoData, error } = await supabase
       .from('photos')
       .select('*')
       .eq('id', photoId)
-      .eq('soc_id', socId.toString()) // Ensure socId is treated as string
+      .eq('case_id', caseId.toString()) // Filter by case ID to ensure isolation
+      .eq('soc_id', socId.toString())
       .eq('platform', platform)
       .single();
       
     if (error) {
       console.error('Supabase error:', error);
-      
-      // Fallback to local JSON file if Supabase fails
-      const localData = readData();
-      if (!localData.socs[socId]) {
-        return res.status(404).json({ error: 'SOC not found' });
-      }
-      
-      if (!localData.socs[socId].platforms[platform]) {
-        return res.status(404).json({ error: 'Platform not found' });
-      }
-      
-      const photo = localData.socs[socId].platforms[platform].photos.find(p => p.id === photoId);
-      
-      if (!photo) {
-        return res.status(404).json({ error: 'Photo not found' });
-      }
-      
-      return res.json(photo);
+      return res.status(404).json({ error: 'Photo not found' });
     }
     
     if (!photoData) {
@@ -234,45 +230,25 @@ router.put('/api/soc/:socId/platform/:platform/photo/:photoId', async (req, res)
   const { tags, analysisTags, notes, metadata } = req.body;
   
   try {
+    // Get the case ID from the request query or header
+    const caseId = req.query.caseId || req.headers['x-case-id'];
+    if (!caseId) {
+      return res.status(400).json({ error: 'Case ID is required' });
+    }
+    
     // First, get the current photo data from Supabase
     const { data: photoData, error: getError } = await supabase
       .from('photos')
       .select('*')
       .eq('id', photoId)
-      .eq('soc_id', socId.toString()) // Ensure socId is treated as string
+      .eq('case_id', caseId.toString()) // Filter by case ID to ensure isolation
+      .eq('soc_id', socId.toString())
       .eq('platform', platform)
       .single();
       
     if (getError) {
       console.error('Supabase error getting photo:', getError);
-      
-      // Fallback to local JSON file if Supabase fails
-      const localData = readData();
-      if (!localData.socs[socId]) {
-        return res.status(404).json({ error: 'SOC not found' });
-      }
-      
-      if (!localData.socs[socId].platforms[platform]) {
-        return res.status(404).json({ error: 'Platform not found' });
-      }
-      
-      const photoIndex = localData.socs[socId].platforms[platform].photos.findIndex(p => p.id === photoId);
-      
-      if (photoIndex === -1) {
-        return res.status(404).json({ error: 'Photo not found' });
-      }
-      
-      const photo = localData.socs[socId].platforms[platform].photos[photoIndex];
-      
-      if (tags) photo.tags = tags;
-      if (analysisTags) photo.analysisTags = { ...photo.analysisTags, ...analysisTags };
-      if (notes) photo.notes = notes;
-      if (metadata) photo.metadata = { ...photo.metadata, ...metadata };
-      
-      localData.socs[socId].platforms[platform].photos[photoIndex] = photo;
-      writeData(localData);
-      
-      return res.json(photo);
+      return res.status(404).json({ error: 'Photo not found' });
     }
     
     if (!photoData) {
@@ -326,23 +302,7 @@ router.put('/api/soc/:socId/platform/:platform/photo/:photoId', async (req, res)
         (photoData.metadata ? JSON.parse(photoData.metadata) : {})
     };
     
-    // Also update the local JSON file for backward compatibility during migration
-    const localData = readData();
-    if (localData.socs[socId] && localData.socs[socId].platforms[platform]) {
-      const photoIndex = localData.socs[socId].platforms[platform].photos.findIndex(p => p.id === photoId);
-      
-      if (photoIndex !== -1) {
-        const photo = localData.socs[socId].platforms[platform].photos[photoIndex];
-        
-        if (tags) photo.tags = tags;
-        if (analysisTags) photo.analysisTags = { ...photo.analysisTags, ...analysisTags };
-        if (notes !== undefined) photo.notes = notes;
-        if (metadata) photo.metadata = { ...photo.metadata, ...metadata };
-        
-        localData.socs[socId].platforms[platform].photos[photoIndex] = photo;
-        writeData(localData);
-      }
-    }
+    // No longer updating local JSON file - using Supabase as single source of truth
     
     res.json(formattedPhoto);
   } catch (error) {
@@ -356,49 +316,25 @@ router.delete('/api/soc/:socId/platform/:platform/photo/:photoId', async (req, r
   const { socId, platform, photoId } = req.params;
   
   try {
+    // Get the case ID from the request query or header
+    const caseId = req.query.caseId || req.headers['x-case-id'];
+    if (!caseId) {
+      return res.status(400).json({ error: 'Case ID is required' });
+    }
+    
     // First, get the photo data from Supabase to get the storage path
     const { data: photoData, error: getError } = await supabase
       .from('photos')
       .select('*')
       .eq('id', photoId)
-      .eq('soc_id', socId.toString()) // Ensure socId is treated as string
+      .eq('case_id', caseId.toString()) // Filter by case ID to ensure isolation
+      .eq('soc_id', socId.toString())
       .eq('platform', platform)
       .single();
       
     if (getError) {
       console.error('Supabase error getting photo:', getError);
-      
-      // Fallback to local JSON file if Supabase fails
-      const localData = readData();
-      if (!localData.socs[socId]) {
-        return res.status(404).json({ error: 'SOC not found' });
-      }
-      
-      if (!localData.socs[socId].platforms[platform]) {
-        return res.status(404).json({ error: 'Platform not found' });
-      }
-      
-      const photoIndex = localData.socs[socId].platforms[platform].photos.findIndex(p => p.id === photoId);
-      
-      if (photoIndex === -1) {
-        return res.status(404).json({ error: 'Photo not found' });
-      }
-      
-      const photo = localData.socs[socId].platforms[platform].photos[photoIndex];
-      
-      // Remove the file from local filesystem
-      try {
-        const filePath = path.join(__dirname, '..', 'public', photo.file_path);
-        fs.removeSync(filePath);
-      } catch (err) {
-        console.error('Error removing file:', err);
-      }
-      
-      // Remove from local data
-      localData.socs[socId].platforms[platform].photos.splice(photoIndex, 1);
-      writeData(localData);
-      
-      return res.json({ success: true });
+      return res.status(404).json({ error: 'Photo not found' });
     }
     
     if (!photoData) {
@@ -439,28 +375,7 @@ router.delete('/api/soc/:socId/platform/:platform/photo/:photoId', async (req, r
       });
     }
     
-    // Also update the local JSON file for backward compatibility during migration
-    const localData = readData();
-    if (localData.socs[socId] && localData.socs[socId].platforms[platform]) {
-      const photoIndex = localData.socs[socId].platforms[platform].photos.findIndex(p => p.id === photoId);
-      
-      if (photoIndex !== -1) {
-        // Try to remove the local file if it exists
-        try {
-          const photo = localData.socs[socId].platforms[platform].photos[photoIndex];
-          const filePath = path.join(__dirname, '..', 'public', photo.file_path);
-          if (fs.existsSync(filePath)) {
-            fs.removeSync(filePath);
-          }
-        } catch (err) {
-          console.error('Error removing local file:', err);
-        }
-        
-        // Remove from local data
-        localData.socs[socId].platforms[platform].photos.splice(photoIndex, 1);
-        writeData(localData);
-      }
-    }
+    // No longer updating local JSON file - using Supabase as single source of truth
     
     res.json({ success: true });
   } catch (error) {

@@ -8,26 +8,13 @@
 
 const express = require('express');
 const router = express.Router();
-const fs = require('fs-extra');
-const path = require('path');
 const supabase = require('../config/supabase');
-
-// Helper functions
-function readData() {
-  const DATA_FILE = path.join(__dirname, '..', 'data', 'app-data.json');
-  return fs.readJsonSync(DATA_FILE);
-}
-
-function writeData(data) {
-  const DATA_FILE = path.join(__dirname, '..', 'data', 'app-data.json');
-  return fs.writeJsonSync(DATA_FILE, data, { spaces: 2 });
-}
 
 // Dashboard route
 router.get('/dashboard', async (req, res) => {
-  // If onboarding data is present, redirect to workstation landing page
-  if (req.query.onboardingData) {
-    return res.redirect(`/workstation?onboardingData=${encodeURIComponent(req.query.onboardingData)}`);
+  // If caseId is present, redirect to workstation landing page
+  if (req.query.caseId) {
+    return res.redirect(`/workstation?caseId=${req.query.caseId}`);
   }
   
   try {
@@ -39,34 +26,11 @@ router.get('/dashboard', async (req, res) => {
       
     if (error) {
       console.error('Supabase error:', error);
-      // Fallback to local JSON file if Supabase fails
-      const data = readData();
-      const cases = [];
-      
-      if (data.case && data.case.caseId) {
-        const caseWithStatus = {
-          ...data.case,
-          status: 'Active', // Default status
-          socName: data.socs[data.activeSocId]?.name || 'Unknown',
-          platforms: {}
-        };
-        
-        // Check which platforms have data
-        Object.keys(data.socs[data.activeSocId].platforms).forEach(platform => {
-          const platformData = data.socs[data.activeSocId].platforms[platform];
-          caseWithStatus.platforms[platform] = platformData.username || platformData.photos.length > 0;
-        });
-        
-        cases.push(caseWithStatus);
-      }
-      
-      return res.render('dashboard', { cases, activeCaseId: data.case?.caseId });
+      return res.status(500).render('error', { message: 'Failed to load cases from database' });
     }
     
     // Format case data for display
     const cases = [];
-    const localData = readData();
-    const activeCaseId = localData.case?.caseId;
     
     for (const caseData of casesData) {
       // Parse student info if available
@@ -86,6 +50,9 @@ router.get('/dashboard', async (req, res) => {
       cases.push(formattedCase);
     }
     
+    // Get the most recent case ID for active case highlighting
+    const activeCaseId = casesData.length > 0 ? casesData[0].id : null;
+    
     res.render('dashboard', { cases, activeCaseId });
   } catch (error) {
     console.error('Error fetching cases:', error);
@@ -104,38 +71,68 @@ router.get('/cases', async (req, res) => {
       
     if (error) {
       console.error('Supabase error:', error);
-      // Fallback to local JSON file if Supabase fails
-      const data = readData();
-      const cases = [];
-      
-      if (data.case && data.case.caseId) {
-        const caseWithStatus = {
-          ...data.case,
-          status: 'Active', // Default status
-          socName: data.socs[data.activeSocId]?.name || 'Unknown',
-          platforms: {}
-        };
-        
-        // Check which platforms have data
-        Object.keys(data.socs[data.activeSocId].platforms).forEach(platform => {
-          const platformData = data.socs[data.activeSocId].platforms[platform];
-          caseWithStatus.platforms[platform] = platformData.username || platformData.photos.length > 0;
-        });
-        
-        cases.push(caseWithStatus);
-      }
-      
-      return res.render('cases', { cases, activeCaseId: data.case?.caseId });
+      return res.status(500).render('error', { message: 'Failed to load cases from database' });
     }
     
     // Format case data for display
     const cases = [];
-    const localData = readData();
-    const activeCaseId = localData.case?.caseId;
     
     for (const caseData of casesData) {
       // Parse student info if available
       const studentInfo = caseData.student_info ? JSON.parse(caseData.student_info) : null;
+      
+      // Get platforms data for this case
+      const { data: socsData, error: socsError } = await supabase
+        .from('socs')
+        .select('id')
+        .eq('case_id', caseData.id);
+        
+      // Initialize platforms object
+      const platforms = {
+        instagram: false,
+        tiktok: false,
+        snapchat: false,
+        x: false,
+        discord: false,
+        facebook: false,
+        other: false
+      };
+      
+      // If we have SOCs, check for platform data
+      if (!socsError && socsData && socsData.length > 0) {
+        for (const soc of socsData) {
+          // Get platforms for this SOC
+          const { data: platformsData, error: platformsError } = await supabase
+            .from('platforms')
+            .select('platform_name, username')
+            .eq('soc_id', soc.id);
+            
+          if (!platformsError && platformsData) {
+            // Mark platforms that have data
+            for (const platform of platformsData) {
+              if (platforms.hasOwnProperty(platform.platform_name)) {
+                platforms[platform.platform_name] = !!platform.username;
+              }
+            }
+          }
+          
+          // Check for photos
+          const { data: photosData, error: photosError } = await supabase
+            .from('photos')
+            .select('platform')
+            .eq('case_id', caseData.id)
+            .eq('soc_id', soc.id);
+            
+          if (!photosError && photosData && photosData.length > 0) {
+            // Mark platforms that have photos
+            for (const photo of photosData) {
+              if (platforms.hasOwnProperty(photo.platform)) {
+                platforms[photo.platform] = true;
+              }
+            }
+          }
+        }
+      }
       
       // Format case data
       const formattedCase = {
@@ -146,20 +143,14 @@ router.get('/cases', async (req, res) => {
         socStatus: caseData.soc_status || 'Unknown',
         socName: studentInfo?.name || 'Unknown',
         status: 'Active', // Default status
-        // Add empty platforms object for compatibility with the template
-        platforms: {
-          instagram: false,
-          tiktok: false,
-          snapchat: false,
-          x: false,
-          discord: false,
-          facebook: false,
-          other: false
-        }
+        platforms: platforms
       };
       
       cases.push(formattedCase);
     }
+    
+    // Get the most recent case ID for active case highlighting
+    const activeCaseId = casesData.length > 0 ? casesData[0].id : null;
     
     res.render('cases', { cases, activeCaseId });
   } catch (error) {
@@ -214,26 +205,47 @@ router.get('/api/cases', async (req, res) => {
 // Get case data
 router.get('/api/case-data', async (req, res) => {
   try {
-    // Get case data from Supabase
+    // Get case ID from query parameter
+    const caseId = req.query.caseId;
+    
+    if (!caseId) {
+      // If no case ID provided, get the most recent case
+      const { data: caseData, error } = await supabase
+        .from('cases')
+        .select('*')
+        .order('date', { ascending: false })
+        .limit(1)
+        .single();
+        
+      if (error || !caseData) {
+        console.error('Supabase error:', error);
+        return res.status(404).json({ error: 'Case data not found' });
+      }
+      
+      // Format response to match the expected format by the frontend
+      const formattedCase = {
+        caseId: caseData.id,
+        date: caseData.date,
+        investigatorName: caseData.team_member_name,
+        organization: caseData.organization,
+        socStatus: caseData.soc_status,
+        discoveryMethod: caseData.discovery_method,
+        safetyAssessment: caseData.safety_assessment,
+        studentInfo: caseData.student_info ? JSON.parse(caseData.student_info) : null
+      };
+      
+      return res.json({ case: formattedCase });
+    }
+    
+    // Get specific case data from Supabase
     const { data: caseData, error } = await supabase
       .from('cases')
       .select('*')
-      .order('date', { ascending: false })
-      .limit(1)
+      .eq('id', caseId)
       .single();
       
-    if (error) {
+    if (error || !caseData) {
       console.error('Supabase error:', error);
-      
-      // Fallback to local JSON file if Supabase fails
-      const localData = readData();
-      if (!localData.case || !localData.case.caseId) {
-        return res.status(404).json({ error: 'Case data not found' });
-      }
-      return res.json({ case: localData.case });
-    }
-    
-    if (!caseData) {
       return res.status(404).json({ error: 'Case data not found' });
     }
     
@@ -274,25 +286,8 @@ router.get('/set-active-case/:caseId', async (req, res) => {
       return res.status(404).redirect('/dashboard?error=Case+not+found');
     }
     
-    // Update local data to set this as the active case
-    const localData = readData();
-    
-    // Format case data for local storage
-    localData.case = {
-      caseId: caseData.id,
-      date: caseData.date,
-      investigatorName: caseData.team_member_name,
-      organization: caseData.organization,
-      socStatus: caseData.soc_status,
-      discoveryMethod: caseData.discovery_method,
-      safetyAssessment: caseData.safety_assessment,
-      studentInfo: caseData.student_info ? JSON.parse(caseData.student_info) : null
-    };
-    
-    writeData(localData);
-    
-    // Redirect back to the referring page
-    res.redirect(redirect);
+    // Redirect to workstation with the case ID
+    res.redirect(`${redirect}?caseId=${caseId}`);
   } catch (error) {
     console.error('Error setting active case:', error);
     res.status(500).redirect('/dashboard?error=Failed+to+set+active+case');
@@ -337,25 +332,85 @@ router.post('/api/save-case', async (req, res) => {
       });
     }
     
-    // Also update the local JSON file for backward compatibility during migration
-    const localData = readData();
-    localData.case = {
-      caseId: req.body.caseId,
-      date: req.body.date,
-      team_member_name: req.body.investigatorName,
-      organization: req.body.organization,
-      socStatus: req.body.socStatus,
-      discoveryMethod: req.body.discoveryMethod,
-      safetyAssessment: req.body.safetyAssessment,
-      studentInfo: req.body.studentInfo
-    };
-    writeData(localData);
-    
     // Return same response format as before
-    res.json({ success: true });
+    res.json({ success: true, caseId: data[0].id });
   } catch (error) {
     console.error('Error saving case data:', error);
     res.status(500).json({ error: 'Failed to save case data' });
+  }
+});
+
+// Create new case route
+router.post('/api/create-case', async (req, res) => {
+  try {
+    // Validate required fields
+    const requiredFields = ['date', 'investigatorName', 'organization'];
+    for (const field of requiredFields) {
+      if (!req.body[field]) {
+        return res.status(400).json({ error: `Missing required field: ${field}` });
+      }
+    }
+    
+    // Generate a unique case ID if not provided
+    const caseId = req.body.caseId || `CASE-${Date.now()}`;
+    
+    // Format case data for Supabase
+    const caseData = {
+      id: caseId,
+      date: req.body.date,
+      team_member_name: req.body.investigatorName,
+      organization: req.body.organization,
+      soc_status: req.body.socStatus || null,
+      discovery_method: req.body.discoveryMethod || null,
+      safety_assessment: req.body.safetyAssessment || null,
+      // Store student info as JSON
+      student_info: req.body.studentInfo ? JSON.stringify(req.body.studentInfo) : null
+    };
+    
+    // Insert into Supabase
+    const { data, error } = await supabase
+      .from('cases')
+      .insert(caseData)
+      .select();
+      
+    if (error) {
+      console.error('Supabase error:', error);
+      return res.status(500).json({ 
+        error: 'Failed to create case', 
+        details: error.message 
+      });
+    }
+    
+    // Create a default SOC for this case
+    const { data: socData, error: socError } = await supabase
+      .from('socs')
+      .insert({
+        case_id: caseId,
+        name: req.body.studentInfo?.name || '',
+        student_id: req.body.studentInfo?.id || '',
+        grade: req.body.studentInfo?.grade || '',
+        school: req.body.studentInfo?.school || '',
+        dob: req.body.studentInfo?.dob || '',
+        support_plans: req.body.studentInfo?.supportPlans ? JSON.stringify(req.body.studentInfo.supportPlans) : JSON.stringify([]),
+        other_plan_text: req.body.studentInfo?.otherPlanText || '',
+        status: req.body.socStatus || 'known'
+      })
+      .select();
+      
+    if (socError) {
+      console.error('Error creating SOC:', socError);
+      // Continue even if SOC creation fails
+    }
+    
+    // Return success response with case ID
+    res.json({ 
+      success: true, 
+      caseId: data[0].id,
+      socId: socData && socData.length > 0 ? socData[0].id : null
+    });
+  } catch (error) {
+    console.error('Error creating case:', error);
+    res.status(500).json({ error: 'Failed to create case' });
   }
 });
 

@@ -3,7 +3,7 @@
  * Handles client-side functionality for the onboarding process
  */
 
-// Store form data in localStorage when submitting
+// Store form data in sessionStorage when submitting
 document.addEventListener('DOMContentLoaded', function() {
     // Case Info Form
     const caseInfoForm = document.getElementById('caseInfoForm');
@@ -14,11 +14,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const investigatorName = document.getElementById('investigatorName').value;
             const organization = document.getElementById('organization').value;
             
-            // Store in localStorage
-            localStorage.setItem('caseId', caseId);
-            localStorage.setItem('date', date);
-            localStorage.setItem('investigatorName', investigatorName);
-            localStorage.setItem('organization', organization);
+            // Store in sessionStorage
+            const caseInfo = {
+                caseId: caseId,
+                date: date,
+                investigatorName: investigatorName,
+                organization: organization
+            };
+            sessionStorage.setItem('caseInfo', JSON.stringify(caseInfo));
             
             // Get student information if section is visible
             if (document.getElementById('studentInfoSection').style.display !== 'none') {
@@ -37,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Get "Other" plan text if applicable
                 const otherPlanText = document.getElementById('otherPlanText').value;
                 
-                // Store student info in localStorage
+                // Store student info in sessionStorage
                 const studentInfo = {
                     name: studentName,
                     id: studentId,
@@ -47,8 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     supportPlans: supportPlans,
                     otherPlanText: otherPlanText
                 };
-                
-                localStorage.setItem('studentInfo', JSON.stringify(studentInfo));
+                sessionStorage.setItem('studentInfo', JSON.stringify(studentInfo));
             }
         });
     }
@@ -59,8 +61,8 @@ document.addEventListener('DOMContentLoaded', function() {
         socStatusForm.addEventListener('submit', function(e) {
             const socStatus = document.getElementById('socStatusInput').value;
             
-            // Store in localStorage
-            localStorage.setItem('socStatus', socStatus);
+            // Store in sessionStorage
+            sessionStorage.setItem('socStatus', socStatus);
         });
     }
     
@@ -68,10 +70,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const discoveryMethodForm = document.getElementById('discoveryMethodForm');
     if (discoveryMethodForm) {
         discoveryMethodForm.addEventListener('submit', function(e) {
-            const discoveryMethod = document.getElementById('discoveryMethodInput').value;
+            const discoveryMethodValue = document.getElementById('discoveryMethodInput').value;
             
-            // Store in localStorage
-            localStorage.setItem('discoveryMethod', discoveryMethod);
+            // Parse the JSON string to get the object
+            try {
+                const discoveryMethod = JSON.parse(discoveryMethodValue);
+                
+                // Store in sessionStorage
+                sessionStorage.setItem('discoveryMethod', JSON.stringify(discoveryMethod));
+            } catch (error) {
+                console.error('Error parsing discovery method:', error);
+                // Store as a simple object with method property
+                sessionStorage.setItem('discoveryMethod', JSON.stringify({
+                    method: discoveryMethodValue
+                }));
+            }
         });
     }
     
@@ -79,52 +92,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const safetyAssessmentForm = document.getElementById('safetyAssessmentForm');
     if (safetyAssessmentForm) {
         safetyAssessmentForm.addEventListener('submit', function(e) {
-            const safetyAssessment = document.getElementById('safetyAssessmentInput').value;
+            const safetyAssessmentValue = document.getElementById('safetyAssessmentInput').value;
             
-            // Store in localStorage
-            localStorage.setItem('safetyAssessment', safetyAssessment);
-        });
-    }
-
-    // Summary Form - Save all data to app-data.json
-    const summaryForm = document.getElementById('summaryForm');
-    if (summaryForm) {
-        summaryForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // Get all data from localStorage
-            const caseData = {
-                caseId: localStorage.getItem('caseId'),
-                date: localStorage.getItem('date'),
-                investigatorName: localStorage.getItem('investigatorName'),
-                organization: localStorage.getItem('organization'),
-                socStatus: localStorage.getItem('socStatus'),
-                discoveryMethod: localStorage.getItem('discoveryMethod'),
-                safetyAssessment: localStorage.getItem('safetyAssessment'),
-                studentInfo: localStorage.getItem('studentInfo') ? JSON.parse(localStorage.getItem('studentInfo')) : null
-            };
-
+            // Parse the JSON string to get the object
             try {
-                const response = await fetch('/api/save-case', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(caseData)
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to save case data');
-                }
-
-                // If successful, submit the form to continue
-                summaryForm.submit();
+                const safetyAssessment = JSON.parse(safetyAssessmentValue);
+                
+                // Store in sessionStorage
+                sessionStorage.setItem('safetyAssessment', JSON.stringify(safetyAssessment));
             } catch (error) {
-                console.error('Error saving case data:', error);
-                alert('Failed to save case data. Please try again.');
+                console.error('Error parsing safety assessment:', error);
+                sessionStorage.setItem('safetyAssessment', JSON.stringify({
+                    enforcement: 'no',
+                    means: 'no'
+                }));
             }
         });
     }
+
+    // Summary Form is now handled directly in summary.ejs
     
     // Pre-fill forms with stored data
     prefillForms();
@@ -138,27 +124,46 @@ function prefillForms() {
     const investigatorNameInput = document.getElementById('investigatorName');
     const organizationInput = document.getElementById('organization');
     
-    if (caseIdInput && localStorage.getItem('caseId')) {
-        caseIdInput.value = localStorage.getItem('caseId');
+    // Try to get case info from sessionStorage
+    let caseInfo = null;
+    try {
+        if (sessionStorage.getItem('caseInfo')) {
+            caseInfo = JSON.parse(sessionStorage.getItem('caseInfo'));
+        }
+    } catch (error) {
+        console.error('Error parsing case info from sessionStorage:', error);
     }
     
-    if (dateInput && localStorage.getItem('date')) {
-        dateInput.value = localStorage.getItem('date');
+    if (caseIdInput && caseInfo?.caseId) {
+        caseIdInput.value = caseInfo.caseId;
     }
     
-    if (investigatorNameInput && localStorage.getItem('investigatorName')) {
-        investigatorNameInput.value = localStorage.getItem('investigatorName');
+    if (dateInput && caseInfo?.date) {
+        dateInput.value = caseInfo.date;
     }
     
-    if (organizationInput && localStorage.getItem('organization')) {
-        organizationInput.value = localStorage.getItem('organization');
+    if (investigatorNameInput && caseInfo?.investigatorName) {
+        investigatorNameInput.value = caseInfo.investigatorName;
+    }
+    
+    if (organizationInput && caseInfo?.organization) {
+        organizationInput.value = caseInfo.organization;
     }
     
     // Student Info Form
     const studentInfoSection = document.getElementById('studentInfoSection');
-    if (studentInfoSection && localStorage.getItem('studentInfo')) {
-        const studentInfo = JSON.parse(localStorage.getItem('studentInfo'));
-        
+    
+    // Try to get student info from sessionStorage
+    let studentInfo = null;
+    try {
+        if (sessionStorage.getItem('studentInfo')) {
+            studentInfo = JSON.parse(sessionStorage.getItem('studentInfo'));
+        }
+    } catch (error) {
+        console.error('Error parsing student info from sessionStorage:', error);
+    }
+    
+    if (studentInfoSection && studentInfo) {
         // Fill in student info fields
         if (document.getElementById('studentName')) {
             document.getElementById('studentName').value = studentInfo.name || '';
@@ -200,13 +205,6 @@ function prefillForms() {
 
 // Clear onboarding data
 function clearOnboardingData() {
-    localStorage.removeItem('caseId');
-    localStorage.removeItem('date');
-    localStorage.removeItem('investigatorName');
-    localStorage.removeItem('organization');
-    localStorage.removeItem('socStatus');
-    localStorage.removeItem('safetyAssessment');
-    localStorage.removeItem('discoveryMethod');
-    localStorage.removeItem('onboardingData');
-    localStorage.removeItem('studentInfo');
+    // Clear sessionStorage
+    sessionStorage.clear();
 }

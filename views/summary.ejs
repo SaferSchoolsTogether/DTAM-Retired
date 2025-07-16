@@ -151,8 +151,8 @@
                     </div>
                 </div>
                 
-                <form action="/workstation" method="GET" id="summaryForm">
-                    <input type="hidden" name="onboardingData" id="onboardingDataInput">
+<form action="/dashboard" method="GET" id="summaryForm">
+                    <input type="hidden" name="caseId" id="caseIdInput">
                     
                     <div class="nav-buttons">
                         <a href="#" id="backButton" class="btn btn-secondary btn-back">Back</a>
@@ -164,137 +164,250 @@
     </div>
 
     <script>
-        // Retrieve session data
-        document.addEventListener('DOMContentLoaded', function() {
-            // Simulate retrieving data from session
-            // In a real implementation, this would come from the server
-            const caseInfo = {
-                caseId: localStorage.getItem('caseId') || 'CASE-001',
-                date: localStorage.getItem('date') || new Date().toISOString().split('T')[0],
-                investigatorName: localStorage.getItem('investigatorName') || 'John Doe',
-                organization: localStorage.getItem('organization') || 'Example Organization'
-            };
-            
-            const socStatus = localStorage.getItem('socStatus') || 'known';
-            
-            const safetyAssessment = JSON.parse(localStorage.getItem('safetyAssessment') || '{"means":"no","rehearsal":"no","baseline":"no"}');
-            
-            const platformData = JSON.parse(localStorage.getItem('platformData') || '{"platforms":{},"threatSource":null,"sourcePlatform":null}');
-            
-            // Get student information if available
-            const studentInfo = JSON.parse(localStorage.getItem('studentInfo') || 'null');
-            
-            // Populate summary
-            document.getElementById('summaryCase').textContent = caseInfo.caseId || 'N/A';
-            document.getElementById('summaryDate').textContent = caseInfo.date || new Date().toISOString().split('T')[0];
-            document.getElementById('summaryInvestigator').textContent = caseInfo.investigatorName || 'N/A';
-            document.getElementById('summaryOrganization').textContent = caseInfo.organization || 'N/A';
-            
-            document.getElementById('summarySocStatus').textContent = socStatus === 'known' ? 'Known' : 'Unknown';
-            
-            // Set back button based on SOC status
-            const backButton = document.getElementById('backButton');
-            if (socStatus === 'known') {
-                backButton.href = '/safety-assessment';
+        // Retrieve data from Supabase via API endpoints
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Get case data from URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const caseId = urlParams.get('caseId') || `CASE-${Date.now()}`;
                 
-                // Safety assessment
-                document.getElementById('safetySummarySection').style.display = 'block';
-                document.getElementById('summaryEnforcement').textContent = formatSafetyValue(safetyAssessment.enforcement);
-                document.getElementById('summaryMeans').textContent = formatSafetyValue(safetyAssessment.means);
+                // Initialize default values
+                let caseInfo = {
+                    caseId: caseId,
+                    date: new Date().toISOString().split('T')[0],
+                    investigatorName: '',
+                    organization: ''
+                };
                 
-                // Determine risk level
-                const highRisk = safetyAssessment.enforcement === 'yes' || safetyAssessment.means === 'yes';
+                let socStatus = 'known';
+                let safetyAssessment = {
+                    means: 'no',
+                    rehearsal: 'no',
+                    baseline: 'no'
+                };
+                let studentInfo = null;
                 
-                document.getElementById('summaryRisk').textContent = highRisk ? 'High' : 'Moderate to Low';
-                document.getElementById('summaryRisk').style.color = highRisk ? '#e60000' : '#38a169';
-                
-                // Show student information if available
-                if (studentInfo) {
-                    document.getElementById('studentInfoSummary').style.display = 'block';
-                    document.getElementById('summaryStudentName').textContent = studentInfo.name || 'N/A';
-                    document.getElementById('summaryStudentId').textContent = studentInfo.id || 'N/A';
-                    document.getElementById('summaryGrade').textContent = studentInfo.grade || 'N/A';
-                    document.getElementById('summarySchool').textContent = studentInfo.school || 'N/A';
-                    document.getElementById('summaryDOB').textContent = studentInfo.dob || 'N/A';
-                    
-                    // Format support plans
-                    let supportPlansText = 'None';
-                    if (studentInfo.supportPlans && studentInfo.supportPlans.length > 0) {
-                        supportPlansText = studentInfo.supportPlans.map(plan => {
-                            if (plan === 'Other' && studentInfo.otherPlanText) {
-                                return `Other (${studentInfo.otherPlanText})`;
+                // If we have a caseId, try to fetch existing data from Supabase
+                if (caseId && caseId !== `CASE-${Date.now()}`) {
+                    try {
+                        // Fetch case data from API
+                        const response = await fetch(`/api/case-data?caseId=${caseId}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.case) {
+                                caseInfo = {
+                                    caseId: data.case.caseId,
+                                    date: data.case.date,
+                                    investigatorName: data.case.investigatorName,
+                                    organization: data.case.organization
+                                };
+                                socStatus = data.case.socStatus || 'known';
+                                safetyAssessment = data.case.safetyAssessment || {
+                                    means: 'no',
+                                    rehearsal: 'no',
+                                    baseline: 'no'
+                                };
+                                studentInfo = data.case.studentInfo;
                             }
-                            return plan;
-                        }).join(', ');
+                        }
+                    } catch (error) {
+                        console.error('Error fetching case data:', error);
                     }
-                    document.getElementById('summarySupportPlans').textContent = supportPlansText;
+                } else {
+                    // Try to get data from previous steps via sessionStorage
+                    // This is a fallback for the onboarding flow
+                    try {
+                        if (sessionStorage.getItem('caseInfo')) {
+                            caseInfo = JSON.parse(sessionStorage.getItem('caseInfo'));
+                        }
+                        if (sessionStorage.getItem('socStatus')) {
+                            socStatus = sessionStorage.getItem('socStatus');
+                        }
+                        if (sessionStorage.getItem('safetyAssessment')) {
+                            safetyAssessment = JSON.parse(sessionStorage.getItem('safetyAssessment'));
+                        }
+                        if (sessionStorage.getItem('studentInfo')) {
+                            studentInfo = JSON.parse(sessionStorage.getItem('studentInfo'));
+                        }
+                    } catch (error) {
+                        console.error('Error parsing session data:', error);
+                    }
                 }
                 
-                // Hide discovery method section
-                document.getElementById('discoveryMethodSection').style.display = 'none';
-                document.getElementById('unknownThreatSection').style.display = 'none';
-            } else {
-                backButton.href = '/discovery-method';
+                // Populate summary
+                document.getElementById('summaryCase').textContent = caseInfo.caseId || 'N/A';
+                document.getElementById('summaryDate').textContent = caseInfo.date || new Date().toISOString().split('T')[0];
+                document.getElementById('summaryInvestigator').textContent = caseInfo.investigatorName || 'N/A';
+                document.getElementById('summaryOrganization').textContent = caseInfo.organization || 'N/A';
                 
-                // Hide safety assessment section
-                document.getElementById('safetySummarySection').style.display = 'none';
+                document.getElementById('summarySocStatus').textContent = socStatus === 'known' ? 'Known' : 'Unknown';
                 
-                // Show discovery method section
-                document.getElementById('discoveryMethodSection').style.display = 'block';
-                document.getElementById('unknownThreatSection').style.display = 'block';
-                
-                // Get discovery method data
-                const discoveryMethod = JSON.parse(localStorage.getItem('discoveryMethod') || '{"method":null,"sourcePlatform":null}');
-                
-                // Display discovery method
-                const methodText = discoveryMethod.method === 'physical' ? 
-                    'Physical (bathroom wall, note, etc.)' : 
-                    'Social media post';
-                
-                document.getElementById('summaryDiscoveryMethod').textContent = methodText;
-                document.getElementById('summaryThreatSource').textContent = methodText;
-                
-                // Show appropriate details based on discovery method
-                if (discoveryMethod.method === 'physical' && discoveryMethod.physicalDetails) {
-                    // Show physical discovery details section
-                    document.getElementById('physicalDiscoveryDetails').style.display = 'block';
+                // Set back button based on SOC status
+                const backButton = document.getElementById('backButton');
+                if (socStatus === 'known') {
+                    backButton.href = '/safety-assessment';
                     
-                    // Populate physical discovery details
-                    document.getElementById('summaryDiscoveryFinder').textContent = 
-                        discoveryMethod.physicalDetails.finder || 'N/A';
+                    // Safety assessment
+                    document.getElementById('safetySummarySection').style.display = 'block';
+                    document.getElementById('summaryEnforcement').textContent = formatSafetyValue(safetyAssessment.enforcement);
+                    document.getElementById('summaryMeans').textContent = formatSafetyValue(safetyAssessment.means);
                     
-                    // Format date for display
-                    let formattedDate = 'N/A';
-                    if (discoveryMethod.physicalDetails.date) {
-                        const date = new Date(discoveryMethod.physicalDetails.date);
-                        formattedDate = date.toLocaleString();
+                    // Determine risk level
+                    const highRisk = safetyAssessment.enforcement === 'yes' || safetyAssessment.means === 'yes';
+                    
+                    document.getElementById('summaryRisk').textContent = highRisk ? 'High' : 'Moderate to Low';
+                    document.getElementById('summaryRisk').style.color = highRisk ? '#e60000' : '#38a169';
+                    
+                    // Show student information if available
+                    if (studentInfo) {
+                        document.getElementById('studentInfoSummary').style.display = 'block';
+                        document.getElementById('summaryStudentName').textContent = studentInfo.name || 'N/A';
+                        document.getElementById('summaryStudentId').textContent = studentInfo.id || 'N/A';
+                        document.getElementById('summaryGrade').textContent = studentInfo.grade || 'N/A';
+                        document.getElementById('summarySchool').textContent = studentInfo.school || 'N/A';
+                        document.getElementById('summaryDOB').textContent = studentInfo.dob || 'N/A';
+                        
+                        // Format support plans
+                        let supportPlansText = 'None';
+                        if (studentInfo.supportPlans && studentInfo.supportPlans.length > 0) {
+                            supportPlansText = studentInfo.supportPlans.map(plan => {
+                                if (plan === 'Other' && studentInfo.otherPlanText) {
+                                    return `Other (${studentInfo.otherPlanText})`;
+                                }
+                                return plan;
+                            }).join(', ');
+                        }
+                        document.getElementById('summarySupportPlans').textContent = supportPlansText;
                     }
-                    document.getElementById('summaryDiscoveryDate').textContent = formattedDate;
                     
-                    document.getElementById('summaryDiscoveryLocation').textContent = 
-                        discoveryMethod.physicalDetails.location || 'N/A';
-                    document.getElementById('summaryDiscoveryWitnesses').textContent = 
-                        discoveryMethod.physicalDetails.witnesses || 'N/A';
-                } else if (discoveryMethod.method === 'social' && discoveryMethod.sourcePlatform) {
-                    // Show social media platform
-                    document.getElementById('summarySourcePlatformItem').style.display = 'flex';
-                    document.getElementById('summarySourcePlatform').textContent = 
-                        discoveryMethod.sourcePlatform.charAt(0).toUpperCase() + discoveryMethod.sourcePlatform.slice(1);
+                    // Hide discovery method section
+                    document.getElementById('discoveryMethodSection').style.display = 'none';
+                    document.getElementById('unknownThreatSection').style.display = 'none';
+                } else {
+                    backButton.href = '/discovery-method';
+                    
+                    // Hide safety assessment section
+                    document.getElementById('safetySummarySection').style.display = 'none';
+                    
+                    // Show discovery method section
+                    document.getElementById('discoveryMethodSection').style.display = 'block';
+                    document.getElementById('unknownThreatSection').style.display = 'block';
+                    
+                    // Get discovery method data from sessionStorage
+                    let discoveryMethod = {method: null, sourcePlatform: null};
+                    try {
+                        if (sessionStorage.getItem('discoveryMethod')) {
+                            discoveryMethod = JSON.parse(sessionStorage.getItem('discoveryMethod'));
+                        }
+                    } catch (error) {
+                        console.error('Error parsing discovery method:', error);
+                    }
+                    
+                    // Display discovery method
+                    const methodText = discoveryMethod.method === 'physical' ? 
+                        'Physical (bathroom wall, note, etc.)' : 
+                        'Social media post';
+                    
+                    document.getElementById('summaryDiscoveryMethod').textContent = methodText;
+                    document.getElementById('summaryThreatSource').textContent = methodText;
+                    
+                    // Show appropriate details based on discovery method
+                    if (discoveryMethod.method === 'physical' && discoveryMethod.physicalDetails) {
+                        // Show physical discovery details section
+                        document.getElementById('physicalDiscoveryDetails').style.display = 'block';
+                        
+                        // Populate physical discovery details
+                        document.getElementById('summaryDiscoveryFinder').textContent = 
+                            discoveryMethod.physicalDetails.finder || 'N/A';
+                        
+                        // Format date for display
+                        let formattedDate = 'N/A';
+                        if (discoveryMethod.physicalDetails.date) {
+                            const date = new Date(discoveryMethod.physicalDetails.date);
+                            formattedDate = date.toLocaleString();
+                        }
+                        document.getElementById('summaryDiscoveryDate').textContent = formattedDate;
+                        
+                        document.getElementById('summaryDiscoveryLocation').textContent = 
+                            discoveryMethod.physicalDetails.location || 'N/A';
+                        document.getElementById('summaryDiscoveryWitnesses').textContent = 
+                            discoveryMethod.physicalDetails.witnesses || 'N/A';
+                    } else if (discoveryMethod.method === 'social' && discoveryMethod.sourcePlatform) {
+                        // Show social media platform
+                        document.getElementById('summarySourcePlatformItem').style.display = 'flex';
+                        document.getElementById('summarySourcePlatform').textContent = 
+                            discoveryMethod.sourcePlatform.charAt(0).toUpperCase() + discoveryMethod.sourcePlatform.slice(1);
+                    }
                 }
+                
+                // Set up form submission
+                const summaryForm = document.getElementById('summaryForm');
+                if (summaryForm) {
+                    // Set the case ID input value
+                    document.getElementById('caseIdInput').value = caseInfo.caseId;
+                    
+                    // Add submit event listener
+                    summaryForm.addEventListener('submit', async function(e) {
+                        e.preventDefault();
+                        
+                        // Get discovery method from sessionStorage if available
+                        let discoveryMethod = { method: null };
+                        try {
+                            if (sessionStorage.getItem('discoveryMethod')) {
+                                discoveryMethod = JSON.parse(sessionStorage.getItem('discoveryMethod'));
+                            }
+                        } catch (error) {
+                            console.error('Error parsing discovery method:', error);
+                        }
+                        
+                        // Prepare case data for API
+                        const caseData = {
+                            caseId: caseInfo.caseId || `CASE-${Date.now()}`,
+                            date: caseInfo.date || new Date().toISOString().split('T')[0],
+                            investigatorName: caseInfo.investigatorName || 'Unknown Investigator',
+                            organization: caseInfo.organization || 'Unknown Organization',
+                            socStatus: socStatus || 'known',
+                            discoveryMethod: discoveryMethod,
+                            safetyAssessment: safetyAssessment || { enforcement: 'no', means: 'no' },
+                            studentInfo: studentInfo || null
+                        };
+
+                        try {
+                            // Create a new case in Supabase
+                            const response = await fetch('/api/create-case', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(caseData)
+                            });
+
+                            if (!response.ok) {
+                                const errorData = await response.json();
+                                throw new Error('Failed to create case: ' + (errorData.error || response.statusText));
+                            }
+
+                            const data = await response.json();
+                            
+                            if (data.success) {
+                                // Clear session storage
+                                sessionStorage.clear();
+                                
+                                // Redirect to workstation with the new case ID
+                                window.location.href = `/workstation?caseId=${data.caseId}`;
+                            } else {
+                                throw new Error('Failed to create case: ' + (data.error || 'Unknown error'));
+                            }
+                        } catch (error) {
+                            console.error('Error creating case:', error);
+                            alert('Failed to create case. Please try again. ' + error.message);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error in summary page:', error);
+                alert('An error occurred while loading the summary page. Please try again.');
             }
-            
-            // Prepare data for workstation
-            const onboardingData = {
-                caseInfo,
-                socStatus,
-                safetyAssessment: socStatus === 'known' ? safetyAssessment : null,
-                studentInfo: socStatus === 'known' ? studentInfo : null,
-                discoveryMethod: socStatus === 'unknown' ? JSON.parse(localStorage.getItem('discoveryMethod') || '{"method":null,"sourcePlatform":null}') : null
-            };
-            
-            document.getElementById('onboardingDataInput').value = JSON.stringify(onboardingData);
-            
-            // Form action is set to workstation in the HTML
         });
         
         // Format safety value for display

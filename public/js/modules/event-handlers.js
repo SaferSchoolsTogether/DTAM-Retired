@@ -440,7 +440,7 @@ function saveNotes(notes) {
 function saveProfileInfo() {
     const username = document.getElementById('username').value.trim();
     const displayName = document.getElementById('displayName').value.trim();
-    const url = document.getElementById('profileUrl').value.trim();
+    const profileUrl = document.getElementById('profileUrl').value.trim();
     
     const saveIndicator = document.getElementById('saveIndicator');
     
@@ -473,7 +473,7 @@ function saveProfileInfo() {
         body: JSON.stringify({
             username,
             displayName,
-            url
+            profileUrl
         })
     })
     .then(response => {

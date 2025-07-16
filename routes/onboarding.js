@@ -11,29 +11,31 @@
 
 const express = require('express');
 const router = express.Router();
-const fs = require('fs-extra');
-const path = require('path');
-
-// Helper functions
-function readData() {
-  const DATA_FILE = path.join(__dirname, '..', 'data', 'app-data.json');
-  return fs.readJsonSync(DATA_FILE);
-}
-
-function writeData(data) {
-  const DATA_FILE = path.join(__dirname, '..', 'data', 'app-data.json');
-  return fs.writeJsonSync(DATA_FILE, data, { spaces: 2 });
-}
+const supabase = require('../config/supabase');
 
 // Home route - redirect to dashboard or show welcome page
-router.get('/', (req, res) => {
-  const data = readData();
-  
-  // If there's existing case data, redirect to dashboard
-  if (data.case && data.case.caseId) {
-    res.redirect('/dashboard');
-  } else {
-    // Otherwise show welcome page
+router.get('/', async (req, res) => {
+  try {
+    // Check if there are any cases in Supabase
+    const { data: casesData, error } = await supabase
+      .from('cases')
+      .select('id')
+      .limit(1);
+      
+    if (error) {
+      console.error('Supabase error:', error);
+      return res.render('welcome');
+    }
+    
+    // If there are existing cases, redirect to dashboard
+    if (casesData && casesData.length > 0) {
+      res.redirect('/dashboard');
+    } else {
+      // Otherwise show welcome page
+      res.render('welcome');
+    }
+  } catch (error) {
+    console.error('Error checking for cases:', error);
     res.render('welcome');
   }
 });

@@ -61,16 +61,31 @@ function updatePhoto(data) {
     // Extract socId from the URL or from the body data attribute
     const socId = document.body.dataset.socId || 'soc_1';
     
+    // Get the case ID from the URL or body data attribute
+    const urlParams = new URLSearchParams(window.location.search);
+    const caseId = urlParams.get('caseId') || document.body.dataset.caseId;
+    
+    if (!caseId) {
+        saveIndicator.innerHTML = `
+            <svg class="icon" viewBox="0 0 24 24" style="color: #f44336;">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+            Error: No active case
+        `;
+        return;
+    }
+    
     // Show saving indicator
     saveIndicator.innerHTML = `
         <span class="loading-spinner"></span>
         Saving...
     `;
     
-    fetch(`/api/soc/${socId}/platform/${platform}/photo/${state.currentPhotoId}`, {
+    fetch(`/api/soc/${socId}/platform/${platform}/photo/${state.currentPhotoId}?caseId=${caseId}`, {
         method: 'PUT',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-Case-ID': caseId
         },
         body: JSON.stringify(data)
     })
@@ -114,11 +129,25 @@ function updatePhotoView() {
     // Extract socId from the URL or from the body data attribute
     const socId = document.body.dataset.socId || 'soc_1';
     
+    // Get the case ID from the URL or body data attribute
+    const urlParams = new URLSearchParams(window.location.search);
+    const caseId = urlParams.get('caseId') || document.body.dataset.caseId;
+    
+    if (!caseId) {
+        currentImage.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="600"%3E%3Crect width="600" height="600" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="24"%3EError: No active case%3C/text%3E%3C/svg%3E';
+        console.error('No active case ID found');
+        return;
+    }
+    
     // Show loading state
     currentImage.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="600"%3E%3Crect width="600" height="600" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="24"%3ELoading...%3C/text%3E%3C/svg%3E';
     
     // Fetch photo data
-    fetch(`/api/soc/${socId}/platform/${platform}/photo/${state.currentPhotoId}`)
+    fetch(`/api/soc/${socId}/platform/${platform}/photo/${state.currentPhotoId}?caseId=${caseId}`, {
+        headers: {
+            'X-Case-ID': caseId
+        }
+    })
         .then(response => {
             if (!response.ok) {
                 throw new Error('Failed to fetch photo data');
@@ -172,6 +201,17 @@ function handleUpload(e) {
     // Extract socId from the URL or from the body data attribute
     const socId = document.body.dataset.socId || 'soc_1';
     
+    // Get the case ID from the URL or body data attribute
+    const urlParams = new URLSearchParams(window.location.search);
+    const caseId = urlParams.get('caseId') || document.body.dataset.caseId;
+    
+    if (!caseId) {
+        uploadBtn.innerHTML = 'Upload';
+        uploadBtn.disabled = false;
+        alert('Error: No active case. Please create or select a case before uploading photos.');
+        return;
+    }
+    
     const files = fileInput.files;
     if (files.length === 0) return;
     
@@ -182,9 +222,12 @@ function handleUpload(e) {
     uploadBtn.innerHTML = '<span class="loading-spinner"></span> Uploading...';
     uploadBtn.disabled = true;
     
-    // Use the correct API endpoint that includes socId
-    fetch(`/api/soc/${socId}/platform/${platform}/upload`, {
+    // Use the correct API endpoint that includes socId and caseId
+    fetch(`/api/soc/${socId}/platform/${platform}/upload?caseId=${caseId}`, {
         method: 'POST',
+        headers: {
+            'X-Case-ID': caseId
+        },
         body: formData
     })
     .then(response => {
@@ -232,6 +275,15 @@ function deletePhoto(photoId, photoThumb, wasActive) {
     // Extract socId from the URL or from the body data attribute
     const socId = document.body.dataset.socId || 'soc_1';
     
+    // Get the case ID from the URL or body data attribute
+    const urlParams = new URLSearchParams(window.location.search);
+    const caseId = urlParams.get('caseId') || document.body.dataset.caseId;
+    
+    if (!caseId) {
+        alert('Error: No active case. Please select a case before deleting photos.');
+        return;
+    }
+    
     const saveIndicator = document.getElementById('saveIndicator');
     
     // Show deleting indicator
@@ -240,8 +292,11 @@ function deletePhoto(photoId, photoThumb, wasActive) {
         Deleting...
     `;
     
-    fetch(`/api/soc/${socId}/platform/${platform}/photo/${photoId}`, {
-        method: 'DELETE'
+    fetch(`/api/soc/${socId}/platform/${platform}/photo/${photoId}?caseId=${caseId}`, {
+        method: 'DELETE',
+        headers: {
+            'X-Case-ID': caseId
+        }
     })
     .then(response => {
         if (!response.ok) {

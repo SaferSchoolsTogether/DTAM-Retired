@@ -134,7 +134,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Check if we're coming from the SOC status page with "known" status
-            const socStatus = localStorage.getItem('socStatus');
+            const socStatus = sessionStorage.getItem('socStatus');
             if (socStatus === 'known') {
                 document.getElementById('studentInfoSection').style.display = 'block';
                 

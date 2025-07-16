@@ -8,16 +8,23 @@ import { updatePhoto } from './api-service.js';
 
 // Load case data
 function loadCaseData() {
-    // First try to get the active case
-    fetch('/api/case-data')
+    // Get the case ID from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const caseId = urlParams.get('caseId');
+    
+    if (!caseId) {
+        document.body.classList.remove('has-active-case');
+        return;
+    }
+    
+    // Fetch case data for the specific case ID
+    fetch(`/api/case-data?caseId=${caseId}`)
         .then(response => {
             if (!response.ok) {
-                // If no specific endpoint exists, we'll fetch the whole app-data.json
-                return fetch('/data/app-data.json');
+                throw new Error('Failed to fetch case data');
             }
-            return response;
+            return response.json();
         })
-        .then(response => response.json())
         .then(data => {
             // Check if we have case data
             if (data.case) {
@@ -26,15 +33,16 @@ function loadCaseData() {
                 // Add a class to the body to indicate we have an active case
                 document.body.classList.add('has-active-case');
                 
-                // Store the active case ID in localStorage for persistence
-                localStorage.setItem('activeCaseId', data.case.caseId);
+                // Add case ID as a data attribute to the body for easy access
+                document.body.dataset.caseId = data.case.caseId;
             } else {
                 document.body.classList.remove('has-active-case');
-                localStorage.removeItem('activeCaseId');
+                delete document.body.dataset.caseId;
             }
         })
         .catch(error => {
             console.error('Error loading case data:', error);
+            document.body.classList.remove('has-active-case');
         });
 }
 
@@ -91,11 +99,11 @@ function populateCaseContext(caseData) {
 }
 
 // Toggle case context panel
-function toggleCaseContext() {
+function toggleCaseContext(forceState) {
     const caseContextPanel = document.getElementById('caseContextPanel');
     const caseContextOverlay = document.getElementById('caseContextOverlay');
     
-    if (caseContextPanel.classList.contains('active')) {
+    if (forceState === false || (forceState === undefined && caseContextPanel.classList.contains('active'))) {
         // Close panel
         caseContextPanel.classList.remove('active');
         caseContextOverlay.classList.remove('active');
@@ -169,40 +177,85 @@ function saveCaseContextEdits(e) {
     const studentGrade = document.getElementById('editStudentGrade').value;
     const socStatus = document.getElementById('editSocStatus').value;
     
-    // Update the view mode values
-    document.getElementById('caseId').textContent = caseId || 'N/A';
-    document.getElementById('caseDate').textContent = caseDate ? formatDateForDisplay(caseDate) : 'N/A';
-    document.getElementById('investigatorName').textContent = investigatorName || 'N/A';
-    document.getElementById('studentName').textContent = studentName || 'N/A';
-    document.getElementById('studentGrade').textContent = studentGrade || 'N/A';
-    document.getElementById('socStatus').textContent = socStatus || 'N/A';
+    // Get the current case ID from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentCaseId = urlParams.get('caseId') || caseId;
     
-    // TODO: Save to server/database
-    // This would be implemented with a fetch call to the appropriate API endpoint
+    // Prepare case data
+    const caseData = {
+        caseId: caseId,
+        date: caseDate,
+        investigatorName: investigatorName,
+        organization: document.getElementById('organization')?.value || 'Unknown',
+        socStatus: socStatus,
+        studentInfo: {
+            name: studentName,
+            grade: studentGrade
+        }
+    };
     
-    // Switch back to view mode
-    toggleCaseContextEditMode();
-    
-    // Show save confirmation
-    const saveIndicator = document.getElementById('saveIndicator');
-    if (saveIndicator) {
-        saveIndicator.innerHTML = `
-            <svg class="icon" viewBox="0 0 24 24">
-                <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
-            </svg>
-            Case information saved
-        `;
+    // Save to server
+    fetch('/api/save-case', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(caseData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to save case data');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Update the view mode values
+        document.getElementById('caseId').textContent = caseId || 'N/A';
+        document.getElementById('caseDate').textContent = caseDate ? formatDateForDisplay(caseDate) : 'N/A';
+        document.getElementById('investigatorName').textContent = investigatorName || 'N/A';
+        document.getElementById('studentName').textContent = studentName || 'N/A';
+        document.getElementById('studentGrade').textContent = studentGrade || 'N/A';
+        document.getElementById('socStatus').textContent = socStatus || 'N/A';
         
-        // Reset after 3 seconds
-        setTimeout(() => {
+        // Switch back to view mode
+        toggleCaseContextEditMode();
+        
+        // Show save confirmation
+        const saveIndicator = document.getElementById('saveIndicator');
+        if (saveIndicator) {
             saveIndicator.innerHTML = `
                 <svg class="icon" viewBox="0 0 24 24">
                     <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
                 </svg>
-                All changes saved
+                Case information saved
             `;
-        }, 3000);
-    }
+            
+            // Reset after 3 seconds
+            setTimeout(() => {
+                saveIndicator.innerHTML = `
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                    </svg>
+                    All changes saved
+                `;
+            }, 3000);
+        }
+        
+        // If case ID changed, update URL
+        if (caseId !== currentCaseId) {
+            // Update URL without reloading the page
+            urlParams.set('caseId', caseId);
+            const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+            window.history.pushState({ path: newUrl }, '', newUrl);
+            
+            // Update body data attribute
+            document.body.dataset.caseId = caseId;
+        }
+    })
+    .catch(error => {
+        console.error('Error saving case data:', error);
+        alert('Failed to save case data. Please try again.');
+    });
 }
 
 // Format date for display (YYYY-MM-DD to MM/DD/YYYY)

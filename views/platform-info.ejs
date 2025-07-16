@@ -98,8 +98,8 @@
                         </div>
                         
                         <div class="form-group">
-                            <label for="url">URL</label>
-                            <input type="text" id="url" name="url" class="form-control" placeholder="Enter profile URL">
+                            <label for="profileUrl">URL</label>
+                            <input type="text" id="profileUrl" name="profileUrl" class="form-control" placeholder="Enter profile URL">
                         </div>
                         
                         <div class="form-group">
@@ -273,7 +273,7 @@
             // Clear form fields
             document.getElementById('username').value = '';
             document.getElementById('displayName').value = '';
-            document.getElementById('url').value = '';
+            document.getElementById('profileUrl').value = '';
         }
         
         // Add platform to selected platforms
@@ -282,7 +282,7 @@
             
             const username = document.getElementById('username').value.trim();
             const displayName = document.getElementById('displayName').value.trim();
-            const url = document.getElementById('url').value.trim();
+            const profileUrl = document.getElementById('profileUrl').value.trim();
             
             if (!username) {
                 alert('Please enter a username');
@@ -293,7 +293,7 @@
             platformData.platforms[currentPlatform] = {
                 username,
                 displayName,
-                url
+                profileUrl
             };
             
             // Update hidden input
@@ -337,7 +337,7 @@
                     <div class="platform-item-details">
                         <div><strong>Username:</strong> ${data.username}</div>
                         <div><strong>Display Name:</strong> ${data.displayName || 'N/A'}</div>
-                        <div><strong>URL:</strong> ${data.url || 'N/A'}</div>
+                        <div><strong>URL:</strong> ${data.profileUrl || 'N/A'}</div>
                     </div>
                 `;
                 

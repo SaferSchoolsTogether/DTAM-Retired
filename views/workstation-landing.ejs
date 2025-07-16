@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/onboarding.css">
 </head>
-<body data-soc-id="<%= socId %>">
+<body data-soc-id="<%= socId %>" data-case-id="<%= caseId %>">
     <%- include('partials/navigation', { activePage: 'workstation' }) %>
     
     <!-- Header -->
@@ -33,35 +33,35 @@
             <div class="platform-selection-container">
                 <h2 class="section-title">Select a Platform to Begin Your Digital Threat Assessment</h2>
                 <div class="platform-grid">
-                    <a href="/soc/<%= socId %>/platform/instagram" class="platform-card">
+                    <a href="/soc/<%= socId %>/platform/instagram?caseId=<%= caseId %>" class="platform-card">
                         <div class="platform-icon-large">📷</div>
                         <div class="platform-name">Instagram</div>
                     </a>
-                    <a href="/soc/<%= socId %>/platform/tiktok" class="platform-card">
+                    <a href="/soc/<%= socId %>/platform/tiktok?caseId=<%= caseId %>" class="platform-card">
                         <div class="platform-icon-large">🎵</div>
                         <div class="platform-name">TikTok</div>
                     </a>
-                    <a href="/soc/<%= socId %>/platform/facebook" class="platform-card">
+                    <a href="/soc/<%= socId %>/platform/facebook?caseId=<%= caseId %>" class="platform-card">
                         <div class="platform-icon-large">📘</div>
                         <div class="platform-name">Facebook</div>
                     </a>
-                    <a href="/soc/<%= socId %>/platform/x" class="platform-card">
+                    <a href="/soc/<%= socId %>/platform/x?caseId=<%= caseId %>" class="platform-card">
                         <div class="platform-icon-large">🐦</div>
                         <div class="platform-name">Twitter/X</div>
                     </a>
-                    <a href="/soc/<%= socId %>/platform/youtube" class="platform-card">
+                    <a href="/soc/<%= socId %>/platform/youtube?caseId=<%= caseId %>" class="platform-card">
                         <div class="platform-icon-large">📺</div>
                         <div class="platform-name">YouTube</div>
                     </a>
-                    <a href="/soc/<%= socId %>/platform/linkedin" class="platform-card">
+                    <a href="/soc/<%= socId %>/platform/linkedin?caseId=<%= caseId %>" class="platform-card">
                         <div class="platform-icon-large">💼</div>
                         <div class="platform-name">LinkedIn</div>
                     </a>
-                    <a href="/soc/<%= socId %>/platform/discord" class="platform-card">
+                    <a href="/soc/<%= socId %>/platform/discord?caseId=<%= caseId %>" class="platform-card">
                         <div class="platform-icon-large">🎮</div>
                         <div class="platform-name">Discord</div>
                     </a>
-                    <a href="/soc/<%= socId %>/platform/other" class="platform-card">
+                    <a href="/soc/<%= socId %>/platform/other?caseId=<%= caseId %>" class="platform-card">
                         <div class="platform-icon-large">📌</div>
                         <div class="platform-name">Other</div>
                     </a>

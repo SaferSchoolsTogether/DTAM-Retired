@@ -30,83 +30,9 @@ app.use(express.static('public')); // Serve static files from public directory
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Ensure data directory exists
-const DATA_DIR = path.join(__dirname, 'data');
-fs.ensureDirSync(DATA_DIR);
-
-// Initialize data store if it doesn't exist
-const DATA_FILE = path.join(DATA_DIR, 'app-data.json');
-if (!fs.existsSync(DATA_FILE)) {
-  const initialData = {
-    case: {
-      caseId: '',
-      date: '',
-      investigatorName: '',
-      organization: '',
-      discoveryMethod: '',
-      safetyAssessment: ''
-    },
-    socs: {
-      soc_1: {
-        id: 'soc_1',
-        name: '',
-        studentId: '',
-        grade: '',
-        school: '',
-        dob: '',
-        supportPlans: [],
-        otherPlanText: '',
-        status: 'known',
-        platforms: {
-          instagram: {
-            username: '',
-            displayName: '',
-            url: '',
-            photos: []
-          },
-          tiktok: {
-            username: '',
-            displayName: '',
-            url: '',
-            photos: []
-          },
-          snapchat: {
-            username: '',
-            displayName: '',
-            url: '',
-            photos: []
-          },
-          x: {
-            username: '',
-            displayName: '',
-            url: '',
-            photos: []
-          },
-          discord: {
-            username: '',
-            displayName: '',
-            url: '',
-            photos: []
-          },
-          facebook: {
-            username: '',
-            displayName: '',
-            url: '',
-            photos: []
-          },
-          other: {
-            username: '',
-            displayName: '',
-            url: '',
-            photos: []
-          }
-        }
-      }
-    },
-    activeSocId: 'soc_1'
-  };
-  fs.writeJsonSync(DATA_FILE, initialData, { spaces: 2 });
-}
+// Ensure uploads directory exists
+const UPLOADS_DIR = path.join(__dirname, 'public', 'uploads');
+fs.ensureDirSync(UPLOADS_DIR);
 
 // Use route modules
 app.use(casesRoutes);
@@ -124,20 +50,11 @@ app.use(onboardingRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
   
-  // Ensure data directory exists
-  fs.ensureDirSync(DATA_DIR);
+  // Ensure upload directories exist for common platforms
+  const platforms = ['instagram', 'tiktok', 'snapchat', 'x', 'discord', 'facebook', 'other'];
   
-  // Ensure upload directories exist for each SOC and platform
-  const data = fs.readJsonSync(DATA_FILE);
-  if (data.socs) {
-    Object.keys(data.socs).forEach(socId => {
-      if (data.socs[socId].platforms) {
-        Object.keys(data.socs[socId].platforms).forEach(platform => {
-          fs.ensureDirSync(path.join(__dirname, 'public', 'uploads', socId, platform));
-        });
-      }
-    });
-  }
+  // Create default upload directories
+  fs.ensureDirSync(UPLOADS_DIR);
   
   console.log('Server is ready to handle requests');
 });

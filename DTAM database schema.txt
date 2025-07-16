@@ -1,0 +1,108 @@
+-- DTAM Database Schema for Supabase - Updated to match actual app usage
+
+-- Drop existing tables if they exist (be careful - this deletes data!)
+DROP TABLE IF EXISTS photos CASCADE;
+DROP TABLE IF EXISTS platforms CASCADE;
+DROP TABLE IF EXISTS socs CASCADE;
+DROP TABLE IF EXISTS cases CASCADE;
+
+-- Cases table - matches exactly what Cline is saving
+CREATE TABLE cases (
+    id TEXT PRIMARY KEY,                    -- Case identifier (string, not UUID)
+    date TEXT NOT NULL,                     -- Date in ISO format (string)
+    team_member_name TEXT NOT NULL,         -- Name of investigator
+    organization TEXT NOT NULL,             -- Organization name
+    soc_status TEXT,                        -- Status of Student of Concern
+    discovery_method TEXT,                  -- How the case was discovered
+    safety_assessment TEXT,                 -- Safety assessment result
+    student_info TEXT,                      -- JSON string - Student information
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- SOCs (Subjects of Concern) table - matches app usage
+CREATE TABLE socs (
+    id TEXT PRIMARY KEY,                    -- SOC identifier (format: "soc_" + UUID substring)
+    case_id TEXT REFERENCES cases(id) ON DELETE CASCADE,
+    name TEXT,                              -- Student name
+    student_id TEXT,                        -- Student ID/PEN
+    grade TEXT,                             -- Student grade
+    school TEXT,                            -- School name
+    dob TEXT,                               -- Date of birth (string)
+    support_plans TEXT,                     -- JSON string - Support plans array
+    other_plan_text TEXT,                   -- Other plan text
+    status TEXT CHECK (status IN ('known', 'potential')), -- SOC status
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Platform information table - simplified
+CREATE TABLE platforms (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    soc_id TEXT REFERENCES socs(id) ON DELETE CASCADE,
+    platform_name TEXT NOT NULL, -- instagram, facebook, etc.
+    username TEXT,
+    display_name TEXT,
+    profile_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(soc_id, platform_name)
+);
+
+-- Photos table - matches exactly what Cline is saving
+CREATE TABLE photos (
+    id TEXT PRIMARY KEY,                    -- UUID as string
+    soc_id TEXT NOT NULL,                   -- SOC identifier (string)
+    platform TEXT NOT NULL,                -- Social media platform name
+    file_path TEXT NOT NULL,               -- URL path to the photo
+    thumbnail TEXT,                        -- URL path to thumbnail
+    upload_date TEXT,                      -- ISO format date/time (string)
+    tags TEXT,                             -- JSON string - Array of tags
+    analysis_tags TEXT,                    -- JSON string - Analysis tags object
+    notes TEXT,                            -- Notes about the photo
+    metadata TEXT,                         -- JSON string - Photo metadata
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable Row Level Security
+ALTER TABLE cases ENABLE ROW LEVEL SECURITY;
+ALTER TABLE socs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE platforms ENABLE ROW LEVEL SECURITY;
+ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
+
+-- Create policies (for now, allow all authenticated users)
+-- You can make these more restrictive later
+CREATE POLICY "Allow authenticated users to manage cases" ON cases
+    FOR ALL USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Allow authenticated users to manage socs" ON socs
+    FOR ALL USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Allow authenticated users to manage platforms" ON platforms
+    FOR ALL USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Allow authenticated users to manage photos" ON photos
+    FOR ALL USING (auth.role() = 'authenticated');
+
+-- Create updated_at trigger function
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Add triggers to update the updated_at column
+CREATE TRIGGER update_cases_updated_at BEFORE UPDATE ON cases
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_socs_updated_at BEFORE UPDATE ON socs
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_platforms_updated_at BEFORE UPDATE ON platforms
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_photos_updated_at BEFORE UPDATE ON photos
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

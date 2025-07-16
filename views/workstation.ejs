@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/css/onboarding.css">
     <!-- Styles moved to platform-profile.css -->
 </head>
-<body data-soc-id="<%= socId %>">
+<body data-soc-id="<%= socId %>" data-case-id="<%= caseId %>">
     <%- include('partials/navigation', { activePage: 'workstation' }) %>
     
     <!-- Header -->
@@ -40,7 +40,7 @@
         <!-- Platform Sidebar -->
         <div class="sidebar">
             <% allPlatforms.forEach(function(p) { %>
-                <a href="/soc/<%= socId %>/platform/<%= p %>" class="platform-icon <%= p === platform ? 'active' : '' %>">
+                <a href="/soc/<%= socId %>/platform/<%= p %>?caseId=<%= caseId %>" class="platform-icon <%= p === platform ? 'active' : '' %>">
                     <span><%= p.substring(0, 2).toUpperCase() %></span>
                     <% if (p === platform && platformData.photos.length > 0) { %>
                         <span class="platform-progress"><%= platformData.photos.filter(photo => Object.keys(photo.analysisTags).length > 0).length %>/<%= platformData.photos.length %></span>
@@ -112,7 +112,7 @@
                                 </div>
                                 <div class="profile-field">
                                     <label for="profileUrl">URL</label>
-                                    <input type="text" id="profileUrl" class="profile-input" value="<%= platformData.url %>" placeholder="Enter profile URL">
+                                    <input type="text" id="profileUrl" class="profile-input" value="<%= platformData.profileUrl %>" placeholder="Enter profile URL">
                                 </div>
                             </div>
                         </div>
