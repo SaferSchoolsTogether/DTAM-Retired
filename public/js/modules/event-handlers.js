@@ -15,7 +15,8 @@ import {
     hideClearSessionModal,
     toggleCaseContext,
     toggleCaseContextEditMode,
-    saveCaseContextEdits
+    saveCaseContextEdits,
+    togglePlatformProfile
 } from './ui-state.js';
 import { 
     getPlatformName,
@@ -81,6 +82,24 @@ function initEventListeners() {
     const caseContextOverlay = document.getElementById('caseContextOverlay');
     if (caseContextOverlay) {
         caseContextOverlay.addEventListener('click', toggleCaseContext);
+    }
+    
+    // Platform profile panel toggle
+    const platformInfoToggleBtn = document.getElementById('platformInfoToggleBtn');
+    if (platformInfoToggleBtn) {
+        platformInfoToggleBtn.addEventListener('click', togglePlatformProfile);
+    }
+    
+    // Platform profile close button
+    const platformProfileCloseBtn = document.getElementById('platformProfileCloseBtn');
+    if (platformProfileCloseBtn) {
+        platformProfileCloseBtn.addEventListener('click', togglePlatformProfile);
+    }
+    
+    // Platform profile overlay (click to close)
+    const platformProfileOverlay = document.getElementById('platformProfileOverlay');
+    if (platformProfileOverlay) {
+        platformProfileOverlay.addEventListener('click', togglePlatformProfile);
     }
     
     // Case context edit button

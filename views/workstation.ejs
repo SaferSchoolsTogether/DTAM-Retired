@@ -6,7 +6,7 @@
     <title><%= platform.charAt(0).toUpperCase() + platform.slice(1) %> Workstation</title>
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/onboarding.css">
-    <!-- Styles moved to platform-profile.css -->
+    <link rel="stylesheet" href="/css/components/platform-profile.css">
 </head>
 <body data-soc-id="<%= socId %>" data-case-id="<%= caseId %>">
     <%- include('partials/navigation', { activePage: 'workstation' }) %>
@@ -37,7 +37,7 @@
 
     <!-- Main Container -->
     <div class="main-container">
-        <!-- Platform Sidebar -->
+        <!-- Platform Sidebar - Only shows platforms that have been set up -->
         <div class="sidebar">
             <% allPlatforms.forEach(function(p) { %>
                 <a href="/soc/<%= socId %>/platform/<%= p %>?caseId=<%= caseId %>" class="platform-icon <%= p === platform ? 'active' : '' %>">
@@ -47,6 +47,13 @@
                     <% } %>
                 </a>
             <% }); %>
+            
+            <!-- Add Platform Button -->
+            <a href="/workstation?caseId=<%= caseId %>" class="add-platform-btn" title="Add Platform">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+            </a>
         </div>
 
         <%- include('partials/photo-grid') %>
@@ -83,39 +90,12 @@
 
                     <!-- Analysis Panel -->
                     <div class="analysis-panel">
-                        <!-- Platform Profile Section -->
-                        <div class="panel-section platform-profile-section">
-                            <h3 class="section-title">
-                                <span class="platform-icon-small"><%= platform.substring(0, 2).toUpperCase() %></span>
-                                Platform Profile
-                            </h3>
-                            <div class="profile-fields-container">
-                                <div class="profile-field">
-                                    <div class="label-with-tooltip">
-                                        <label for="username">Username</label>
-                                        <span class="tooltip-icon">
-                                            ?
-                                            <span class="tooltip-text">The @handle someone uses to identify their account (e.g., @john_doe123). This appears after the @ symbol.</span>
-                                        </span>
-                                    </div>
-                                    <input type="text" id="username" class="profile-input" value="<%= platformData.username %>" placeholder="Enter username">
-                                </div>
-                                <div class="profile-field">
-                                    <div class="label-with-tooltip">
-                                        <label for="displayName">Display Name</label>
-                                        <span class="tooltip-icon">
-                                            ?
-                                            <span class="tooltip-text">The name shown on their profile that others see (e.g., John Doe). This can be their real name or any chosen name.</span>
-                                        </span>
-                                    </div>
-                                    <input type="text" id="displayName" class="profile-input" value="<%= platformData.displayName %>" placeholder="Enter display name">
-                                </div>
-                                <div class="profile-field">
-                                    <label for="profileUrl">URL</label>
-                                    <input type="text" id="profileUrl" class="profile-input" value="<%= platformData.profileUrl %>" placeholder="Enter profile URL">
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Platform Info Toggle Button -->
+                        <button class="platform-info-toggle" id="platformInfoToggleBtn" title="Show Platform Profile">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                            </svg>
+                        </button>
 
                         <!-- Analyze Button -->
                         <button class="analyze-btn" id="analyzeBtn">
@@ -224,6 +204,7 @@
     <%- include('partials/upload-modal') %>
     <%- include('partials/analysis-modal') %>
     <%- include('partials/case-context-bar') %>
+    <%- include('partials/platform-profile-bar') %>
 
     <!-- Add SOC Modal -->
     <div class="modal" id="addSocModal">
@@ -274,6 +255,7 @@
     </div>
 
 <script src="/js/navigation.js"></script>
+<script src="/js/platform-profile.js"></script>
 <script src="/js/workstation.js?v=<%= new Date().getTime() %>" type="module"></script>
 </body>
 </html>

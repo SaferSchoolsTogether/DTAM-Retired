@@ -1,0 +1,114 @@
+<!-- Platform Profile Overlay -->
+<div class="platform-profile-overlay" id="platformProfileOverlay"></div>
+
+<!-- Platform Profile Slide-Out Panel -->
+<div class="platform-profile-panel" id="platformProfilePanel">
+    <div class="platform-profile-content">
+        <div class="platform-profile-header">
+            <h2 class="platform-profile-title">
+                <span class="platform-icon-small"><%= platform.substring(0, 2).toUpperCase() %></span>
+                <%= platform.charAt(0).toUpperCase() + platform.slice(1) %> Profile
+            </h2>
+            <div class="platform-profile-actions">
+                <a href="/soc/<%= socId %>/platform/<%= platform %>/edit?caseId=<%= caseId %>" class="btn btn-edit" id="platformProfileEditBtn">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                    </svg>
+                    Edit
+                </a>
+                <button class="platform-profile-close" id="platformProfileCloseBtn">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Profile Details -->
+        <div class="platform-profile-details" id="platformProfileDetails">
+            <div class="platform-profile-section">
+                <h3 class="section-subtitle">Account Information</h3>
+                <div class="profile-detail-row">
+                    <div class="label-with-tooltip">
+                        <span class="profile-detail-label">Username</span>
+                        <span class="tooltip-icon">
+                            ?
+                            <span class="tooltip-text">The @handle someone uses to identify their account (e.g., @john_doe123). This appears after the @ symbol.</span>
+                        </span>
+                    </div>
+                    <span class="profile-detail-value" id="profileUsername"><%= platformData.username %></span>
+                </div>
+                <div class="profile-detail-row">
+                    <div class="label-with-tooltip">
+                        <span class="profile-detail-label">Display Name</span>
+                        <span class="tooltip-icon">
+                            ?
+                            <span class="tooltip-text">The name shown on their profile that others see (e.g., John Doe). This can be their real name or any chosen name.</span>
+                        </span>
+                    </div>
+                    <span class="profile-detail-value" id="profileDisplayName"><%= platformData.displayName %></span>
+                </div>
+                <div class="profile-detail-row">
+                    <span class="profile-detail-label">Profile URL</span>
+                    <span class="profile-detail-value" id="profileUrl"><%= platformData.profileUrl %></span>
+                </div>
+            </div>
+            
+            <div class="platform-profile-section">
+                <h3 class="section-subtitle">Search Tools</h3>
+                <div class="search-buttons">
+                    <button type="button" class="search-btn" id="whatsmynameBtn">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                        Search WhatsMyName
+                    </button>
+                    <button type="button" class="search-btn" id="googleBtn">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                        Search Google
+                    </button>
+                    <button type="button" class="search-btn" id="searchTipsBtn">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                        </svg>
+                        Manual Search Tips
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Tips Modal -->
+<div class="modal" id="searchTipsModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Manual Search Tips</h2>
+            <button class="close-btn" id="closeSearchTipsBtn">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="search-tip">
+                <div class="search-tip-title">1. Try variations of the person's name</div>
+                <p>Search for different combinations of first name, last name, initials, and common username patterns (firstname.lastname, firstinitial_lastname, etc.)</p>
+            </div>
+            <div class="search-tip">
+                <div class="search-tip-title">2. Use advanced search operators</div>
+                <p>On Google, try using quotes for exact matches: "John Smith Instagram" or site-specific searches: site:instagram.com "John Smith"</p>
+            </div>
+            <div class="search-tip">
+                <div class="search-tip-title">3. Check connected accounts</div>
+                <p>If you find one social media account, look for links to other platforms in their bio or posts</p>
+            </div>
+            <div class="search-tip">
+                <div class="search-tip-title">4. Look for unique identifiers</div>
+                <p>Search for email addresses, usernames from other platforms, or unique phrases/interests mentioned in known profiles</p>
+            </div>
+            <div class="search-tip">
+                <div class="search-tip-title">5. Use reverse image search</div>
+                <p>If you have a photo of the person, try using Google Images or TinEye to find where else that image appears online</p>
+            </div>
+        </div>
+    </div>
+</div>

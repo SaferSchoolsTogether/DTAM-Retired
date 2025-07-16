@@ -100,6 +100,74 @@ router.get('/workstation', async (req, res) => {
   }
 });
 
+// Account setup route
+router.get('/soc/:socId/platform/:platform/setup', async (req, res) => {
+  try {
+    const { socId, platform } = req.params;
+    
+    // Get the case ID from the query parameter
+    const caseId = req.query.caseId;
+    if (!caseId) {
+      return res.redirect('/dashboard');
+    }
+    
+    // Get SOC data from Supabase
+    const { data: socData, error: socError } = await supabase
+      .from('socs')
+      .select('*')
+      .eq('id', socId)
+      .eq('case_id', caseId)
+      .single();
+      
+    if (socError || !socData) {
+      console.error('Error fetching SOC:', socError);
+      return res.redirect(`/workstation?caseId=${caseId}&error=SOC+not+found`);
+    }
+    
+    // Get platform data from Supabase if it exists
+    const { data: platformData, error: platformError } = await supabase
+      .from('platforms')
+      .select('*')
+      .eq('soc_id', socId)
+      .eq('platform_name', platform)
+      .single();
+      
+    // Format platform data for the template
+    let platformInfo = null;
+    if (!platformError && platformData) {
+      platformInfo = {
+        username: platformData.username || '',
+        displayName: platformData.display_name || '',
+        profileUrl: platformData.profile_url || ''
+      };
+    }
+    
+    // Format SOC data
+    const formattedSoc = {
+      id: socData.id,
+      name: socData.name || '',
+      studentId: socData.student_id || '',
+      grade: socData.grade || '',
+      school: socData.school || '',
+      dob: socData.dob || '',
+      supportPlans: socData.support_plans || [],
+      otherPlanText: socData.other_plan_text || '',
+      status: socData.status || 'known'
+    };
+    
+    res.render('account-setup', {
+      caseId: caseId,
+      socId: socId,
+      platform: platform,
+      platformData: platformInfo,
+      socData: formattedSoc
+    });
+  } catch (error) {
+    console.error('Error in account setup:', error);
+    res.status(500).send('Server error');
+  }
+});
+
 // Platform workstation route
 router.get('/soc/:socId/platform/:platform', async (req, res) => {
   try {
@@ -132,32 +200,11 @@ router.get('/soc/:socId/platform/:platform', async (req, res) => {
       .eq('platform_name', platform)
       .single();
       
-    // If platform doesn't exist, create it
+    // Check if platform exists
     let platformInfo;
     if (platformError || !platformData) {
-      // Create a new platform entry
-      const { data: newPlatform, error: createError } = await supabase
-        .from('platforms')
-        .insert({
-          soc_id: socId,
-          platform_name: platform,
-          username: '',
-          display_name: '',
-          profile_url: ''
-        })
-        .select();
-        
-      if (createError) {
-        console.error('Error creating platform:', createError);
-        return res.redirect(`/workstation?caseId=${caseId}&error=Failed+to+create+platform`);
-      }
-      
-      platformInfo = {
-        username: '',
-        displayName: '',
-        profileUrl: '',
-        photos: []
-      };
+      // Redirect to account setup if platform doesn't exist
+      return res.redirect(`/soc/${socId}/platform/${platform}/setup?caseId=${caseId}`);
     } else {
       platformInfo = {
         username: platformData.username || '',
@@ -237,18 +284,18 @@ router.get('/soc/:socId/platform/:platform', async (req, res) => {
       };
     }
     
-    // Get all platforms for this SOC
+    // Get all platforms for this SOC - only include platforms that have been set up
     const { data: allPlatformsData, error: allPlatformsError } = await supabase
       .from('platforms')
       .select('platform_name')
       .eq('soc_id', socId);
       
-    let allPlatforms = ['instagram', 'tiktok', 'snapchat', 'x', 'discord', 'facebook', 'other'];
+    // Only include platforms that have been set up through the account setup flow
+    let allPlatforms = [];
     
     if (!allPlatformsError && allPlatformsData) {
-      // Add any platforms that exist in the database
-      const dbPlatforms = allPlatformsData.map(p => p.platform_name);
-      allPlatforms = [...new Set([...allPlatforms, ...dbPlatforms])];
+      // Use only platforms that exist in the database
+      allPlatforms = allPlatformsData.map(p => p.platform_name);
     }
     
     res.render('workstation', {
@@ -265,6 +312,25 @@ router.get('/soc/:socId/platform/:platform', async (req, res) => {
   } catch (error) {
     console.error('Error in platform workstation:', error);
     res.status(500).send('Server error');
+  }
+});
+
+// Edit platform route - redirects to setup with existing data
+router.get('/soc/:socId/platform/:platform/edit', async (req, res) => {
+  try {
+    const { socId, platform } = req.params;
+    
+    // Get the case ID from the query parameter
+    const caseId = req.query.caseId;
+    if (!caseId) {
+      return res.redirect('/dashboard');
+    }
+    
+    // Redirect to setup page
+    res.redirect(`/soc/${socId}/platform/${platform}/setup?caseId=${caseId}`);
+  } catch (error) {
+    console.error('Error in platform edit redirect:', error);
+    res.status(500).redirect('/dashboard?error=Server+error');
   }
 });
 

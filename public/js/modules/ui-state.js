@@ -391,6 +391,32 @@ function updateMetadata(metadata) {
     }
 }
 
+// Toggle platform profile panel
+function togglePlatformProfile(forceState) {
+    const platformProfilePanel = document.getElementById('platformProfilePanel');
+    const platformProfileOverlay = document.getElementById('platformProfileOverlay');
+    
+    if (!platformProfilePanel || !platformProfileOverlay) return;
+    
+    if (forceState === false || (forceState === undefined && platformProfilePanel.classList.contains('active'))) {
+        // Close panel
+        platformProfilePanel.classList.remove('active');
+        platformProfileOverlay.classList.remove('active');
+    } else {
+        // Open panel
+        platformProfilePanel.classList.add('active');
+        platformProfileOverlay.classList.add('active');
+        
+        // Add click event listener to the overlay to close the panel when clicked
+        platformProfileOverlay.addEventListener('click', function(e) {
+            // Only close if the click was directly on the overlay, not on the panel
+            if (e.target === platformProfileOverlay) {
+                togglePlatformProfile(false);
+            }
+        }, { once: true }); // Use once: true to prevent multiple listeners
+    }
+}
+
 // Export functions
 export {
     loadCaseData,
@@ -408,5 +434,6 @@ export {
     showClearSessionModal,
     hideClearSessionModal,
     updateTags,
-    updateMetadata
+    updateMetadata,
+    togglePlatformProfile
 };
