@@ -100,7 +100,7 @@
                         <div class="summary-value" id="summaryMeans"></div>
                     </div>
                     <div class="summary-item" id="summaryRiskItem">
-                        <div class="summary-label">Risk level:</div>
+                        <div class="summary-label">Screening Indicates:</div>
                         <div class="summary-value" id="summaryRisk"></div>
                     </div>
                 </div>
@@ -255,7 +255,7 @@
                     // Determine risk level
                     const highRisk = safetyAssessment.enforcement === 'yes' || safetyAssessment.means === 'yes';
                     
-                    document.getElementById('summaryRisk').textContent = highRisk ? 'High' : 'Moderate to Low';
+                    document.getElementById('summaryRisk').textContent = highRisk ? 'Higher Concern' : 'Moderate to Low Concern';
                     document.getElementById('summaryRisk').style.color = highRisk ? '#e60000' : '#38a169';
                     
                     // Show student information if available

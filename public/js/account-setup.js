@@ -162,16 +162,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     /**
-     * Open WhatsMyName in a new tab
+     * Open WhatsMyName in a new tab with the username if available
      */
     function openWhatsMyName() {
-        window.open('https://whatsmyname.app', '_blank');
+        const username = usernameInput ? usernameInput.value.trim() : '';
+        
+        if (username) {
+            window.open(`https://whatsmyname.app/?q=${encodeURIComponent(username)}`, '_blank');
+        } else {
+            // Get SOC name from case context if available
+            let socName = '';
+            const socNameElement = document.querySelector('.case-context-bar .soc-name');
+            
+            if (socNameElement && socNameElement.textContent) {
+                socName = socNameElement.textContent.trim();
+                window.open(`https://whatsmyname.app/?q=${encodeURIComponent(socName)}`, '_blank');
+            } else {
+                window.open('https://whatsmyname.app', '_blank');
+            }
+        }
     }
     
     /**
-     * Open Google search in a new tab
+     * Open Google search in a new tab with username and platform info
      */
     function openGoogleSearch() {
+        // Get platform from URL
+        const urlPath = window.location.pathname;
+        const platformMatch = urlPath.match(/\/platform\/([^\/]+)/);
+        const platform = platformMatch ? platformMatch[1] : '';
+        
+        // Get username if available
+        const username = usernameInput ? usernameInput.value.trim() : '';
+        
         // Get SOC name from case context if available
         let socName = '';
         const socNameElement = document.querySelector('.case-context-bar .soc-name');
@@ -181,7 +204,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Construct search query
-        const searchQuery = encodeURIComponent(`${socName} social media profiles`);
+        let searchQuery;
+        if (username) {
+            searchQuery = encodeURIComponent(`${username} ${platform}`);
+        } else if (socName) {
+            searchQuery = encodeURIComponent(`${socName} ${platform}`);
+        } else {
+            searchQuery = encodeURIComponent(`${platform} profile search`);
+        }
+        
         window.open(`https://www.google.com/search?q=${searchQuery}`, '_blank');
     }
     

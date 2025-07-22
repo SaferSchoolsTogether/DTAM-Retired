@@ -16,7 +16,8 @@ import {
     toggleCaseContext,
     toggleCaseContextEditMode,
     saveCaseContextEdits,
-    togglePlatformProfile
+    togglePlatformProfile,
+    updateReverseImageSearchLinks
 } from './ui-state.js';
 import { 
     getPlatformName,
@@ -362,6 +363,12 @@ function selectPhoto(photoThumb) {
     
     // Update UI
     updatePhotoView();
+    
+    // Update reverse image search links if they exist
+    if (typeof updateReverseImageSearchLinks === 'function') {
+        // Use setTimeout to ensure the image has loaded
+        setTimeout(updateReverseImageSearchLinks, 500);
+    }
 }
 
 // Select tag option

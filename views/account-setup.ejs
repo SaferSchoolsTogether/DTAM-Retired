@@ -7,10 +7,17 @@
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/onboarding.css">
     <style>
+        /* Setup Layout */
+        .setup-layout {
+            display: flex;
+            gap: 20px;
+            max-width: 1000px;
+            margin: 2rem auto;
+        }
+        
         /* Account Setup specific styles */
         .account-setup-container {
-            max-width: 600px;
-            margin: 2rem auto;
+            flex: 2;
             padding: 2rem;
             background-color: #fff;
             border-radius: 8px;
@@ -53,19 +60,55 @@
             width: 250px;
             background-color: #555;
             color: #fff;
-            text-align: center;
+            text-align: left;
             border-radius: 6px;
-            padding: 8px;
+            padding: 10px;
             position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -125px;
+            z-index: 1000;
+            /* Position to the right instead of above */
+            top: -5px;
+            left: 30px;
             opacity: 0;
             transition: opacity 0.3s;
             font-weight: normal;
             font-size: 0.8rem;
             line-height: 1.4;
+            white-space: normal;
+            word-wrap: break-word;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        /* Add a triangle pointer to the left side of the tooltip */
+        .tooltip-text::before {
+            content: "";
+            position: absolute;
+            top: 10px;
+            left: -10px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent #555 transparent transparent;
+        }
+        
+        /* Ensure the tooltip container has proper positioning */
+        .tooltip-icon {
+            position: relative;
+            display: inline-block;
+            margin-left: 0.5rem;
+            width: 18px;
+            height: 18px;
+            background-color: #f0f0f0;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 18px;
+            font-size: 12px;
+            cursor: help;
+        }
+        
+        /* Media query for smaller screens */
+        @media (max-width: 768px) {
+            .tooltip-text {
+                width: 200px;
+            }
         }
 
         .tooltip-icon:hover .tooltip-text {
@@ -97,9 +140,13 @@
         }
 
         .search-tools {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #eee;
+            flex: 1;
+            padding: 1.5rem;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            align-self: flex-start;
         }
 
         .search-tools-title {
@@ -110,7 +157,7 @@
 
         .search-buttons {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 0.75rem;
         }
 
@@ -140,6 +187,21 @@
             display: flex;
             justify-content: space-between;
             margin-top: 2rem;
+        }
+        
+        /* Responsive layout */
+        @media (max-width: 768px) {
+            .setup-layout {
+                flex-direction: column;
+            }
+            
+            .account-setup-container, .search-tools {
+                width: 100%;
+            }
+            
+            .search-tools {
+                margin-top: 1rem;
+            }
         }
 
         /* Modal styles */
@@ -224,10 +286,11 @@
 
     <!-- Main Container -->
     <div class="main-container">
-        <div class="account-setup-container">
-            <h2 class="account-setup-title"><%= platform.charAt(0).toUpperCase() + platform.slice(1) %> Account Setup</h2>
-            
-            <form id="accountSetupForm">
+        <div class="setup-layout">
+            <div class="account-setup-container">
+                <h2 class="account-setup-title"><%= platform.charAt(0).toUpperCase() + platform.slice(1) %> Account Setup</h2>
+                
+                <form id="accountSetupForm">
                 <div class="form-group">
                     <div class="label-with-tooltip">
                         <label for="username">Username</label>
@@ -256,35 +319,37 @@
                     <input type="text" id="profileUrl" name="profileUrl" class="form-input" value="<%= platformData ? platformData.profileUrl : '' %>" placeholder="Enter profile URL">
                 </div>
                 
-                <div class="search-tools">
-                    <h3 class="search-tools-title">🔍 Need help finding this info?</h3>
-                    <div class="search-buttons">
-                        <button type="button" class="search-btn" id="whatsmynameBtn">
-                            <svg class="icon" viewBox="0 0 24 24">
-                                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                            </svg>
-                            Search WhatsMyName
-                        </button>
-                        <button type="button" class="search-btn" id="googleBtn">
-                            <svg class="icon" viewBox="0 0 24 24">
-                                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                            </svg>
-                            Search Google
-                        </button>
-                        <button type="button" class="search-btn" id="searchTipsBtn">
-                            <svg class="icon" viewBox="0 0 24 24">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
-                            </svg>
-                            Manual Search Tips
-                        </button>
-                    </div>
-                </div>
-                
                 <div class="action-buttons">
                     <a href="/soc/<%= socId %>/workstation?caseId=<%= caseId %>" class="btn btn-secondary">Cancel</a>
                     <button type="submit" class="btn btn-primary" id="accessWorkstationBtn">Access Workstation</button>
                 </div>
-            </form>
+                </form>
+            </div>
+            
+            <div class="search-tools">
+                <h3 class="search-tools-title">🔍 Need help finding this info?</h3>
+                <div class="search-buttons">
+                    <button type="button" class="search-btn" id="whatsmynameBtn">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                        Search WhatsMyName
+                    </button>
+                    <button type="button" class="search-btn" id="googleBtn">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                        Search Google
+                    </button>
+                    <button type="button" class="search-btn" id="searchTipsBtn">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                        </svg>
+                        Manual Search Tips
+                    </button>
+                </div>
+            </div>
+                
         </div>
     </div>
 
@@ -296,6 +361,7 @@
                 <button class="close-btn" id="closeSearchTipsBtn">×</button>
             </div>
             <div class="modal-body">
+                <!-- General Search Tips -->
                 <div class="search-tip">
                     <div class="search-tip-title">1. Try variations of the person's name</div>
                     <p>Search for different combinations of first name, last name, initials, and common username patterns (firstname.lastname, firstinitial_lastname, etc.)</p>
@@ -315,6 +381,120 @@
                 <div class="search-tip">
                     <div class="search-tip-title">5. Use reverse image search</div>
                     <p>If you have a photo of the person, try using Google Images or TinEye to find where else that image appears online</p>
+                </div>
+                
+                <!-- Platform-Specific Tips (dynamically shown based on platform) -->
+                <% if (platform === 'instagram') { %>
+                <div class="search-tip platform-specific">
+                    <div class="search-tip-title">Instagram-Specific Tips</div>
+                    <ul>
+                        <li>Search by username, full name, or hashtags</li>
+                        <li>Check tagged photos to find connections</li>
+                        <li>Look at followers and following lists for connections</li>
+                        <li>Use location tags to find posts from specific areas</li>
+                        <li>Check for Instagram stories highlights for additional content</li>
+                        <li>Use third-party tools like Gramhir or Picuki to view profiles anonymously</li>
+                    </ul>
+                </div>
+                <% } else if (platform === 'tiktok') { %>
+                <div class="search-tip platform-specific">
+                    <div class="search-tip-title">TikTok-Specific Tips</div>
+                    <ul>
+                        <li>Search by username, nickname, or real name</li>
+                        <li>Use hashtags related to schools, sports teams, or local areas</li>
+                        <li>Check the "Friends" tab to see connections</li>
+                        <li>Look for duets and collaborations with other users</li>
+                        <li>Use TikTok's "Discover" feature to find content by location</li>
+                        <li>Check comments on popular local content</li>
+                    </ul>
+                </div>
+                <% } else if (platform === 'snapchat') { %>
+                <div class="search-tip platform-specific">
+                    <div class="search-tip-title">Snapchat-Specific Tips</div>
+                    <ul>
+                        <li>Use the "Add Friends" feature to search by username or real name</li>
+                        <li>Check Snap Map for location-based content</li>
+                        <li>Look for usernames that match patterns from other platforms</li>
+                        <li>Use the "Quick Add" feature to find potential connections</li>
+                        <li>Search for public stories in specific locations</li>
+                        <li>Check for Snapchat usernames shared on other social platforms</li>
+                    </ul>
+                </div>
+                <% } else if (platform === 'x') { %>
+                <div class="search-tip platform-specific">
+                    <div class="search-tip-title">X (Twitter)-Specific Tips</div>
+                    <ul>
+                        <li>Use Twitter's advanced search to filter by date, location, and keywords</li>
+                        <li>Search for mentions of usernames with the @ symbol</li>
+                        <li>Use the "from:" operator to see all tweets from a specific user</li>
+                        <li>Check who a user follows and who follows them</li>
+                        <li>Look for location tags in tweets</li>
+                        <li>Search for school hashtags or local event hashtags</li>
+                    </ul>
+                </div>
+                <% } else if (platform === 'discord') { %>
+                <div class="search-tip platform-specific">
+                    <div class="search-tip-title">Discord-Specific Tips</div>
+                    <ul>
+                        <li>Search for public Discord servers related to schools or local communities</li>
+                        <li>Look for Discord usernames shared on other platforms</li>
+                        <li>Check for Discord links in gaming forums or social media profiles</li>
+                        <li>Use Discord's search feature within servers to find specific content</li>
+                        <li>Note that Discord usernames include a # followed by a number (e.g., username#1234)</li>
+                        <li>Look for Discord servers advertised on school websites or community pages</li>
+                    </ul>
+                </div>
+                <% } else if (platform === 'facebook') { %>
+                <div class="search-tip platform-specific">
+                    <div class="search-tip-title">Facebook-Specific Tips</div>
+                    <ul>
+                        <li>Use Facebook's search filters to narrow results by city, education, or workplace</li>
+                        <li>Check mutual friends to find connections</li>
+                        <li>Look for membership in school groups or local community groups</li>
+                        <li>Search for tagged photos to find connections</li>
+                        <li>Check event attendees for local school events</li>
+                        <li>Use Graph Search syntax for advanced searches (e.g., "people who live in [city] and attend [school]")</li>
+                    </ul>
+                </div>
+                <% } else if (platform === 'youtube') { %>
+                <div class="search-tip platform-specific">
+                    <div class="search-tip-title">YouTube-Specific Tips</div>
+                    <ul>
+                        <li>Search for channel names, usernames, or real names</li>
+                        <li>Check video comments for interactions</li>
+                        <li>Look at channel subscriptions and featured channels</li>
+                        <li>Check the "Community" tab for posts and interactions</li>
+                        <li>Use filters to narrow search results by upload date, view count, etc.</li>
+                        <li>Look for links to other social media in the channel description or "About" section</li>
+                    </ul>
+                </div>
+                <% } else { %>
+                <div class="search-tip platform-specific">
+                    <div class="search-tip-title">Additional Search Tips</div>
+                    <ul>
+                        <li>Many users maintain similar usernames across platforms</li>
+                        <li>Look for profile pictures that are used across multiple platforms</li>
+                        <li>Search for unique phrases or interests mentioned in known profiles</li>
+                        <li>Check for links to other social media accounts in bios or posts</li>
+                        <li>Use multiple search engines as they may yield different results</li>
+                        <li>Try specialized search engines like Social Searcher or Pipl for social media specific searches</li>
+                    </ul>
+                </div>
+                <% } %>
+                
+                <div class="search-tip">
+                    <div class="search-tip-title">Username Patterns to Try</div>
+                    <div class="tip-example">
+                        Common username variations for a person named "John Smith":<br>
+                        - johnsmith<br>
+                        - john.smith<br>
+                        - john_smith<br>
+                        - jsmith<br>
+                        - johnsmith2025<br>
+                        - john.s<br>
+                        - j.smith<br>
+                        - j0hn5m1th
+                    </div>
                 </div>
             </div>
         </div>

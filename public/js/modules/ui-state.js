@@ -298,6 +298,27 @@ function showAnalysisModal() {
     document.querySelectorAll('.analysis-detail').forEach(detail => {
         detail.classList.remove('active');
     });
+    
+    // Update reverse image search links with current image URL
+    updateReverseImageSearchLinks();
+}
+
+// Update reverse image search links with current image URL
+function updateReverseImageSearchLinks() {
+    const currentImage = document.getElementById('currentImage');
+    const googleImagesLink = document.getElementById('googleImagesLink');
+    const tinEyeLink = document.getElementById('tinEyeLink');
+    
+    if (currentImage && currentImage.src && googleImagesLink && tinEyeLink) {
+        // Get the current image URL
+        const imageUrl = currentImage.src;
+        
+        // Set the Google Images search URL
+        googleImagesLink.href = `https://www.google.com/searchbyimage?image_url=${encodeURIComponent(imageUrl)}`;
+        
+        // Set the TinEye search URL
+        tinEyeLink.href = `https://tineye.com/search?url=${encodeURIComponent(imageUrl)}`;
+    }
 }
 
 // Hide analysis modal
@@ -316,6 +337,11 @@ function showAnalysisDetail(type) {
     
     // Show detail view
     document.getElementById(`detail-${type}`).classList.add('active');
+    
+    // If showing authenticity detail, update reverse image search links
+    if (type === 'authenticity') {
+        updateReverseImageSearchLinks();
+    }
 }
 
 // Back to options
@@ -427,5 +453,6 @@ export {
     hideClearSessionModal,
     updateTags,
     updateMetadata,
-    togglePlatformProfile
+    togglePlatformProfile,
+    updateReverseImageSearchLinks
 };
