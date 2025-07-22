@@ -102,8 +102,8 @@
             <div class="tag-options">
                 <h3 class="tag-options-title">What is your authenticity assessment?</h3>
                 <div class="tag-option-grid">
-                    <div class="tag-option" data-value="Appears authentic">
-                        Appears authentic
+                    <div class="tag-option" data-value="Appears unique" id="appearsUniqueOption">
+                        Appears unique
                     </div>
                     <div class="tag-option" data-value="Possibly edited">
                         Possibly edited
@@ -113,6 +113,16 @@
                     </div>
                     <div class="tag-option" data-value="Confirmed fake/AI generated">
                         Confirmed fake/AI generated
+                    </div>
+                </div>
+                
+                <!-- Weapon notification popup -->
+                <div class="weapon-notification" id="weaponNotification">
+                    <div class="notification-content">
+                        <h4>Important Notice</h4>
+                        <p>If this unique image contains a firearm or weapon, you <strong>must</strong> consult with law enforcement.</p>
+                        <p>Law enforcement can use our reverse image search warrant template language - <a href="https://20202517.fs1.hubspotusercontent-na1.net/hubfs/20202517/Files%20and%20Resources/One%20off%20Resources/Sample%20Search%20Warrant%20Template%20Language%20for%20Reverse%20Image%20Search.pdf" target="_blank">Download Template</a></p>
+                        <button class="notification-close-btn" id="closeWeaponNotificationBtn">I understand</button>
                     </div>
                 </div>
                 <button class="apply-tag-btn" id="applyAuthenticityBtn" disabled>Apply Tag</button>

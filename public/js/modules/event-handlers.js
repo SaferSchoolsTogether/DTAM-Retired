@@ -183,8 +183,21 @@ function initEventListeners() {
     tagOptions.forEach(option => {
         option.addEventListener('click', () => {
             selectTagOption(option);
+            
+            // Show weapon notification if "Appears unique" option is selected
+            if (option.id === 'appearsUniqueOption') {
+                document.getElementById('weaponNotification').classList.add('active');
+            }
         });
     });
+    
+    // Weapon notification close button
+    const closeWeaponNotificationBtn = document.getElementById('closeWeaponNotificationBtn');
+    if (closeWeaponNotificationBtn) {
+        closeWeaponNotificationBtn.addEventListener('click', () => {
+            document.getElementById('weaponNotification').classList.remove('active');
+        });
+    }
 
     // Apply tag buttons
     applyTagBtns.forEach(btn => {
