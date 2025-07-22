@@ -30,9 +30,7 @@ app.use(express.static('public')); // Serve static files from public directory
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Ensure uploads directory exists
-const UPLOADS_DIR = path.join(__dirname, 'public', 'uploads');
-fs.ensureDirSync(UPLOADS_DIR);
+// Note: File uploads handled via Supabase storage in serverless environment
 
 // Use route modules
 app.use(casesRoutes);
