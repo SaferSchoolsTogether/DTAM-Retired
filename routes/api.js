@@ -26,7 +26,9 @@ router.get('/api/docs', (req, res) => {
     endpoints: {
       cases: [
         { method: 'GET', path: '/api/case-data', description: 'Get case data' },
-        { method: 'POST', path: '/api/save-case', description: 'Save case data' }
+        { method: 'POST', path: '/api/save-case', description: 'Save case data' },
+        { method: 'DELETE', path: '/api/case/:caseId', description: 'Delete case and all associated data' },
+        { method: 'POST', path: '/api/create-case', description: 'Create new case' }
       ],
       socs: [
         { method: 'GET', path: '/api/soc/:socId', description: 'Get SOC data' },

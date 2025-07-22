@@ -340,6 +340,218 @@ router.post('/api/save-case', async (req, res) => {
   }
 });
 
+// Delete case route
+router.delete('/api/case/:caseId', async (req, res) => {
+  try {
+    // Get case ID from URL parameter
+    const { caseId } = req.params;
+    
+    if (!caseId) {
+      return res.status(400).json({ error: 'Case ID is required' });
+    }
+    
+    // Check if the case exists
+    const { data: caseData, error: caseError } = await supabase
+      .from('cases')
+      .select('id')
+      .eq('id', caseId)
+      .single();
+      
+    if (caseError || !caseData) {
+      console.error('Case not found:', caseError);
+      return res.status(404).json({ error: 'Case not found' });
+    }
+    
+    // Authorization check (can be expanded based on your auth system)
+    // For now, we'll assume all users can delete cases they can see
+    
+    // Get all SOCs associated with this case
+    const { data: socsData, error: socsError } = await supabase
+      .from('socs')
+      .select('id')
+      .eq('case_id', caseId);
+      
+    if (socsError) {
+      console.error('Error fetching SOCs:', socsError);
+      return res.status(500).json({ error: 'Failed to fetch associated SOCs' });
+    }
+    
+    // For each SOC, get platforms and photos
+    const socIds = socsData ? socsData.map(soc => soc.id) : [];
+    const platformsToDelete = [];
+    const photosToDelete = [];
+    
+    // If there are SOCs, get their platforms and photos
+    if (socIds.length > 0) {
+      // Get platforms for these SOCs
+      const { data: platformsData, error: platformsError } = await supabase
+        .from('platforms')
+        .select('id, platform_name, soc_id')
+        .in('soc_id', socIds);
+        
+      if (platformsError) {
+        console.error('Error fetching platforms:', platformsError);
+        return res.status(500).json({ error: 'Failed to fetch associated platforms' });
+      }
+      
+      if (platformsData) {
+        platformsToDelete.push(...platformsData);
+      }
+      
+      // Get photos for these SOCs
+      const { data: photosData, error: photosError } = await supabase
+        .from('photos')
+        .select('id, file_path, platform, soc_id')
+        .in('soc_id', socIds);
+        
+      if (photosError) {
+        console.error('Error fetching photos:', photosError);
+        return res.status(500).json({ error: 'Failed to fetch associated photos' });
+      }
+      
+      if (photosData) {
+        photosToDelete.push(...photosData);
+      }
+    }
+    
+    // Start a transaction to delete all related records
+    // Note: Supabase doesn't support true transactions, so we'll delete in order
+    
+    // 1. Delete photos first (both files and database records)
+    if (photosToDelete.length > 0) {
+      // Delete photo files
+      const fs = require('fs');
+      const path = require('path');
+      
+      // Create an array of promises for file deletion
+      const fileDeletePromises = photosToDelete.map(photo => {
+        return new Promise((resolve) => {
+          // Only attempt to delete if we have a file path
+          if (photo.file_path) {
+            // Convert URL to file path if needed
+            let filePath = photo.file_path;
+            if (filePath.startsWith('/')) {
+              // Remove leading slash if present
+              filePath = filePath.substring(1);
+            }
+            
+            // Get absolute path
+            const absolutePath = path.join(process.cwd(), 'public', filePath);
+            
+            // Delete file if it exists
+            fs.unlink(absolutePath, (err) => {
+              if (err) {
+                // Log error but don't fail the operation
+                console.error(`Failed to delete file ${absolutePath}:`, err);
+              }
+              resolve();
+            });
+          } else {
+            resolve();
+          }
+        });
+      });
+      
+      // Wait for all file deletions to complete
+      await Promise.all(fileDeletePromises);
+      
+      // Delete photo records from database
+      const { error: deletePhotosError } = await supabase
+        .from('photos')
+        .delete()
+        .in('id', photosToDelete.map(photo => photo.id));
+        
+      if (deletePhotosError) {
+        console.error('Error deleting photos from database:', deletePhotosError);
+        return res.status(500).json({ error: 'Failed to delete photos from database' });
+      }
+      
+      // Clean up empty directories
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        
+        // Group photos by SOC and platform
+        const directories = new Set();
+        photosToDelete.forEach(photo => {
+          if (photo.soc_id && photo.platform) {
+            directories.add(path.join(process.cwd(), 'public', 'uploads', photo.soc_id, photo.platform));
+            directories.add(path.join(process.cwd(), 'public', 'uploads', photo.soc_id));
+          }
+        });
+        
+        // Check each directory and remove if empty
+        directories.forEach(dir => {
+          try {
+            if (fs.existsSync(dir)) {
+              const files = fs.readdirSync(dir);
+              if (files.length === 0) {
+                fs.rmdirSync(dir);
+              }
+            }
+          } catch (err) {
+            // Log but don't fail
+            console.error(`Failed to clean up directory ${dir}:`, err);
+          }
+        });
+      } catch (err) {
+        // Log but don't fail
+        console.error('Error cleaning up directories:', err);
+      }
+    }
+    
+    // 2. Delete platforms
+    if (platformsToDelete.length > 0) {
+      const { error: deletePlatformsError } = await supabase
+        .from('platforms')
+        .delete()
+        .in('id', platformsToDelete.map(platform => platform.id));
+        
+      if (deletePlatformsError) {
+        console.error('Error deleting platforms:', deletePlatformsError);
+        return res.status(500).json({ error: 'Failed to delete platforms' });
+      }
+    }
+    
+    // 3. Delete SOCs
+    if (socIds.length > 0) {
+      const { error: deleteSocsError } = await supabase
+        .from('socs')
+        .delete()
+        .in('id', socIds);
+        
+      if (deleteSocsError) {
+        console.error('Error deleting SOCs:', deleteSocsError);
+        return res.status(500).json({ error: 'Failed to delete SOCs' });
+      }
+    }
+    
+    // 4. Finally, delete the case
+    const { error: deleteCaseError } = await supabase
+      .from('cases')
+      .delete()
+      .eq('id', caseId);
+      
+    if (deleteCaseError) {
+      console.error('Error deleting case:', deleteCaseError);
+      return res.status(500).json({ error: 'Failed to delete case' });
+    }
+    
+    // Return success response
+    res.json({ 
+      success: true, 
+      message: 'Case and all associated data deleted successfully',
+      caseId: caseId
+    });
+  } catch (error) {
+    console.error('Error deleting case:', error);
+    res.status(500).json({ 
+      error: 'Failed to delete case', 
+      details: error.message 
+    });
+  }
+});
+
 // Create new case route
 router.post('/api/create-case', async (req, res) => {
   try {
