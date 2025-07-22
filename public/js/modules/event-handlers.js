@@ -75,13 +75,20 @@ function initEventListeners() {
     // Case context close button
     const caseContextCloseBtn = document.getElementById('caseContextCloseBtn');
     if (caseContextCloseBtn) {
-        caseContextCloseBtn.addEventListener('click', toggleCaseContext);
+        caseContextCloseBtn.addEventListener('click', function() {
+            toggleCaseContext(false);
+        });
     }
     
     // Case context overlay (click to close)
     const caseContextOverlay = document.getElementById('caseContextOverlay');
     if (caseContextOverlay) {
-        caseContextOverlay.addEventListener('click', toggleCaseContext);
+        caseContextOverlay.addEventListener('click', function(e) {
+            // Only close if the click was directly on the overlay, not on the panel
+            if (e.target === caseContextOverlay) {
+                toggleCaseContext(false);
+            }
+        });
     }
     
     // Platform profile panel toggle

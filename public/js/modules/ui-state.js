@@ -114,14 +114,6 @@ function toggleCaseContext(forceState) {
         
         // Always load case data when opening the panel
         loadCaseData();
-        
-        // Add click event listener to the overlay to close the panel when clicked
-        caseContextOverlay.addEventListener('click', function(e) {
-            // Only close if the click was directly on the overlay, not on the panel
-            if (e.target === caseContextOverlay) {
-                toggleCaseContext();
-            }
-        }, { once: true }); // Use once: true to prevent multiple listeners
     }
 }
 
