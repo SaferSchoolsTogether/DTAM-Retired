@@ -9,7 +9,8 @@ const state = {
     selectedAnalysisType: null,
     selectedAnalysisValue: null,
     unsavedChanges: false,
-    caseContextCollapsed: false
+    caseContextCollapsed: false,
+    threatId: null // Added for multi-SOC threat system
 };
 
 // Initialize
@@ -19,11 +20,12 @@ function initializeWorkstation() {
     if (photoThumbs.length > 0) {
         state.currentPhotoId = photoThumbs[0].dataset.photoId;
     }
-
-    // Check if case context bar state is saved in localStorage
-    const savedState = localStorage.getItem('caseContextCollapsed');
-    if (savedState === 'true') {
-        toggleCaseContext(true);
+    
+    // Get threat ID from body data attribute if available
+    const threatId = document.body.dataset.threatId;
+    if (threatId) {
+        state.threatId = threatId;
+        console.log('Initialized with threat ID:', threatId);
     }
 
     // Event listeners

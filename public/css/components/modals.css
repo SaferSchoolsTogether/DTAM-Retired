@@ -152,6 +152,122 @@
     margin-bottom: 24px;
 }
 
+/* Verification Tools */
+.verification-tools {
+    background-color: #f0f9ff;
+    padding: 16px;
+    border-radius: 12px;
+    margin-top: 16px;
+    border: 1px solid #d0e8ff;
+}
+
+.verification-tools h4 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: #0074cc;
+    font-size: 16px;
+}
+
+.tool-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.tool-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: white;
+    color: #0095f6;
+    text-decoration: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid #d0e8ff;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.tool-link:hover {
+    background-color: #0095f6;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 149, 246, 0.2);
+}
+
+.tool-link .icon {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
+/* Weapon notification popup */
+.weapon-notification {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1100;
+    justify-content: center;
+    align-items: center;
+}
+
+.weapon-notification.active {
+    display: flex;
+}
+
+.notification-content {
+    background-color: white;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    padding: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.notification-content h4 {
+    color: #d32f2f;
+    font-size: 20px;
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+.notification-content p {
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+.notification-content a {
+    color: #0095f6;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.notification-content a:hover {
+    text-decoration: underline;
+}
+
+.notification-close-btn {
+    background-color: #0095f6;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: background-color 0.2s;
+}
+
+.notification-close-btn:hover {
+    background-color: #0074cc;
+}
+
 .tag-options {
     margin-top: 24px;
 }

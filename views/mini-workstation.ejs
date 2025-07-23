@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Workstation - Unknown Threat Analysis</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/onboarding.css">
+    <link rel="stylesheet" href="/css/components/photo-grid.css">
+    <link rel="stylesheet" href="/css/components/forms.css">
+    <link rel="stylesheet" href="/css/components/modals.css">
+</head>
+<body data-case-id="<%= caseId %>" data-threat-id="<%= threatId %>" data-platform="<%= platform %>">
+    <%- include('partials/navigation', { activePage: 'mini-workstation' }) %>
+    
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-section">
+            <div class="sst-logo">SST</div>
+            <h1 class="platform-title">Unknown Threat Analysis</h1>
+            <div class="progress-indicator" id="progressIndicator">
+                <% if (photos && photos.length > 0) { %>
+                    Photo 1 of <%= photos.length %>
+                <% } else { %>
+                    No photos
+                <% } %>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button id="caseContextToggleBtn" class="btn btn-info">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                </svg>
+                Case Info
+            </button>
+            <a href="/workstation?caseId=<%= caseId %>&threatId=<%= threatId %>" class="btn btn-primary">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+                </svg>
+                Continue to Full Workstation
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Photo Gallery -->
+        <div class="photo-gallery">
+            <div class="gallery-header">
+                <h2 class="gallery-title">Threat Evidence</h2>
+                <button class="add-photos-btn" id="addPhotosBtn">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H5v-2h6V5h2v6h4v2z"/>
+                    </svg>
+                    Add
+                </button>
+            </div>
+            <div class="photo-grid" id="photoGrid">
+                <% if (photos && photos.length > 0) { %>
+                    <% photos.forEach(function(photo, index) { %>
+                        <div class="photo-thumb <%= index === 0 ? 'active' : '' %>" data-photo-id="<%= photo.id %>">
+                            <img src="<%= photo.file_path %>" alt="Photo <%= index + 1 %>">
+                            <div class="photo-status <%= 
+                                (function() {
+                                    let analysisTags = photo.analysisTags || {};
+                                    if (typeof analysisTags === 'string') {
+                                        try {
+                                            analysisTags = JSON.parse(analysisTags);
+                                        } catch (e) {
+                                            analysisTags = {};
+                                        }
+                                    }
+                                    return Object.keys(analysisTags).length > 0 ? 'analyzed' : '';
+                                })()
+                            %>">
+                                <%= 
+                                    (function() {
+                                        let analysisTags = photo.analysisTags || {};
+                                        if (typeof analysisTags === 'string') {
+                                            try {
+                                                analysisTags = JSON.parse(analysisTags);
+                                            } catch (e) {
+                                                analysisTags = {};
+                                            }
+                                        }
+                                        return Object.keys(analysisTags).length > 0 ? '✓' : '○';
+                                    })()
+                                %>
+                            </div>
+                            <button class="photo-delete-btn" title="Delete photo">×</button>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="no-photos-message">
+                        No photos yet. Click "Add" to upload threat evidence photos.
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Main Workspace -->
+        <div class="workspace">
+            <div class="workspace-content">
+                <% if (photos && photos.length > 0) { %>
+                    <!-- Image Viewer -->
+                    <div class="image-viewer">
+                        <img src="<%= photos[0].file_path %>" alt="Current photo" class="current-image" id="currentImage">
+                    </div>
+
+                    <!-- Analysis Panel -->
+                    <div class="analysis-panel">
+                        <div class="panel-section">
+                            <h3 class="section-title">Reverse Image Search</h3>
+                            <div class="tool-buttons">
+                                <a href="#" class="tool-link" id="googleImagesLink" target="_blank">
+                                    <svg class="icon" viewBox="0 0 24 24">
+                                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                                    </svg>
+                                    Google Images
+                                </a>
+                                <a href="#" class="tool-link" id="tinEyeLink" target="_blank">
+                                    <svg class="icon" viewBox="0 0 24 24">
+                                        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                                    </svg>
+                                    TinEye
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="panel-section">
+                            <h3 class="section-title">Language Analysis</h3>
+                            <div class="form-group">
+                                <textarea class="language-textarea" id="threatContentTextarea" placeholder="Enter threat text/content to analyze..."><%= threatContent || '' %></textarea>
+                            </div>
+                            <div class="tool-buttons">
+                                <button class="btn btn-secondary" id="searchGoogleBtn">
+                                    <svg class="icon" viewBox="0 0 24 24">
+                                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                                    </svg>
+                                    Search Google
+                                </button>
+                                <button class="btn btn-secondary" id="saveLanguageAnalysisBtn">
+                                    <svg class="icon" viewBox="0 0 24 24">
+                                        <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+                                    </svg>
+                                    Save Analysis
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="panel-section">
+                            <h3 class="section-title">Tags</h3>
+                            <div class="tags-container" id="tagsContainer">
+                                <% if (photos && photos.length > 0 && photos[0].tags) { %>
+                                    <% 
+                                    // Handle tags whether it's an array or a JSON string
+                                    let tagsArray = photos[0].tags;
+                                    if (typeof tagsArray === 'string') {
+                                        try {
+                                            tagsArray = JSON.parse(tagsArray);
+                                        } catch (e) {
+                                            tagsArray = [];
+                                        }
+                                    }
+                                    
+                                    if (Array.isArray(tagsArray) && tagsArray.length > 0) {
+                                        tagsArray.forEach(function(tag) { 
+                                    %>
+                                        <span class="tag">
+                                            <%= tag %>
+                                            <span class="tag-remove" data-tag="<%= tag %>">×</span>
+                                        </span>
+                                    <% 
+                                        });
+                                    } 
+                                    %>
+                                <% } %>
+                            </div>
+                            <input type="text" class="add-tag-input" id="addTagInput" placeholder="Add a tag...">
+                        </div>
+
+                        <div class="panel-section">
+                            <h3 class="section-title">Notes</h3>
+                            <textarea class="notes-textarea" id="notesTextarea" placeholder="Add your notes about this photo..."><%= photos && photos.length > 0 ? photos[0].notes || '' : '' %></textarea>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <!-- Empty State -->
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📷</div>
+                        <div class="empty-state-message">No photos yet. Click "Add" to upload threat evidence photos.</div>
+                        <button class="btn btn-primary" id="emptyStateAddBtn">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+                            </svg>
+                            Add Photos
+                        </button>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Action Bar -->
+            <div class="action-bar">
+                <div class="save-indicator" id="saveIndicator">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                    </svg>
+                    All changes saved
+                </div>
+                <div class="action-group">
+                    <button class="btn btn-secondary" id="saveProgressBtn">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+                        </svg>
+                        Save Progress
+                    </button>
+                    <a href="/workstation?caseId=<%= caseId %>&threatId=<%= threatId %>" class="btn btn-primary">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+                        </svg>
+                        Continue to Full Workstation
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/upload-modal') %>
+    <%- include('partials/case-context-bar') %>
+
+    <script src="/js/navigation.js"></script>
+    <script src="/js/mini-workstation.js" type="module"></script>
+</body>
+</html>

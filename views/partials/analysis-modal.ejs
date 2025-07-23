@@ -79,13 +79,31 @@
                     <li>Check for signs of AI generation or manipulation</li>
                 </ul>
                 <p>Remember that sophisticated edits may require specialized tools to detect. Document your observations thoroughly.</p>
+                
+                <div class="verification-tools">
+                    <h4>Verify with reverse image search:</h4>
+                    <div class="tool-buttons">
+                        <a href="#" class="tool-link" id="googleImagesLink" target="_blank">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                            </svg>
+                            Google Images
+                        </a>
+                        <a href="#" class="tool-link" id="tinEyeLink" target="_blank">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                            </svg>
+                            TinEye
+                        </a>
+                    </div>
+                </div>
             </div>
 
             <div class="tag-options">
                 <h3 class="tag-options-title">What is your authenticity assessment?</h3>
                 <div class="tag-option-grid">
-                    <div class="tag-option" data-value="Appears authentic">
-                        Appears authentic
+                    <div class="tag-option" data-value="Appears unique" id="appearsUniqueOption">
+                        Appears unique
                     </div>
                     <div class="tag-option" data-value="Possibly edited">
                         Possibly edited
@@ -95,6 +113,16 @@
                     </div>
                     <div class="tag-option" data-value="Confirmed fake/AI generated">
                         Confirmed fake/AI generated
+                    </div>
+                </div>
+                
+                <!-- Weapon notification popup -->
+                <div class="weapon-notification" id="weaponNotification">
+                    <div class="notification-content">
+                        <h4>Important Notice</h4>
+                        <p>If this unique image contains a firearm or weapon, you <strong>must</strong> consult with law enforcement.</p>
+                        <p>Law enforcement can use our reverse image search warrant template language - <a href="https://20202517.fs1.hubspotusercontent-na1.net/hubfs/20202517/Files%20and%20Resources/One%20off%20Resources/Sample%20Search%20Warrant%20Template%20Language%20for%20Reverse%20Image%20Search.pdf" target="_blank">Download Template</a></p>
+                        <button class="notification-close-btn" id="closeWeaponNotificationBtn">I understand</button>
                     </div>
                 </div>
                 <button class="apply-tag-btn" id="applyAuthenticityBtn" disabled>Apply Tag</button>
@@ -151,6 +179,7 @@
                     <li>Be aware of platform-specific privacy settings and limitations</li>
                 </ul>
                 <p>Each platform has different procedures for law enforcement requests. Consult the platform's law enforcement portal for specific guidance.</p>
+                <p><strong>Important:</strong> Users should be directed to work with law enforcement, as only they can submit emergency disclosure requests. For a comprehensive list of ISPs and their legal compliance contacts, visit <a href="https://www.search.org/resources/isp-list/" target="_blank">SEARCH.org's ISP List</a>.</p>
             </div>
 
             <div class="tag-options">
