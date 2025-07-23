@@ -148,7 +148,7 @@ function loadReportData() {
 
 // Display report data
 function displayReportData(data) {
-    if (!data || !data.case || !data.soc) {
+    if (!data || !data.case) {
         showReportError('Invalid report data. Please try again.');
         return;
     }
@@ -171,8 +171,49 @@ function displayReportData(data) {
         // Clear previous content
         socListContainer.innerHTML = '';
         
-        if (data.soc) {
-            // Create SOC item from template
+        // Check if we have the new comprehensive data structure
+        if (data.allSocs && data.allSocs.length > 0) {
+            // Create SOC items for all SOCs
+            const socTemplate = document.getElementById('socTemplate');
+            if (socTemplate && socTemplate.content) {
+                data.allSocs.forEach(soc => {
+                    // Skip "Unknown" SOC in the preview
+                    if (soc.id === 'unknown') return;
+                    
+                    const socItem = document.importNode(socTemplate.content, true);
+                    
+                    // Set SOC data
+                    socItem.querySelector('.soc-name').textContent = soc.name || 'Unknown';
+                    socItem.querySelector('.soc-student-id').value = soc.student_id || '';
+                    socItem.querySelector('.soc-grade').value = soc.grade || '';
+                    socItem.querySelector('.soc-school').value = soc.school || '';
+                    
+                    // Set status
+                    const statusSelect = socItem.querySelector('.soc-status');
+                    if (statusSelect && soc.status) {
+                        const options = statusSelect.querySelectorAll('option');
+                        options.forEach(option => {
+                            if (option.value === soc.status.toLowerCase()) {
+                                option.selected = true;
+                            }
+                        });
+                    }
+                    
+                    // Add a data attribute to identify this SOC
+                    const socElement = socItem.querySelector('.soc-item');
+                    if (socElement) {
+                        socElement.setAttribute('data-soc-id', soc.id);
+                    }
+                    
+                    socListContainer.appendChild(socItem);
+                });
+                
+                if (noSocsMessage) {
+                    noSocsMessage.style.display = 'none';
+                }
+            }
+        } else if (data.soc) {
+            // Fallback to old structure for backward compatibility
             const socTemplate = document.getElementById('socTemplate');
             if (socTemplate && socTemplate.content) {
                 const socItem = document.importNode(socTemplate.content, true);
@@ -228,8 +269,46 @@ function displayReportData(data) {
         // Clear previous content
         platformListContainer.innerHTML = '';
         
-        if (data.platform) {
-            // Create platform item from template
+        // Check if we have the new comprehensive data structure
+        if (data.allPlatforms && data.allPlatforms.length > 0) {
+            // Create platform items for all platforms
+            const platformTemplate = document.getElementById('platformTemplate');
+            if (platformTemplate && platformTemplate.content) {
+                data.allPlatforms.forEach(platform => {
+                    const platformItem = document.importNode(platformTemplate.content, true);
+                    
+                    // Set platform data
+                    const platformName = platform.platform_name || 'Unknown';
+                    
+                    platformItem.querySelector('.platform-name').textContent = 
+                        platformName.charAt(0).toUpperCase() + platformName.slice(1);
+                    
+                    platformItem.querySelector('.platform-username').value = 
+                        platform.username || '';
+                    
+                    platformItem.querySelector('.platform-display-name').value = 
+                        platform.display_name || '';
+                    
+                    platformItem.querySelector('.platform-url').value = 
+                        platform.profile_url || '';
+                    
+                    // Add data attributes to identify this platform
+                    const platformElement = platformItem.querySelector('.platform-item');
+                    if (platformElement) {
+                        platformElement.setAttribute('data-platform-id', platform.id);
+                        platformElement.setAttribute('data-soc-id', platform.soc_id);
+                        platformElement.setAttribute('data-platform-name', platform.platform_name);
+                    }
+                    
+                    platformListContainer.appendChild(platformItem);
+                });
+                
+                if (noPlatformsMessage) {
+                    noPlatformsMessage.style.display = 'none';
+                }
+            }
+        } else if (data.platform) {
+            // Fallback to old structure for backward compatibility
             const platformTemplate = document.getElementById('platformTemplate');
             if (platformTemplate && platformTemplate.content) {
                 const platformItem = document.importNode(platformTemplate.content, true);
@@ -285,8 +364,96 @@ function displayReportData(data) {
         // Clear previous content
         photoListContainer.innerHTML = '';
         
-        if (data.photos && data.photos.length > 0) {
+        // Check if we have the new comprehensive data structure
+        if (data.allPhotos && data.allPhotos.length > 0) {
             // Create photo items from template
+            const photoTemplate = document.getElementById('photoTemplate');
+            if (photoTemplate && photoTemplate.content) {
+                data.allPhotos.forEach(photo => {
+                    const photoItem = document.importNode(photoTemplate.content, true);
+                    
+                    // Set photo data
+                    const thumbImg = photoItem.querySelector('.photo-thumb-img');
+                    if (thumbImg) {
+                        thumbImg.src = photo.file_path;
+                        thumbImg.setAttribute('data-photo-id', photo.id);
+                    }
+                    
+                    // Find the platform name
+                    let platformName = photo.platform || 'Unknown';
+                    
+                    // Find the SOC name
+                    let socName = 'Unknown';
+                    if (photo.soc_id) {
+                        const soc = (data.allSocs || []).find(s => s.id === photo.soc_id);
+                        if (soc) {
+                            socName = soc.name || 'Unknown';
+                        }
+                    } else {
+                        socName = 'Unknown Threat Evidence';
+                    }
+                    
+                    // Add SOC and platform info to the photo
+                    const photoHeader = photoItem.querySelector('.photo-header');
+                    if (photoHeader) {
+                        const socInfo = document.createElement('div');
+                        socInfo.className = 'photo-soc-info';
+                        socInfo.innerHTML = `<span class="soc-name">${socName}</span> - <span class="platform-name">${platformName}</span>`;
+                        photoHeader.appendChild(socInfo);
+                    }
+                    
+                    photoItem.querySelector('.photo-platform').value = platformName;
+                    
+                    const notesTextarea = photoItem.querySelector('.photo-notes');
+                    if (notesTextarea) {
+                        notesTextarea.value = photo.notes || '';
+                        
+                        // Update character counter
+                        const counter = photoItem.querySelector('.character-counter .current-count');
+                        if (counter) {
+                            counter.textContent = (photo.notes || '').length;
+                        }
+                    }
+                    
+                    // Add tags
+                    const tagsContainer = photoItem.querySelector('.photo-tags-container');
+                    if (tagsContainer && photo.tags && photo.tags.length > 0) {
+                        photo.tags.forEach(tag => {
+                            const tagElement = document.createElement('span');
+                            tagElement.className = 'tag';
+                            tagElement.textContent = tag;
+                            tagsContainer.appendChild(tagElement);
+                        });
+                    }
+                    
+                    // Add analysis tags
+                    const analysisTagsContainer = photoItem.querySelector('.photo-analysis-tags-container');
+                    if (analysisTagsContainer && photo.analysisTags && Object.keys(photo.analysisTags).length > 0) {
+                        Object.entries(photo.analysisTags).forEach(([key, value]) => {
+                            const tagElement = document.createElement('span');
+                            tagElement.className = 'tag analysis-tag';
+                            tagElement.textContent = `${key}: ${value}`;
+                            analysisTagsContainer.appendChild(tagElement);
+                        });
+                    }
+                    
+                    // Add data attributes to identify this photo
+                    const photoElement = photoItem.querySelector('.photo-item');
+                    if (photoElement) {
+                        photoElement.setAttribute('data-photo-id', photo.id);
+                        photoElement.setAttribute('data-soc-id', photo.soc_id || 'unknown');
+                        photoElement.setAttribute('data-platform', photo.platform);
+                    }
+                    
+                    photoListContainer.appendChild(photoItem);
+                });
+                
+                if (noPhotosMessage) {
+                    noPhotosMessage.style.display = 'none';
+                }
+            }
+        } else if (data.photos && data.photos.length > 0) {
+            // Fallback to old structure for backward compatibility
             const photoTemplate = document.getElementById('photoTemplate');
             if (photoTemplate && photoTemplate.content) {
                 data.photos.forEach(photo => {
@@ -467,43 +634,104 @@ function collectReportData() {
     data.case.team_member_name = document.getElementById('editReportInvestigator').value;
     data.case.organization = document.getElementById('editReportOrganization').value;
     
-    // Update SOC information
-    const socStudentId = document.querySelector('.soc-student-id');
-    const socGrade = document.querySelector('.soc-grade');
-    const socSchool = document.querySelector('.soc-school');
-    const socStatus = document.querySelector('.soc-status');
+    // Update SOC information for all SOCs
+    if (data.allSocs && data.allSocs.length > 0) {
+        const socItems = document.querySelectorAll('.soc-item');
+        socItems.forEach(item => {
+            const socId = item.getAttribute('data-soc-id');
+            if (!socId) return;
+            
+            // Find the SOC in the data
+            const socIndex = data.allSocs.findIndex(soc => soc.id === socId);
+            if (socIndex === -1) return;
+            
+            // Update SOC data
+            const studentId = item.querySelector('.soc-student-id');
+            const grade = item.querySelector('.soc-grade');
+            const school = item.querySelector('.soc-school');
+            const status = item.querySelector('.soc-status');
+            const includeCheckbox = item.querySelector('.include-soc-checkbox');
+            
+            if (studentId) data.allSocs[socIndex].student_id = studentId.value;
+            if (grade) data.allSocs[socIndex].grade = grade.value;
+            if (school) data.allSocs[socIndex].school = school.value;
+            if (status) data.allSocs[socIndex].status = status.value;
+            if (includeCheckbox) data.allSocs[socIndex].include = includeCheckbox.checked;
+        });
+    } else if (data.soc) {
+        // Fallback to old structure
+        const socStudentId = document.querySelector('.soc-student-id');
+        const socGrade = document.querySelector('.soc-grade');
+        const socSchool = document.querySelector('.soc-school');
+        const socStatus = document.querySelector('.soc-status');
+        
+        if (socStudentId) data.soc.student_id = socStudentId.value;
+        if (socGrade) data.soc.grade = socGrade.value;
+        if (socSchool) data.soc.school = socSchool.value;
+        if (socStatus) data.soc.status = socStatus.value;
+    }
     
-    if (socStudentId) data.soc.student_id = socStudentId.value;
-    if (socGrade) data.soc.grade = socGrade.value;
-    if (socSchool) data.soc.school = socSchool.value;
-    if (socStatus) data.soc.status = socStatus.value;
-    
-    // Update platform information
-    const platformUsername = document.querySelector('.platform-username');
-    const platformDisplayName = document.querySelector('.platform-display-name');
-    const platformUrl = document.querySelector('.platform-url');
-    
-    if (typeof data.platform !== 'string') {
+    // Update platform information for all platforms
+    if (data.allPlatforms && data.allPlatforms.length > 0) {
+        const platformItems = document.querySelectorAll('.platform-item');
+        platformItems.forEach(item => {
+            const platformId = item.getAttribute('data-platform-id');
+            if (!platformId) return;
+            
+            // Find the platform in the data
+            const platformIndex = data.allPlatforms.findIndex(platform => platform.id === platformId);
+            if (platformIndex === -1) return;
+            
+            // Update platform data
+            const username = item.querySelector('.platform-username');
+            const displayName = item.querySelector('.platform-display-name');
+            const url = item.querySelector('.platform-url');
+            const includeCheckbox = item.querySelector('.include-platform-checkbox');
+            
+            if (username) data.allPlatforms[platformIndex].username = username.value;
+            if (displayName) data.allPlatforms[platformIndex].display_name = displayName.value;
+            if (url) data.allPlatforms[platformIndex].profile_url = url.value;
+            if (includeCheckbox) data.allPlatforms[platformIndex].include = includeCheckbox.checked;
+        });
+    } else if (data.platform && typeof data.platform !== 'string') {
+        // Fallback to old structure
+        const platformUsername = document.querySelector('.platform-username');
+        const platformDisplayName = document.querySelector('.platform-display-name');
+        const platformUrl = document.querySelector('.platform-url');
+        
         if (platformUsername) data.platform.username = platformUsername.value;
         if (platformDisplayName) data.platform.display_name = platformDisplayName.value;
         if (platformUrl) data.platform.profile_url = platformUrl.value;
     }
     
-    // Update photos
-    const photoItems = document.querySelectorAll('.photo-item');
-    if (photoItems.length > 0 && data.photos && data.photos.length > 0) {
+    // Update photos for all photos
+    if (data.allPhotos && data.allPhotos.length > 0) {
+        const photoItems = document.querySelectorAll('.photo-item');
+        photoItems.forEach(item => {
+            const photoId = item.getAttribute('data-photo-id');
+            if (!photoId) return;
+            
+            // Find the photo in the data
+            const photoIndex = data.allPhotos.findIndex(photo => photo.id === photoId);
+            if (photoIndex === -1) return;
+            
+            // Update photo data
+            const includeCheckbox = item.querySelector('.include-photo-checkbox');
+            const notesTextarea = item.querySelector('.photo-notes');
+            
+            if (includeCheckbox) data.allPhotos[photoIndex].include = includeCheckbox.checked;
+            if (notesTextarea) data.allPhotos[photoIndex].notes = notesTextarea.value;
+        });
+    } else if (data.photos && data.photos.length > 0) {
+        // Fallback to old structure
+        const photoItems = document.querySelectorAll('.photo-item');
         photoItems.forEach((item, index) => {
             if (index < data.photos.length) {
                 const includeCheckbox = item.querySelector('.include-photo-checkbox');
                 const notesTextarea = item.querySelector('.photo-notes');
                 
-                if (includeCheckbox) {
-                    data.photos[index].include = includeCheckbox.checked;
-                }
-                
-                if (notesTextarea) {
-                    data.photos[index].notes = notesTextarea.value;
-                }
+                if (includeCheckbox) data.photos[index].include = includeCheckbox.checked;
+                if (notesTextarea) data.photos[index].notes = notesTextarea.value;
             }
         });
     }
@@ -517,17 +745,9 @@ function collectReportData() {
                 const contentTextarea = item.querySelector('.threat-content');
                 const languageAnalysisTextarea = item.querySelector('.threat-language-analysis');
                 
-                if (includeCheckbox) {
-                    data.threats[index].include = includeCheckbox.checked;
-                }
-                
-                if (contentTextarea) {
-                    data.threats[index].content = contentTextarea.value;
-                }
-                
-                if (languageAnalysisTextarea) {
-                    data.threats[index].language_analysis = languageAnalysisTextarea.value;
-                }
+                if (includeCheckbox) data.threats[index].include = includeCheckbox.checked;
+                if (contentTextarea) data.threats[index].content = contentTextarea.value;
+                if (languageAnalysisTextarea) data.threats[index].language_analysis = languageAnalysisTextarea.value;
             }
         });
     }
