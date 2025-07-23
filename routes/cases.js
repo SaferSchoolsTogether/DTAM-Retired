@@ -297,10 +297,18 @@ router.get('/set-active-case/:caseId', async (req, res) => {
 // Save case data
 router.post('/api/save-case', async (req, res) => {
   try {
+    // Log the request body to see what data is being sent
+    console.log('Save case request body:', JSON.stringify(req.body, null, 2));
+    
+    // Check if this is an unknown threat
+    const isUnknownThreat = req.body.isUnknownThreat || req.body.socStatus === 'unknown';
+    console.log('Is unknown threat:', isUnknownThreat);
+    
     // Validate required fields
     const requiredFields = ['caseId', 'date', 'investigatorName', 'organization'];
     for (const field of requiredFields) {
       if (!req.body[field]) {
+        console.error(`Missing required field: ${field}`);
         return res.status(400).json({ error: `Missing required field: ${field}` });
       }
     }
@@ -318,6 +326,8 @@ router.post('/api/save-case', async (req, res) => {
       student_info: req.body.studentInfo ? JSON.stringify(req.body.studentInfo) : null
     };
     
+    console.log('Formatted case data for Supabase:', caseData);
+    
     // Upsert to Supabase (insert or update)
     const { data, error } = await supabase
       .from('cases')
@@ -330,6 +340,55 @@ router.post('/api/save-case', async (req, res) => {
         error: 'Failed to save case data', 
         details: error.message 
       });
+    }
+    
+    // If this is an unknown threat, we don't need to create or update an SOC
+    // But if it's a known or potential threat, we should ensure an SOC exists
+    if (!isUnknownThreat && data && data.length > 0) {
+      try {
+        // Check if an SOC already exists for this case
+        const { data: existingSocs, error: socQueryError } = await supabase
+          .from('socs')
+          .select('id')
+          .eq('case_id', req.body.caseId);
+          
+        if (socQueryError) {
+          console.error('Error checking for existing SOCs:', socQueryError);
+          // Continue even if SOC query fails
+        }
+        
+        // If no SOC exists, create one
+        if (!existingSocs || existingSocs.length === 0) {
+          console.log('No existing SOC found, creating new SOC for case:', req.body.caseId);
+          
+          const socResult = await supabase
+            .from('socs')
+            .insert({
+              case_id: req.body.caseId,
+              name: req.body.studentInfo?.name || '',
+              student_id: req.body.studentInfo?.id || '',
+              grade: req.body.studentInfo?.grade || '',
+              school: req.body.studentInfo?.school || '',
+              dob: req.body.studentInfo?.dob || '',
+              support_plans: req.body.studentInfo?.supportPlans ? JSON.stringify(req.body.studentInfo.supportPlans) : JSON.stringify([]),
+              other_plan_text: req.body.studentInfo?.otherPlanText || '',
+              status: req.body.socStatus || 'known'
+            })
+            .select();
+            
+          if (socResult.error) {
+            console.error('Error creating SOC:', socResult.error);
+            // Continue even if SOC creation fails
+          } else {
+            console.log('Successfully created SOC:', socResult.data);
+          }
+        } else {
+          console.log('Existing SOC found for case:', existingSocs);
+        }
+      } catch (socError) {
+        console.error('Error handling SOC data:', socError);
+        // Continue even if SOC handling fails
+      }
     }
     
     // Return same response format as before

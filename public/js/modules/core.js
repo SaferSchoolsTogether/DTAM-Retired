@@ -8,9 +8,12 @@ const state = {
     currentPhotoId: null,
     selectedAnalysisType: null,
     selectedAnalysisValue: null,
+    selectedDomain: null,
+    selectedCategory: null,
     unsavedChanges: false,
     caseContextCollapsed: false,
-    threatId: null // Added for multi-SOC threat system
+    threatId: null, // Added for multi-SOC threat system
+    isUnknownThreat: false // Flag for unknown threat workflow
 };
 
 // Initialize
@@ -26,6 +29,13 @@ function initializeWorkstation() {
     if (threatId) {
         state.threatId = threatId;
         console.log('Initialized with threat ID:', threatId);
+    }
+    
+    // Check if this is an unknown threat
+    const isUnknownThreat = document.body.hasAttribute('data-unknown-threat');
+    if (isUnknownThreat) {
+        state.isUnknownThreat = true;
+        console.log('Initialized with unknown threat workflow');
     }
 
     // Event listeners

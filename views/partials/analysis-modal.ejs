@@ -8,6 +8,9 @@
         
         <!-- Analysis Options -->
         <div class="analysis-options" id="analysisOptions">
+            <div class="analysis-option" data-analysis="risk-domain">
+                Categorize post by risk domain and factor type
+            </div>
             <div class="analysis-option" data-analysis="law-enforcement">
                 Access the law enforcement guide for a social media platform
             </div>
@@ -235,6 +238,66 @@
                     </div>
                 </div>
                 <button class="apply-tag-btn" id="applyPrivacyBtn" disabled>Apply Tag</button>
+            </div>
+        </div>
+
+        <div class="analysis-detail" id="detail-risk-domain">
+            <button class="back-btn" id="backToRiskOptionsBtn">← Back to options</button>
+            
+            <div class="learning-content">
+                <h3>Risk Domain Analysis</h3>
+                <p>Categorize social media content according to risk domains and factor types to better understand potential influences on the SOC:</p>
+                <ul>
+                    <li><strong>Domains:</strong> Individual, Peer, Family, School, Community, Digital</li>
+                    <li><strong>Factor Types:</strong> Modifiable Risk Enhancer, Long-Term Modifiable Risk Enhancer, Non-Modifiable Risk Enhancer, Protective Factor</li>
+                </ul>
+                <p>This categorization helps identify areas where intervention may be most effective and provides a structured approach to risk assessment.</p>
+            </div>
+
+            <!-- Step 1: Domain Selection -->
+            <div class="domain-selection" id="domainSelection">
+                <h3 class="tag-options-title">Step 1: Select a Domain</h3>
+                <div class="tag-option-grid">
+                    <div class="domain-option" data-domain="Individual">
+                        Individual
+                    </div>
+                    <div class="domain-option" data-domain="Peer">
+                        Peer
+                    </div>
+                    <div class="domain-option" data-domain="Family">
+                        Family
+                    </div>
+                    <div class="domain-option" data-domain="School">
+                        School
+                    </div>
+                    <div class="domain-option" data-domain="Community">
+                        Community
+                    </div>
+                    <div class="domain-option" data-domain="Digital">
+                        Digital
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Category Selection (initially hidden) -->
+            <div class="category-selection" id="categorySelection" style="display: none;">
+                <h3 class="tag-options-title">Step 2: Select a Category</h3>
+                <div class="tag-option-grid">
+                    <div class="category-option" data-category="Hypothesized Modifiable Risk Enhancer">
+                        Hypothesized Modifiable Risk Enhancer
+                    </div>
+                    <div class="category-option" data-category="Hypothesized Long-Term Modifiable Risk Enhancer">
+                        Hypothesized Long-Term Modifiable Risk Enhancer
+                    </div>
+                    <div class="category-option" data-category="Hypothesized Non-Modifiable Risk Enhancer">
+                        Hypothesized Non-Modifiable Risk Enhancer
+                    </div>
+                    <div class="category-option" data-category="Hypothesized Protective Factor">
+                        Hypothesized Protective Factor
+                    </div>
+                </div>
+                <button class="back-to-domain-btn" id="backToDomainBtn">← Back to Domain Selection</button>
+                <button class="apply-tag-btn" id="applyRiskDomainBtn" disabled>Apply Tag</button>
             </div>
         </div>
 

@@ -60,9 +60,6 @@ function updatePhoto(data) {
         return;
     }
     
-    // Extract socId from the URL or from the body data attribute
-    const socId = document.body.dataset.socId || 'soc_1';
-    
     // Get the case ID from the URL or body data attribute
     const urlParams = new URLSearchParams(window.location.search);
     const caseId = urlParams.get('caseId') || document.body.dataset.caseId;
@@ -83,7 +80,20 @@ function updatePhoto(data) {
         Saving...
     `;
     
-    fetch(`/api/soc/${socId}/platform/${platform}/photo/${state.currentPhotoId}?caseId=${caseId}`, {
+    // Check if this is an unknown threat (no SOC)
+    const isUnknownThreat = document.body.hasAttribute('data-unknown-threat');
+    const socId = document.body.dataset.socId;
+    
+    let apiUrl;
+    if (isUnknownThreat) {
+        // Use case-level API endpoint for unknown threats
+        apiUrl = `/api/case/${caseId}/platform/${platform}/photo/${state.currentPhotoId}`;
+    } else {
+        // Use SOC-level API endpoint for known threats
+        apiUrl = `/api/soc/${socId}/platform/${platform}/photo/${state.currentPhotoId}?caseId=${caseId}`;
+    }
+    
+    fetch(apiUrl, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -128,9 +138,6 @@ function updatePhotoView() {
         return;
     }
     
-    // Extract socId from the URL or from the body data attribute
-    const socId = document.body.dataset.socId || 'soc_1';
-    
     // Get the case ID from the URL or body data attribute
     const urlParams = new URLSearchParams(window.location.search);
     const caseId = urlParams.get('caseId') || document.body.dataset.caseId;
@@ -144,8 +151,21 @@ function updatePhotoView() {
     // Show loading state
     currentImage.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="600"%3E%3Crect width="600" height="600" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="24"%3ELoading...%3C/text%3E%3C/svg%3E';
     
+    // Check if this is an unknown threat (no SOC)
+    const isUnknownThreat = document.body.hasAttribute('data-unknown-threat');
+    const socId = document.body.dataset.socId;
+    
+    let apiUrl;
+    if (isUnknownThreat) {
+        // Use case-level API endpoint for unknown threats
+        apiUrl = `/api/case/${caseId}/platform/${platform}/photo/${state.currentPhotoId}`;
+    } else {
+        // Use SOC-level API endpoint for known threats
+        apiUrl = `/api/soc/${socId}/platform/${platform}/photo/${state.currentPhotoId}?caseId=${caseId}`;
+    }
+    
     // Fetch photo data
-    fetch(`/api/soc/${socId}/platform/${platform}/photo/${state.currentPhotoId}?caseId=${caseId}`, {
+    fetch(apiUrl, {
         headers: {
             'X-Case-ID': caseId
         }
@@ -200,9 +220,6 @@ function handleUpload(e) {
         return;
     }
     
-    // Extract socId from the URL or from the body data attribute
-    const socId = document.body.dataset.socId || 'soc_1';
-    
     // Get the case ID from the URL or body data attribute
     const urlParams = new URLSearchParams(window.location.search);
     const caseId = urlParams.get('caseId') || document.body.dataset.caseId;
@@ -224,9 +241,21 @@ function handleUpload(e) {
     uploadBtn.innerHTML = '<span class="loading-spinner"></span> Uploading...';
     uploadBtn.disabled = true;
     
-    // Use the correct API endpoint that includes socId and caseId
-    // The caseId is needed to verify the SOC belongs to the case, but photos are linked to SOCs
-    fetch(`/api/soc/${socId}/platform/${platform}/upload?caseId=${caseId}`, {
+    // Check if this is an unknown threat (no SOC)
+    const isUnknownThreat = document.body.hasAttribute('data-unknown-threat');
+    const socId = document.body.dataset.socId;
+    
+    let apiUrl;
+    if (isUnknownThreat) {
+        // Use case-level API endpoint for unknown threats
+        apiUrl = `/api/case/${caseId}/platform/${platform}/upload`;
+    } else {
+        // Use SOC-level API endpoint for known threats
+        apiUrl = `/api/soc/${socId}/platform/${platform}/upload?caseId=${caseId}`;
+    }
+    
+    // Use the correct API endpoint based on whether this is an unknown threat or not
+    fetch(apiUrl, {
         method: 'POST',
         headers: {
             'X-Case-ID': caseId
@@ -275,9 +304,6 @@ function deletePhoto(photoId, photoThumb, wasActive) {
         return;
     }
     
-    // Extract socId from the URL or from the body data attribute
-    const socId = document.body.dataset.socId || 'soc_1';
-    
     // Get the case ID from the URL or body data attribute
     const urlParams = new URLSearchParams(window.location.search);
     const caseId = urlParams.get('caseId') || document.body.dataset.caseId;
@@ -295,7 +321,20 @@ function deletePhoto(photoId, photoThumb, wasActive) {
         Deleting...
     `;
     
-    fetch(`/api/soc/${socId}/platform/${platform}/photo/${photoId}?caseId=${caseId}`, {
+    // Check if this is an unknown threat (no SOC)
+    const isUnknownThreat = document.body.hasAttribute('data-unknown-threat');
+    const socId = document.body.dataset.socId;
+    
+    let apiUrl;
+    if (isUnknownThreat) {
+        // Use case-level API endpoint for unknown threats
+        apiUrl = `/api/case/${caseId}/platform/${platform}/photo/${photoId}`;
+    } else {
+        // Use SOC-level API endpoint for known threats
+        apiUrl = `/api/soc/${socId}/platform/${platform}/photo/${photoId}?caseId=${caseId}`;
+    }
+    
+    fetch(apiUrl, {
         method: 'DELETE',
         headers: {
             'X-Case-ID': caseId
