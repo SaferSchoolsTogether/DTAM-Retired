@@ -35,10 +35,12 @@
                 <h2>Social Media Platform Information</h2>
                 <p id="platformInfoDesc">Please provide information about the social media platforms used by the Subject of Concern (SOC). This will help with your digital threat assessment.</p>
                 
-                <form action="/summary" method="POST" class="onboarding-form" id="platformInfoForm">
-                    <input type="hidden" name="platformData" id="platformDataInput" value="{}">
-                    
-                    <div class="platform-selection">
+                <div class="platform-info-layout">
+                    <div class="account-setup-container">
+                        <form action="/summary" method="POST" class="onboarding-form" id="platformInfoForm">
+                            <input type="hidden" name="platformData" id="platformDataInput" value="{}">
+                            
+                            <div class="platform-selection">
                         <label>Select the platforms where the SOC has accounts:</label>
                         <div class="platform-grid">
                             <div class="platform-option" data-platform="instagram" onclick="togglePlatform(this)">
@@ -70,9 +72,9 @@
                                 <div class="platform-name">Other</div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div id="platformDetails" style="display: none;">
+                            </div>
+                            
+                            <div id="platformDetails" style="display: none;">
                         <h3 id="platformDetailsTitle">Platform Details</h3>
                         
                         <div class="form-group">
@@ -105,14 +107,14 @@
                         <div class="form-group">
                             <button type="button" class="btn btn-secondary" id="addPlatformBtn">Add Platform</button>
                         </div>
-                    </div>
-                    
-                    <div id="selectedPlatforms" style="display: none;">
-                        <h3>Selected Platforms</h3>
-                        <div id="platformList" class="platform-list"></div>
-                    </div>
-                    
-                    <div id="unknownThreatSection" style="display: none;">
+                            </div>
+                            
+                            <div id="selectedPlatforms" style="display: none;">
+                                <h3>Selected Platforms</h3>
+                                <div id="platformList" class="platform-list"></div>
+                            </div>
+                            
+                            <div id="unknownThreatSection" style="display: none;">
                         <h3>Unknown Threat Information</h3>
                         <p>Since the threat maker is unknown, please provide information about how the threat was discovered.</p>
                         
@@ -142,18 +144,109 @@
                                 </select>
                             </div>
                         </div>
+                            </div>
+                            
+                            <div class="nav-buttons">
+                                <a href="/safety-assessment" class="btn btn-secondary btn-back">Back</a>
+                                <button type="submit" class="btn btn-primary" id="continueBtn">Continue to Workstation</button>
+                            </div>
+                        </form>
                     </div>
                     
-                    <div class="nav-buttons">
-                        <a href="/safety-assessment" class="btn btn-secondary btn-back">Back</a>
-                        <button type="submit" class="btn btn-primary" id="continueBtn">Continue to Workstation</button>
+                    <div class="search-tools">
+                        <h3 class="search-tools-title">🔍 Need help finding this info?</h3>
+                        <div class="search-buttons">
+                            <button type="button" class="search-btn" id="whatsmynameBtn">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                                </svg>
+                                Search WhatsMyName
+                            </button>
+                            <button type="button" class="search-btn" id="googleBtn">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                                </svg>
+                                Search Google
+                            </button>
+                            <button type="button" class="search-btn" id="searchTipsBtn">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                                </svg>
+                                Manual Search Tips
+                            </button>
+                        </div>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
 
     <style>
+        /* Two-column layout for platform info */
+        .platform-info-layout {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .account-setup-container {
+            flex: 2;
+        }
+        
+        .search-tools {
+            flex: 1;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            height: fit-content;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-tools-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        
+        .search-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .search-btn {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .search-btn:hover {
+            background-color: #e8f5ff;
+            border-color: #0095f6;
+        }
+        
+        .search-btn .icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+        }
+        
+        /* Responsive layout */
+        @media (max-width: 768px) {
+            .platform-info-layout {
+                flex-direction: column;
+            }
+            
+            .account-setup-container, .search-tools {
+                width: 100%;
+            }
+        }
+        
         .label-with-tooltip {
             display: flex;
             align-items: center;
@@ -188,29 +281,38 @@
             color: #fff;
             text-align: left;
             border-radius: 6px;
-            padding: 8px 12px;
+            padding: 10px;
             position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
+            z-index: 1000;
+            /* Position to the right instead of above */
+            top: -5px;
+            left: 30px;
             opacity: 0;
             transition: opacity 0.3s;
             font-weight: normal;
             font-size: 13px;
             line-height: 1.4;
+            white-space: normal;
+            word-wrap: break-word;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         
-        .tooltip-icon .tooltip-text::after {
+        /* Add a triangle pointer to the left side of the tooltip */
+        .tooltip-icon .tooltip-text::before {
             content: "";
             position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -5px;
+            top: 10px;
+            left: -10px;
             border-width: 5px;
             border-style: solid;
-            border-color: #333 transparent transparent transparent;
+            border-color: transparent #333 transparent transparent;
+        }
+        
+        /* Media query for smaller screens */
+        @media (max-width: 768px) {
+            .tooltip-icon .tooltip-text {
+                width: 200px;
+            }
         }
         
         .tooltip-icon:hover .tooltip-text {
@@ -220,6 +322,79 @@
         
         .tooltip-icon {
             position: relative;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+        
+        .modal-title {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #333;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #777;
+            transition: color 0.2s;
+        }
+        
+        .close-btn:hover {
+            color: #333;
+        }
+        
+        .modal-body {
+            margin-bottom: 1rem;
+        }
+        
+        .search-tip {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .search-tip:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .search-tip-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #0066cc;
         }
     </style>
     
@@ -380,6 +555,90 @@
         document.getElementById('sourcePlatform').addEventListener('change', function() {
             platformData.sourcePlatform = this.value;
             document.getElementById('platformDataInput').value = JSON.stringify(platformData);
+        });
+        
+        // Search tools functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // WhatsMyName search
+            document.getElementById('whatsmynameBtn').addEventListener('click', function() {
+                const username = document.getElementById('username').value.trim();
+                if (username) {
+                    window.open(`https://whatsmyname.app/?q=${encodeURIComponent(username)}`, '_blank');
+                } else {
+                    alert('Please enter a username to search');
+                }
+            });
+            
+            // Google search
+            document.getElementById('googleBtn').addEventListener('click', function() {
+                const username = document.getElementById('username').value.trim();
+                const platform = currentPlatform || '';
+                
+                if (username) {
+                    window.open(`https://www.google.com/search?q=${encodeURIComponent(username + ' ' + platform)}`, '_blank');
+                } else {
+                    alert('Please enter a username to search');
+                }
+            });
+            
+            // Search tips modal
+            const searchTipsBtn = document.getElementById('searchTipsBtn');
+            
+            searchTipsBtn.addEventListener('click', function() {
+                // Create modal if it doesn't exist
+                if (!document.getElementById('searchTipsModal')) {
+                    const modal = document.createElement('div');
+                    modal.id = 'searchTipsModal';
+                    modal.className = 'modal';
+                    modal.innerHTML = `
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2 class="modal-title">Manual Search Tips</h2>
+                                <button class="close-btn" id="closeSearchTipsBtn">×</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="search-tip">
+                                    <div class="search-tip-title">1. Try variations of the person's name</div>
+                                    <p>Search for different combinations of first name, last name, initials, and common username patterns (firstname.lastname, firstinitial_lastname, etc.)</p>
+                                </div>
+                                <div class="search-tip">
+                                    <div class="search-tip-title">2. Use advanced search operators</div>
+                                    <p>On Google, try using quotes for exact matches: "John Smith Instagram" or site-specific searches: site:instagram.com "John Smith"</p>
+                                </div>
+                                <div class="search-tip">
+                                    <div class="search-tip-title">3. Check connected accounts</div>
+                                    <p>If you find one social media account, look for links to other platforms in their bio or posts</p>
+                                </div>
+                                <div class="search-tip">
+                                    <div class="search-tip-title">4. Look for unique identifiers</div>
+                                    <p>Search for email addresses, usernames from other platforms, or unique phrases/interests mentioned in known profiles</p>
+                                </div>
+                                <div class="search-tip">
+                                    <div class="search-tip-title">5. Use reverse image search</div>
+                                    <p>If you have a photo of the person, try using Google Images or TinEye to find where else that image appears online</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(modal);
+                    
+                    // Add close button functionality
+                    document.getElementById('closeSearchTipsBtn').addEventListener('click', function() {
+                        document.getElementById('searchTipsModal').style.display = 'none';
+                    });
+                    
+                    // Close modal when clicking outside
+                    window.addEventListener('click', function(event) {
+                        const modal = document.getElementById('searchTipsModal');
+                        if (event.target === modal) {
+                            modal.style.display = 'none';
+                        }
+                    });
+                }
+                
+                // Show modal
+                document.getElementById('searchTipsModal').style.display = 'block';
+            });
         });
     </script>
 </body>
