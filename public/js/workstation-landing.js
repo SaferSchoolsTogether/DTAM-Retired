@@ -8,8 +8,106 @@ document.addEventListener('DOMContentLoaded', function() {
     const caseContextToggleBtn = document.getElementById('caseContextToggleBtn');
     const caseContextBar = document.querySelector('.case-context-bar');
     
-    if (caseContextToggleBtn && caseContextBar) {
-        caseContextToggleBtn.addEventListener('click', function() {
+    // Search tools buttons
+    const whatsmynameBtn = document.getElementById('whatsmynameBtn');
+    const googleBtn = document.getElementById('googleBtn');
+    const searchTipsBtn = document.getElementById('searchTipsBtn');
+    
+    // Modal elements
+    const searchTipsModal = document.getElementById('searchTipsModal');
+    const closeSearchTipsBtn = document.getElementById('closeSearchTipsBtn');
+    
+    // Initialize
+    init();
+    
+    /**
+     * Initialize the page
+     */
+    function init() {
+        // Add event listeners
+        if (caseContextToggleBtn && caseContextBar) {
+            caseContextToggleBtn.addEventListener('click', toggleCaseContext);
+        }
+        
+        if (whatsmynameBtn) {
+            whatsmynameBtn.addEventListener('click', openWhatsMyName);
+        }
+        
+        if (googleBtn) {
+            googleBtn.addEventListener('click', openGoogleSearch);
+        }
+        
+        if (searchTipsBtn) {
+            searchTipsBtn.addEventListener('click', openSearchTipsModal);
+        }
+        
+        if (closeSearchTipsBtn) {
+            closeSearchTipsBtn.addEventListener('click', closeSearchTipsModal);
+        }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === searchTipsModal) {
+                closeSearchTipsModal();
+            }
+        });
+    }
+    
+    /**
+     * Open WhatsMyName in a new tab
+     */
+    function openWhatsMyName() {
+        // Get SOC name from case context if available
+        let socName = '';
+        const socNameElement = document.querySelector('.case-context-bar .soc-name');
+        
+        if (socNameElement && socNameElement.textContent) {
+            socName = socNameElement.textContent.trim();
+            window.open(`https://whatsmyname.app/?q=${encodeURIComponent(socName)}`, '_blank');
+        } else {
+            window.open('https://whatsmyname.app', '_blank');
+        }
+    }
+    
+    /**
+     * Open Google search in a new tab
+     */
+    function openGoogleSearch() {
+        // Get SOC name from case context if available
+        let socName = '';
+        const socNameElement = document.querySelector('.case-context-bar .soc-name');
+        
+        if (socNameElement && socNameElement.textContent) {
+            socName = socNameElement.textContent.trim();
+            window.open(`https://www.google.com/search?q=${encodeURIComponent(socName + " social media")}`, '_blank');
+        } else {
+            window.open('https://www.google.com', '_blank');
+        }
+    }
+    
+    /**
+     * Open search tips modal
+     */
+    function openSearchTipsModal() {
+        if (searchTipsModal) {
+            searchTipsModal.style.display = 'block';
+        }
+    }
+    
+    /**
+     * Close search tips modal
+     */
+    function closeSearchTipsModal() {
+        if (searchTipsModal) {
+            searchTipsModal.style.display = 'none';
+        }
+    }
+    
+    /**
+     * Toggle case context sidebar
+     */
+    function toggleCaseContext() {
+        if (caseContextBar) {
             caseContextBar.classList.toggle('active');
             
             // Update button text based on state
@@ -28,15 +126,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     Case Info
                 `;
             }
-        });
-    }
-    
-    // Help button - placeholder for future functionality
-    const helpButton = document.querySelector('.help-button');
-    if (helpButton) {
-        helpButton.addEventListener('click', function() {
-            // This will be implemented in a future phase
-            alert('Account search functionality will be implemented in a future update.');
-        });
+        }
     }
 });
