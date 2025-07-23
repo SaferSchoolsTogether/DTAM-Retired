@@ -164,7 +164,7 @@
     </div>
 
     <script>
-        // Retrieve data from Supabase via API endpoints
+        // Retrieve data from Supabase via API endpoints or sessionStorage
         document.addEventListener('DOMContentLoaded', async function() {
             try {
                 // Get case data from URL parameters
@@ -187,8 +187,31 @@
                 };
                 let studentInfo = null;
                 
-                // If we have a caseId, try to fetch existing data from Supabase
-                if (caseId && caseId !== `CASE-${Date.now()}`) {
+                // First, try to get data from sessionStorage
+                // This ensures we prioritize the most recent user selections
+                try {
+                    if (sessionStorage.getItem('caseInfo')) {
+                        caseInfo = JSON.parse(sessionStorage.getItem('caseInfo'));
+                    }
+                    if (sessionStorage.getItem('socStatus')) {
+                        socStatus = sessionStorage.getItem('socStatus');
+                        console.log('Retrieved socStatus from sessionStorage:', socStatus);
+                    }
+                    if (sessionStorage.getItem('safetyAssessment')) {
+                        safetyAssessment = JSON.parse(sessionStorage.getItem('safetyAssessment'));
+                    }
+                    if (sessionStorage.getItem('studentInfo')) {
+                        studentInfo = JSON.parse(sessionStorage.getItem('studentInfo'));
+                    }
+                } catch (error) {
+                    console.error('Error parsing session data:', error);
+                }
+                
+                // Only try to fetch from API if this is an existing case (not a new one)
+                // New cases will have a timestamp-based ID and won't be in the database yet
+                const isExistingCase = caseId && !caseId.includes(`CASE-${Date.now().toString().substring(0, 7)}`);
+                
+                if (isExistingCase) {
                     try {
                         // Fetch case data from API
                         const response = await fetch(`/api/case-data?caseId=${caseId}`);
@@ -201,7 +224,11 @@
                                     investigatorName: data.case.investigatorName,
                                     organization: data.case.organization
                                 };
-                                socStatus = data.case.socStatus || 'known';
+                                // Only override socStatus from API if we don't have it in sessionStorage
+                                // This prevents the API from overriding user selections during onboarding
+                                if (!sessionStorage.getItem('socStatus')) {
+                                    socStatus = data.case.socStatus || 'known';
+                                }
                                 safetyAssessment = data.case.safetyAssessment || {
                                     means: 'no',
                                     rehearsal: 'no',
@@ -212,27 +239,12 @@
                         }
                     } catch (error) {
                         console.error('Error fetching case data:', error);
-                    }
-                } else {
-                    // Try to get data from previous steps via sessionStorage
-                    // This is a fallback for the onboarding flow
-                    try {
-                        if (sessionStorage.getItem('caseInfo')) {
-                            caseInfo = JSON.parse(sessionStorage.getItem('caseInfo'));
-                        }
-                        if (sessionStorage.getItem('socStatus')) {
-                            socStatus = sessionStorage.getItem('socStatus');
-                        }
-                        if (sessionStorage.getItem('safetyAssessment')) {
-                            safetyAssessment = JSON.parse(sessionStorage.getItem('safetyAssessment'));
-                        }
-                        if (sessionStorage.getItem('studentInfo')) {
-                            studentInfo = JSON.parse(sessionStorage.getItem('studentInfo'));
-                        }
-                    } catch (error) {
-                        console.error('Error parsing session data:', error);
+                        // On API error, we'll use the sessionStorage data we already loaded
                     }
                 }
+                
+                // Log the current socStatus for debugging
+                console.log('Current socStatus before populating summary:', socStatus);
                 
                 // Populate summary
                 document.getElementById('summaryCase').textContent = caseInfo.caseId || 'N/A';
@@ -240,11 +252,22 @@
                 document.getElementById('summaryInvestigator').textContent = caseInfo.investigatorName || 'N/A';
                 document.getElementById('summaryOrganization').textContent = caseInfo.organization || 'N/A';
                 
-                document.getElementById('summarySocStatus').textContent = socStatus === 'known' ? 'Known' : 'Unknown';
+                // Explicitly check socStatus to ensure correct display
+                const isKnownThreatmaker = socStatus === 'known';
+                document.getElementById('summarySocStatus').textContent = isKnownThreatmaker ? 'Known' : 'Unknown';
                 
                 // Set back button based on SOC status
                 const backButton = document.getElementById('backButton');
-                if (socStatus === 'known') {
+                
+                // Reset display of all sections first to avoid any previous state affecting current display
+                document.getElementById('safetySummarySection').style.display = 'none';
+                document.getElementById('studentInfoSummary').style.display = 'none';
+                document.getElementById('discoveryMethodSection').style.display = 'none';
+                document.getElementById('unknownThreatSection').style.display = 'none';
+                document.getElementById('physicalDiscoveryDetails').style.display = 'none';
+                
+                if (isKnownThreatmaker) {
+                    // KNOWN threatmaker path
                     backButton.href = '/safety-assessment';
                     
                     // Safety assessment
@@ -279,15 +302,9 @@
                         }
                         document.getElementById('summarySupportPlans').textContent = supportPlansText;
                     }
-                    
-                    // Hide discovery method section
-                    document.getElementById('discoveryMethodSection').style.display = 'none';
-                    document.getElementById('unknownThreatSection').style.display = 'none';
                 } else {
+                    // UNKNOWN threatmaker path
                     backButton.href = '/discovery-method';
-                    
-                    // Hide safety assessment section
-                    document.getElementById('safetySummarySection').style.display = 'none';
                     
                     // Show discovery method section
                     document.getElementById('discoveryMethodSection').style.display = 'block';
@@ -350,6 +367,9 @@
                     summaryForm.addEventListener('submit', async function(e) {
                         e.preventDefault();
                         
+                        // Log the current socStatus before submission for debugging
+                        console.log('socStatus before form submission:', socStatus);
+                        
                         // Get discovery method from sessionStorage if available
                         let discoveryMethod = { method: null };
                         try {
@@ -393,8 +413,66 @@
                                 // Clear session storage
                                 sessionStorage.clear();
                                 
-                                // Redirect to workstation with the new case ID
-                                window.location.href = `/workstation?caseId=${data.caseId}`;
+                                // Create a threat record
+                                const threatData = {
+                                    caseId: data.caseId,
+                                    discoveryMethod: discoveryMethod.method === 'physical' ? 'graffiti' : 'social_media',
+                                    location: null,
+                                    content: null
+                                };
+                                
+                                const threatResponse = await fetch('/api/threats', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify(threatData)
+                                });
+                                
+                                if (!threatResponse.ok) {
+                                    const threatErrorData = await threatResponse.json();
+                                    throw new Error('Failed to create threat: ' + (threatErrorData.error || threatResponse.statusText));
+                                }
+                                
+                                const threatData2 = await threatResponse.json();
+                                
+                                // For Known Threatmaker, link the SOC to the threat
+                                if (socStatus === 'known' && data.socId) {
+                                    const linkData = {
+                                        socId: data.socId,
+                                        relationshipType: 'primary_subject',
+                                        priorityLevel: 'medium',
+                                        notes: ''
+                                    };
+                                    
+                                    const linkResponse = await fetch(`/api/threats/${threatData2.id}/socs`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify(linkData)
+                                    });
+                                    
+                                    if (!linkResponse.ok) {
+                                        console.error('Failed to link SOC to threat, but continuing...');
+                                    }
+                                }
+                                
+                                // Clear sessionStorage after successful submission to prevent data persistence
+                                sessionStorage.clear();
+                                
+                                // Redirect based on SOC status
+                                // Double-check the socStatus one more time to ensure correct redirection
+                                const finalSocStatus = socStatus;
+                                console.log('Final socStatus for redirection:', finalSocStatus);
+                                
+                                if (finalSocStatus === 'known') {
+                                    // For Known Threatmaker, go to main workstation
+                                    window.location.href = `/workstation?caseId=${data.caseId}&socId=${data.socId}&threatId=${threatData2.id}`;
+                                } else {
+                                    // For Unknown Threatmaker, go to mini workstation
+                                    window.location.href = `/mini-workstation?caseId=${data.caseId}&threatId=${threatData2.id}`;
+                                }
                             } else {
                                 throw new Error('Failed to create case: ' + (data.error || 'Unknown error'));
                             }

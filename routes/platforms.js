@@ -32,7 +32,7 @@ router.get('/workstation', async (req, res) => {
     }
     
     // Get SOCs associated with this case
-    const { data: socsData, error: socsError } = await supabase
+    let { data: socsData, error: socsError } = await supabase
       .from('socs')
       .select('*')
       .eq('case_id', caseId);

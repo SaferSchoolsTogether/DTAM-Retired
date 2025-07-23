@@ -593,25 +593,35 @@ router.post('/api/create-case', async (req, res) => {
       });
     }
     
-    // Create a default SOC for this case
-    const { data: socData, error: socError } = await supabase
-      .from('socs')
-      .insert({
-        case_id: caseId,
-        name: req.body.studentInfo?.name || '',
-        student_id: req.body.studentInfo?.id || '',
-        grade: req.body.studentInfo?.grade || '',
-        school: req.body.studentInfo?.school || '',
-        dob: req.body.studentInfo?.dob || '',
-        support_plans: req.body.studentInfo?.supportPlans ? JSON.stringify(req.body.studentInfo.supportPlans) : JSON.stringify([]),
-        other_plan_text: req.body.studentInfo?.otherPlanText || '',
-        status: req.body.socStatus || 'known'
-      })
-      .select();
+    // Only create an SOC if the socStatus is 'known' or 'potential'
+    let socData = null;
+    let socError = null;
+    
+    if (req.body.socStatus !== 'unknown') {
+      const socResult = await supabase
+        .from('socs')
+        .insert({
+          case_id: caseId,
+          name: req.body.studentInfo?.name || '',
+          student_id: req.body.studentInfo?.id || '',
+          grade: req.body.studentInfo?.grade || '',
+          school: req.body.studentInfo?.school || '',
+          dob: req.body.studentInfo?.dob || '',
+          support_plans: req.body.studentInfo?.supportPlans ? JSON.stringify(req.body.studentInfo.supportPlans) : JSON.stringify([]),
+          other_plan_text: req.body.studentInfo?.otherPlanText || '',
+          status: req.body.socStatus || 'known'
+        })
+        .select();
+        
+      socData = socResult.data;
+      socError = socResult.error;
       
-    if (socError) {
-      console.error('Error creating SOC:', socError);
-      // Continue even if SOC creation fails
+      if (socError) {
+        console.error('Error creating SOC:', socError);
+        // Continue even if SOC creation fails
+      }
+    } else {
+      console.log('Skipping SOC creation for unknown threatmaker');
     }
     
     // Return success response with case ID

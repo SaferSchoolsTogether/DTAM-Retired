@@ -8,8 +8,15 @@
     <link rel="stylesheet" href="/css/onboarding.css">
     <link rel="stylesheet" href="/css/components/platform-profile.css">
 </head>
-<body data-soc-id="<%= socId %>" data-case-id="<%= caseId %>">
+<body data-soc-id="<%= socId %>" data-case-id="<%= caseId %>" <% if (typeof threatId !== 'undefined') { %>data-threat-id="<%= threatId %>"<% } %>>
     <%- include('partials/navigation', { activePage: 'workstation' }) %>
+    
+    <% if (typeof message !== 'undefined' && message) { %>
+    <!-- System Message -->
+    <div style="background-color: #fff3cd; color: #856404; padding: 10px 15px; margin: 0; text-align: center; border-bottom: 1px solid #ffeeba;">
+        <%= message %>
+    </div>
+    <% } %>
     
     <!-- Header -->
     <header class="header">
