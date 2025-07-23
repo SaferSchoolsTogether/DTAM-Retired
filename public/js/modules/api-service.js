@@ -483,16 +483,27 @@ function previewReport() {
     }
     
     // Extract socId from the URL or from the body data attribute
-    const socId = document.body.dataset.socId || 'soc_1';
+    const socId = document.body.dataset.socId;
+    if (!socId) {
+        alert('Error: Could not determine SOC ID for report preview. Please try again.');
+        return;
+    }
     
-    // In a real app, this would generate a preview of the report
-    window.open(`/api/soc/${socId}/platform/${platform}/report`, '_blank');
+    // Show the report preview modal
+    import('/js/report-preview.js')
+        .then(module => {
+            module.showReportPreviewModal();
+        })
+        .catch(error => {
+            console.error('Error loading report preview module:', error);
+            alert('Failed to load report preview. Please try again.');
+        });
 }
 
 // Generate report
 function generateReport() {
-    // In a real app, this would generate and download the report
-    alert('Report generated successfully!');
+    // Use the preview report function to show the modal first
+    previewReport();
 }
 
 // Export functions

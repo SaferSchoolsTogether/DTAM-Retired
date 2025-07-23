@@ -6,6 +6,7 @@
 // Import the core module and other necessary modules
 import { initializeWorkstation } from './modules/core.js';
 import { updateDeleteButtonListeners } from './modules/event-handlers.js';
+import { initReportPreview } from './report-preview.js';
 
 // Make necessary functions available globally
 window.updateDeleteButtonListeners = updateDeleteButtonListeners;
@@ -13,4 +14,7 @@ window.updateDeleteButtonListeners = updateDeleteButtonListeners;
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     initializeWorkstation();
+    
+    // Initialize report preview functionality
+    initReportPreview();
 });
