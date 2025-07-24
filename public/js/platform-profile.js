@@ -124,24 +124,44 @@ document.addEventListener('DOMContentLoaded', function() {
      * Open Google search in a new tab
      */
     function openGoogleSearch() {
-        // Get SOC name from case context if available
-        let socName = '';
-        const socNameElement = document.querySelector('.case-context-bar .soc-name');
+        // Check if this is an unknown threat
+        const isUnknownThreat = document.body.hasAttribute('data-unknown-threat');
         
-        if (socNameElement && socNameElement.textContent) {
-            socName = socNameElement.textContent.trim();
-        }
+        // Get search terms based on whether this is an unknown threat or not
+        let searchTerms = '';
         
-        // Get platform name
-        const platformTitle = document.querySelector('.platform-title');
-        let platformName = '';
-        
-        if (platformTitle && platformTitle.textContent) {
-            platformName = platformTitle.textContent.trim().split(' ')[0]; // Get first word (platform name)
+        if (isUnknownThreat) {
+            // For unknown threats, use the platform name and "threat evidence"
+            const platformTitle = document.querySelector('.platform-title');
+            let platformName = '';
+            
+            if (platformTitle && platformTitle.textContent) {
+                platformName = platformTitle.textContent.trim().split(' ')[0]; // Get first word (platform name)
+            }
+            
+            searchTerms = `${platformName} threat evidence analysis`;
+        } else {
+            // For known SOCs, use the SOC name and platform
+            let socName = '';
+            const socNameElement = document.querySelector('.case-context-bar .soc-name');
+            
+            if (socNameElement && socNameElement.textContent) {
+                socName = socNameElement.textContent.trim();
+            }
+            
+            // Get platform name
+            const platformTitle = document.querySelector('.platform-title');
+            let platformName = '';
+            
+            if (platformTitle && platformTitle.textContent) {
+                platformName = platformTitle.textContent.trim().split(' ')[0]; // Get first word (platform name)
+            }
+            
+            searchTerms = `${socName} ${platformName} social media profile`;
         }
         
         // Construct search query
-        const searchQuery = encodeURIComponent(`${socName} ${platformName} social media profile`);
+        const searchQuery = encodeURIComponent(searchTerms);
         window.open(`https://www.google.com/search?q=${searchQuery}`, '_blank');
     }
     

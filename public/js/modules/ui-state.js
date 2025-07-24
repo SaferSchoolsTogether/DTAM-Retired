@@ -173,6 +173,9 @@ function saveCaseContextEdits(e) {
     const urlParams = new URLSearchParams(window.location.search);
     const currentCaseId = urlParams.get('caseId') || caseId;
     
+    // Check if this is an unknown threat
+    const isUnknownThreat = document.body.hasAttribute('data-unknown-threat') || socStatus === 'unknown';
+    
     // Prepare case data
     const caseData = {
         caseId: caseId,
@@ -180,11 +183,14 @@ function saveCaseContextEdits(e) {
         investigatorName: investigatorName,
         organization: document.getElementById('organization')?.value || 'Unknown',
         socStatus: socStatus,
+        isUnknownThreat: isUnknownThreat, // Add flag for unknown threat
         studentInfo: {
             name: studentName,
             grade: studentGrade
         }
     };
+    
+    console.log('Saving case data:', caseData); // Add logging
     
     // Save to server
     fetch('/api/save-case', {
@@ -196,7 +202,12 @@ function saveCaseContextEdits(e) {
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error('Failed to save case data');
+            // Try to get more detailed error information
+            return response.json().then(err => {
+                throw new Error(err.error || 'Failed to save case data');
+            }).catch(() => {
+                throw new Error(`Failed to save case data with status: ${response.status}`);
+            });
         }
         return response.json();
     })
@@ -357,11 +368,31 @@ function backToOptions() {
     // Reset selection
     state.selectedAnalysisType = null;
     state.selectedAnalysisValue = null;
+    state.selectedDomain = null;
+    state.selectedCategory = null;
     
     // Reset tag options
     document.querySelectorAll('.tag-option').forEach(option => {
         option.classList.remove('selected');
     });
+    
+    // Reset domain options
+    document.querySelectorAll('.domain-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // Reset category options
+    document.querySelectorAll('.category-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // Reset domain/category selection views
+    const domainSelection = document.getElementById('domainSelection');
+    const categorySelection = document.getElementById('categorySelection');
+    if (domainSelection && categorySelection) {
+        domainSelection.style.display = 'block';
+        categorySelection.style.display = 'none';
+    }
     
     // Disable apply buttons
     document.querySelectorAll('.apply-tag-btn').forEach(btn => {
