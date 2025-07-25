@@ -16,7 +16,7 @@ CREATE TABLE public.cases (
 );
 CREATE TABLE public.photos (
   id text NOT NULL,
-  soc_id text NOT NULL,
+  soc_id text,
   platform text NOT NULL,
   file_path text NOT NULL,
   thumbnail text,

@@ -4,7 +4,7 @@
         <div class="nav-logo">
             <a href="/dashboard">
                 <div class="sst-logo">SST</div>
-                <span class="nav-title">Digital Threat Assessment</span>
+                <span class="nav-title">DTAM - Digital Threat Assessment Management</span>
             </a>
         </div>
         
@@ -50,6 +50,18 @@
             </a>
         </div>
         
+        <div class="user-profile">
+            <div class="user-info">
+                <span class="user-greeting">Welcome, <span id="userFirstName">Guest</span></span>
+            </div>
+            <button class="logout-btn" id="logoutBtn">
+                <svg class="logout-icon" viewBox="0 0 24 24">
+                    <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                </svg>
+                Logout
+            </button>
+        </div>
+        
         <button class="mobile-menu-toggle" id="mobileMenuToggle">
             <svg class="menu-icon" viewBox="0 0 24 24">
                 <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
@@ -60,6 +72,10 @@
 
 <!-- Mobile Navigation Menu (hidden by default) -->
 <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-user-profile">
+        <span class="mobile-user-greeting">Welcome, <span id="mobileUserFirstName">Guest</span></span>
+        <button class="mobile-logout-btn" id="mobileLogoutBtn">Logout</button>
+    </div>
     <a href="/dashboard" class="mobile-nav-link <%= locals.activePage === 'dashboard' ? 'active' : '' %>">Dashboard</a>
     <a href="/cases" class="mobile-nav-link <%= locals.activePage === 'cases' ? 'active' : '' %>">Cases</a>
     <div class="mobile-nav-group">

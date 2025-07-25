@@ -37,6 +37,10 @@
                     <span class="case-detail-label">Investigator</span>
                     <span class="case-detail-value" id="investigatorName"></span>
                 </div>
+                <div class="case-detail-row">
+                    <span class="case-detail-label">Organization</span>
+                    <span class="case-detail-value" id="organization">Unknown</span>
+                </div>
             </div>
             
             <div class="case-context-section">
@@ -52,6 +56,34 @@
                 <div class="case-detail-row">
                     <span class="case-detail-label">SOC Status</span>
                     <span class="case-detail-value" id="socStatus"></span>
+                </div>
+            </div>
+            
+            <div class="case-context-section" id="safetyAssessmentSection">
+                <h3 class="section-subtitle">Threat Assessment</h3>
+                <div class="case-detail-row">
+                    <span class="case-detail-label">Law Enforcement Needed</span>
+                    <span class="case-detail-value" id="safetyEnforcement">No</span>
+                </div>
+                <div class="case-detail-row">
+                    <span class="case-detail-label">Access to Means</span>
+                    <span class="case-detail-value" id="safetyMeans">No</span>
+                </div>
+                <div class="case-detail-row">
+                    <span class="case-detail-label">Risk Level</span>
+                    <span class="case-detail-value" id="safetyRisk">Moderate to Low Concern</span>
+                </div>
+            </div>
+            
+            <div class="case-context-section" id="discoveryMethodSection" style="display: none;">
+                <h3 class="section-subtitle">Discovery Method</h3>
+                <div class="case-detail-row">
+                    <span class="case-detail-label">Method</span>
+                    <span class="case-detail-value" id="discoveryMethod"></span>
+                </div>
+                <div class="case-detail-row" id="sourcePlatformRow" style="display: none;">
+                    <span class="case-detail-label">Source Platform</span>
+                    <span class="case-detail-value" id="sourcePlatform"></span>
                 </div>
             </div>
         </div>
@@ -72,6 +104,10 @@
                     <div class="form-group">
                         <label for="editInvestigatorName">Investigator</label>
                         <input type="text" id="editInvestigatorName" class="form-input" placeholder="Enter investigator name">
+                    </div>
+                    <div class="form-group">
+                        <label for="organization">Organization</label>
+                        <input type="text" id="organization" class="form-input" placeholder="Enter organization name">
                     </div>
                 </div>
                 

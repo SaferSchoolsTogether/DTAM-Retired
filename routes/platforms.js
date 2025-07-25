@@ -416,6 +416,26 @@ router.get('/case/:caseId/platform/unknown-threat', async (req, res) => {
       }
     }
     
+    // Get all platforms for all SOCs in this case
+    let allPlatforms = ['unknown-threat']; // Always include unknown-threat
+    
+    if (allSocIds.length > 0) {
+      // Get all platforms for all SOCs in this case
+      const { data: allPlatformsData, error: allPlatformsError } = await supabase
+        .from('platforms')
+        .select('platform_name, soc_id')
+        .in('soc_id', allSocIds);
+        
+      if (!allPlatformsError && allPlatformsData && allPlatformsData.length > 0) {
+        // Add unique platforms from all SOCs
+        const socPlatforms = allPlatformsData.map(p => p.platform_name);
+        // Combine with unknown-threat and remove duplicates
+        allPlatforms = [...new Set([...allPlatforms, ...socPlatforms])];
+      }
+    }
+    
+    console.log('All platforms for unknown threat view:', allPlatforms);
+    
     // Render the workstation view with unknown threat data
     res.render('workstation', {
       caseId: caseId,
@@ -423,7 +443,7 @@ router.get('/case/:caseId/platform/unknown-threat', async (req, res) => {
       platform: 'unknown-threat',
       platformData: platformInfo,
       socData: null, // No SOC data
-      allPlatforms: ['unknown-threat'], // Only this platform
+      allPlatforms: allPlatforms, // Include all platforms from all SOCs + unknown-threat
       allSocs: allSocIds,
       allSocsData: formattedAllSocs,
       activeSocId: null, // No active SOC
