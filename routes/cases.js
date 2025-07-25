@@ -300,14 +300,15 @@ router.post('/api/save-case', async (req, res) => {
     // Log the request body to see what data is being sent
     console.log('Save case request body:', JSON.stringify(req.body, null, 2));
     
-    // Check if this is an unknown threat
-    const isUnknownThreat = req.body.isUnknownThreat || req.body.socStatus === 'unknown';
+    // Check if this is an unknown threat - only based on socStatus
+    // This prevents the entire case from being marked as unknown threat when just viewing unknown threat platform
+    const isUnknownThreat = req.body.socStatus === 'unknown';
     console.log('Is unknown threat:', isUnknownThreat);
     
     // Validate required fields
     const requiredFields = ['caseId', 'date', 'investigatorName', 'organization'];
     for (const field of requiredFields) {
-      if (!req.body[field]) {
+      if (!req.body[field] || req.body[field].trim() === '') {
         console.error(`Missing required field: ${field}`);
         return res.status(400).json({ error: `Missing required field: ${field}` });
       }
