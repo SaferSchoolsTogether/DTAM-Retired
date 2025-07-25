@@ -31,11 +31,12 @@ router.post('/api/threats/:threatId/socs', async (req, res) => {
       return res.status(400).json({ error: 'Relationship type is required' });
     }
     
-    // Check if threat exists
+    // Check if threat exists and belongs to a case owned by the current user
     const { data: threatData, error: threatError } = await supabase
       .from('threats')
-      .select('id')
+      .select('id, cases!inner(created_by)')
       .eq('id', threatId)
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
       .single();
       
     if (threatError || !threatData) {
@@ -43,11 +44,12 @@ router.post('/api/threats/:threatId/socs', async (req, res) => {
       return res.status(404).json({ error: 'Threat not found' });
     }
     
-    // Check if SOC exists
+    // Check if SOC exists and belongs to a case owned by the current user
     const { data: socData, error: socError } = await supabase
       .from('socs')
-      .select('id')
+      .select('id, cases!inner(created_by)')
       .eq('id', socId)
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
       .single();
       
     if (socError || !socData) {
@@ -78,7 +80,8 @@ router.post('/api/threats/:threatId/socs', async (req, res) => {
         soc_id: socId,
         relationship_type: relationshipType,
         priority_level: priorityLevel || 'medium',
-        notes: notes || ''
+        notes: notes || '',
+        created_by: req.user.id // Add user ownership
       })
       .select();
       
@@ -113,11 +116,12 @@ router.get('/api/threats/:threatId/socs', async (req, res) => {
   try {
     const { threatId } = req.params;
     
-    // Check if threat exists
+    // Check if threat exists and belongs to a case owned by the current user
     const { data: threatData, error: threatError } = await supabase
       .from('threats')
-      .select('id')
+      .select('id, cases!inner(created_by)')
       .eq('id', threatId)
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
       .single();
       
     if (threatError || !threatData) {
@@ -193,6 +197,19 @@ router.put('/api/threat-socs/:relationshipId', async (req, res) => {
       notes 
     } = req.body;
     
+    // First verify the relationship belongs to a threat that belongs to a case owned by the current user
+    const { data: relationshipCheck, error: relationshipCheckError } = await supabase
+      .from('threat_socs')
+      .select('*, threats!inner(cases!inner(created_by))')
+      .eq('id', relationshipId)
+      .eq('threats.cases.created_by', req.user.id) // Verify user ownership via threat->case relationship
+      .single();
+      
+    if (relationshipCheckError || !relationshipCheck) {
+      console.error('Relationship not found or not owned by user:', relationshipCheckError);
+      return res.status(404).json({ error: 'Relationship not found or you do not have permission to update it' });
+    }
+    
     // Prepare update data
     const updateData = {};
     
@@ -241,6 +258,19 @@ router.put('/api/threat-socs/:relationshipId', async (req, res) => {
 router.delete('/api/threat-socs/:relationshipId', async (req, res) => {
   try {
     const { relationshipId } = req.params;
+    
+    // First verify the relationship belongs to a threat that belongs to a case owned by the current user
+    const { data: relationshipCheck, error: relationshipCheckError } = await supabase
+      .from('threat_socs')
+      .select('*, threats!inner(cases!inner(created_by))')
+      .eq('id', relationshipId)
+      .eq('threats.cases.created_by', req.user.id) // Verify user ownership via threat->case relationship
+      .single();
+      
+    if (relationshipCheckError || !relationshipCheck) {
+      console.error('Relationship not found or not owned by user:', relationshipCheckError);
+      return res.status(404).json({ error: 'Relationship not found or you do not have permission to delete it' });
+    }
     
     // Delete the relationship
     const { error } = await supabase

@@ -27,11 +27,12 @@ router.get('/api/soc/:socId/platform/:platform/report/preview', async (req, res)
       return res.status(400).json({ error: 'Missing required case ID parameter' });
     }
     
-    // Get case data
+    // Get case data, ensuring it belongs to the current user
     const { data: caseData, error: caseError } = await supabase
       .from('cases')
       .select('*')
       .eq('id', caseId)
+      .eq('created_by', req.user.id) // Verify user ownership
       .single();
       
     if (caseError) {
@@ -229,6 +230,19 @@ router.post('/api/soc/:socId/platform/:platform/report/generate', async (req, re
       return res.status(400).json({ error: 'Missing required report data' });
     }
     
+    // Verify the case belongs to the current user
+    const { data: caseData, error: caseError } = await supabase
+      .from('cases')
+      .select('id')
+      .eq('id', reportData.case.id)
+      .eq('created_by', req.user.id) // Verify user ownership
+      .single();
+      
+    if (caseError || !caseData) {
+      console.error('Case not found or not owned by user:', caseError);
+      return res.status(404).json({ error: 'Case not found or you do not have permission to access it' });
+    }
+    
     // Generate a unique filename
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filename = `DTAM_Report_${reportData.case.id}_${timestamp}.pdf`;
@@ -288,6 +302,33 @@ router.get('/api/soc/:socId/platform/:platform/report', async (req, res) => {
     // Validate required parameters
     if (!socId || !platform) {
       return res.status(400).json({ error: 'Missing required parameters' });
+    }
+    
+    // Verify the case belongs to the current user
+    const { data: caseData, error: caseError } = await supabase
+      .from('cases')
+      .select('id')
+      .eq('id', caseId)
+      .eq('created_by', req.user.id) // Verify user ownership
+      .single();
+      
+    if (caseError || !caseData) {
+      console.error('Case not found or not owned by user:', caseError);
+      return res.status(404).json({ error: 'Case not found or you do not have permission to access it' });
+    }
+    
+    // Verify the SOC belongs to the case and the case belongs to the current user
+    const { data: socData, error: socError } = await supabase
+      .from('socs')
+      .select('*, cases!inner(created_by)')
+      .eq('id', socId)
+      .eq('case_id', caseId)
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
+      .single();
+      
+    if (socError || !socData) {
+      console.error('SOC not found or not owned by user:', socError);
+      return res.status(404).json({ error: 'SOC not found or you do not have permission to access it' });
     }
     
     // Get platform data from Supabase
@@ -383,11 +424,12 @@ router.get('/api/case/report', async (req, res) => {
       return res.status(400).json({ error: 'Missing case ID parameter' });
     }
     
-    // Get case data from Supabase
+    // Get case data from Supabase, ensuring it belongs to the current user
     const { data: caseData, error: caseError } = await supabase
       .from('cases')
       .select('*')
       .eq('id', caseId)
+      .eq('created_by', req.user.id) // Verify user ownership
       .single();
       
     if (caseError) {
@@ -426,6 +468,19 @@ router.get('/api/platform/:platform/report', async (req, res) => {
     
     if (!caseId) {
       return res.status(400).json({ error: 'Missing case ID parameter' });
+    }
+    
+    // Verify the case belongs to the current user
+    const { data: caseData, error: caseError } = await supabase
+      .from('cases')
+      .select('id')
+      .eq('id', caseId)
+      .eq('created_by', req.user.id) // Verify user ownership
+      .single();
+      
+    if (caseError || !caseData) {
+      console.error('Case not found or not owned by user:', caseError);
+      return res.status(404).json({ error: 'Case not found or you do not have permission to access it' });
     }
     
     // Get SOCs for this case

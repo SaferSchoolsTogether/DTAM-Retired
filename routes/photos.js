@@ -57,11 +57,12 @@ router.post('/api/soc/:socId/platform/:platform/upload', upload.single('photo'),
       return res.status(400).json({ error: 'Case ID is required' });
     }
     
-    // Check if case exists in Supabase
+    // Check if case exists in Supabase and belongs to the current user
     const { data: caseData, error: caseError } = await supabase
       .from('cases')
       .select('id')
       .eq('id', caseId.toString())
+      .eq('created_by', req.user.id) // Verify user ownership
       .single();
       
     if (caseError || !caseData) {
@@ -69,12 +70,13 @@ router.post('/api/soc/:socId/platform/:platform/upload', upload.single('photo'),
       return res.status(404).json({ error: 'Case not found' });
     }
     
-    // Check if SOC exists and belongs to the case
+    // Check if SOC exists, belongs to the case, and the case belongs to the current user
     const { data: socData, error: socError } = await supabase
       .from('socs')
-      .select('id')
+      .select('id, cases!inner(created_by)')
       .eq('id', socId.toString()) // Ensure socId is treated as string
       .eq('case_id', caseId.toString()) // Ensure SOC belongs to the case
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
       .single();
       
     if (socError || !socData) {
@@ -136,7 +138,8 @@ router.post('/api/soc/:socId/platform/:platform/upload', upload.single('photo'),
       tags: JSON.stringify([]),
       analysis_tags: JSON.stringify({}),
       notes: '',
-      metadata: JSON.stringify(photoMetadata)
+      metadata: JSON.stringify(photoMetadata),
+      created_by: req.user.id // Add user ownership
     };
     
     console.log('Creating new photo record:', JSON.stringify(newPhotoRecord, null, 2));
@@ -186,6 +189,20 @@ router.get('/api/soc/:socId/platform/:platform/photo/:photoId', async (req, res)
     const caseId = req.query.caseId || req.headers['x-case-id'];
     if (!caseId) {
       return res.status(400).json({ error: 'Case ID is required' });
+    }
+    
+    // First verify the SOC belongs to a case owned by the current user
+    const { data: socCheck, error: socCheckError } = await supabase
+      .from('socs')
+      .select('*, cases!inner(created_by)')
+      .eq('id', socId.toString())
+      .eq('case_id', caseId.toString())
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
+      .single();
+      
+    if (socCheckError || !socCheck) {
+      console.error('SOC not found or not owned by user:', socCheckError);
+      return res.status(404).json({ error: 'SOC not found or you do not have permission to access it' });
     }
     
     // Get photo data from Supabase - query by id, soc_id and platform
@@ -242,7 +259,21 @@ router.put('/api/soc/:socId/platform/:platform/photo/:photoId', async (req, res)
       return res.status(400).json({ error: 'Case ID is required' });
     }
     
-    // First, get the current photo data from Supabase - query by id, soc_id and platform
+    // First verify the SOC belongs to a case owned by the current user
+    const { data: socCheck, error: socCheckError } = await supabase
+      .from('socs')
+      .select('*, cases!inner(created_by)')
+      .eq('id', socId.toString())
+      .eq('case_id', caseId.toString())
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
+      .single();
+      
+    if (socCheckError || !socCheck) {
+      console.error('SOC not found or not owned by user:', socCheckError);
+      return res.status(404).json({ error: 'SOC not found or you do not have permission to access it' });
+    }
+    
+    // Get the current photo data from Supabase - query by id, soc_id and platform
     const { data: photoData, error: getError } = await supabase
       .from('photos')
       .select('*')
@@ -327,7 +358,21 @@ router.delete('/api/soc/:socId/platform/:platform/photo/:photoId', async (req, r
       return res.status(400).json({ error: 'Case ID is required' });
     }
     
-    // First, get the photo data from Supabase to get the storage path - query by id, soc_id and platform
+    // First verify the SOC belongs to a case owned by the current user
+    const { data: socCheck, error: socCheckError } = await supabase
+      .from('socs')
+      .select('*, cases!inner(created_by)')
+      .eq('id', socId.toString())
+      .eq('case_id', caseId.toString())
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
+      .single();
+      
+    if (socCheckError || !socCheck) {
+      console.error('SOC not found or not owned by user:', socCheckError);
+      return res.status(404).json({ error: 'SOC not found or you do not have permission to access it' });
+    }
+    
+    // Get the photo data from Supabase to get the storage path - query by id, soc_id and platform
     const { data: photoData, error: getError } = await supabase
       .from('photos')
       .select('*')
@@ -398,11 +443,12 @@ router.post('/api/case/:caseId/platform/:platform/upload', upload.single('photo'
       return res.status(400).json({ error: 'No file uploaded' });
     }
     
-    // Check if case exists in Supabase
+    // Check if case exists in Supabase and belongs to the current user
     const { data: caseData, error: caseError } = await supabase
       .from('cases')
       .select('id')
       .eq('id', caseId.toString())
+      .eq('created_by', req.user.id) // Verify user ownership
       .single();
       
     if (caseError || !caseData) {
@@ -464,7 +510,8 @@ router.post('/api/case/:caseId/platform/:platform/upload', upload.single('photo'
       tags: JSON.stringify([]),
       analysis_tags: JSON.stringify({}),
       notes: '',
-      metadata: JSON.stringify(photoMetadata)
+      metadata: JSON.stringify(photoMetadata),
+      created_by: req.user.id // Add user ownership
     };
     
     console.log('Creating new case photo record:', JSON.stringify(newPhotoRecord, null, 2));
@@ -509,11 +556,12 @@ router.get('/api/case/:caseId/photos', async (req, res) => {
     const { caseId } = req.params;
     const { platform } = req.query; // Optional platform filter
     
-    // Check if case exists
+    // Check if case exists and belongs to the current user
     const { data: caseData, error: caseError } = await supabase
       .from('cases')
       .select('id')
       .eq('id', caseId)
+      .eq('created_by', req.user.id) // Verify user ownership
       .single();
       
     if (caseError || !caseData) {
@@ -575,6 +623,19 @@ router.get('/api/case/:caseId/platform/:platform/photo/:photoId', async (req, re
   const { caseId, platform, photoId } = req.params;
   
   try {
+    // First verify the case belongs to the current user
+    const { data: caseCheck, error: caseCheckError } = await supabase
+      .from('cases')
+      .select('id')
+      .eq('id', caseId)
+      .eq('created_by', req.user.id) // Verify user ownership
+      .single();
+      
+    if (caseCheckError || !caseCheck) {
+      console.error('Case not found or not owned by user:', caseCheckError);
+      return res.status(404).json({ error: 'Case not found or you do not have permission to access it' });
+    }
+    
     // Get photo data from Supabase - query by id, case_id and platform
     const { data: photoData, error } = await supabase
       .from('photos')
@@ -622,7 +683,20 @@ router.put('/api/case/:caseId/platform/:platform/photo/:photoId', async (req, re
   const { tags, analysisTags, notes, metadata } = req.body;
   
   try {
-    // First, get the current photo data from Supabase
+    // First verify the case belongs to the current user
+    const { data: caseCheck, error: caseCheckError } = await supabase
+      .from('cases')
+      .select('id')
+      .eq('id', caseId)
+      .eq('created_by', req.user.id) // Verify user ownership
+      .single();
+      
+    if (caseCheckError || !caseCheck) {
+      console.error('Case not found or not owned by user:', caseCheckError);
+      return res.status(404).json({ error: 'Case not found or you do not have permission to access it' });
+    }
+    
+    // Get the current photo data from Supabase
     const { data: photoData, error: getError } = await supabase
       .from('photos')
       .select('*')
@@ -698,7 +772,20 @@ router.delete('/api/case/:caseId/platform/:platform/photo/:photoId', async (req,
   const { caseId, platform, photoId } = req.params;
   
   try {
-    // First, get the photo data from Supabase to get the storage path
+    // First verify the case belongs to the current user
+    const { data: caseCheck, error: caseCheckError } = await supabase
+      .from('cases')
+      .select('id')
+      .eq('id', caseId)
+      .eq('created_by', req.user.id) // Verify user ownership
+      .single();
+      
+    if (caseCheckError || !caseCheck) {
+      console.error('Case not found or not owned by user:', caseCheckError);
+      return res.status(404).json({ error: 'Case not found or you do not have permission to access it' });
+    }
+    
+    // Get the photo data from Supabase to get the storage path
     const { data: photoData, error: getError } = await supabase
       .from('photos')
       .select('*')
