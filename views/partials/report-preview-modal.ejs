@@ -1,0 +1,333 @@
+<!-- Report Preview Modal -->
+<div class="modal report-preview-modal" id="reportPreviewModal">
+    <div class="modal-content report-preview-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Report Preview</h2>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="generateReportFromPreviewBtn">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/>
+                    </svg>
+                    Generate PDF
+                </button>
+                <button class="close-btn" id="closeReportPreviewBtn">×</button>
+            </div>
+        </div>
+        
+        <!-- Loading State -->
+        <div class="report-loading" id="reportLoading">
+            <div class="loading-spinner large"></div>
+            <p class="loading-text">Loading report data...</p>
+        </div>
+        
+        <!-- Report Content -->
+        <div class="report-preview-body" id="reportPreviewBody" style="display: none;">
+            <!-- Report Sections -->
+            <div class="report-sections">
+                <!-- Case Information Section -->
+                <div class="report-section" id="caseInfoSection">
+                    <div class="section-header">
+                        <h3 class="section-title">Case Information</h3>
+                        <button class="section-toggle" data-section="caseInfo">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="section-content" id="caseInfoContent">
+                        <div class="section-loading skeleton-loading">
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line"></div>
+                        </div>
+                        
+                        <div class="editable-content" style="display: none;">
+                            <div class="form-group">
+                                <label for="editReportCaseId">Case ID</label>
+                                <input type="text" id="editReportCaseId" class="form-input" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="editReportCaseDate">Date</label>
+                                <input type="date" id="editReportCaseDate" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="editReportInvestigator">Investigator</label>
+                                <input type="text" id="editReportInvestigator" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="editReportOrganization">Organization</label>
+                                <input type="text" id="editReportOrganization" class="form-input">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- SOC Information Section -->
+                <div class="report-section" id="socInfoSection">
+                    <div class="section-header">
+                        <h3 class="section-title">Subject of Concern Information</h3>
+                        <button class="section-toggle" data-section="socInfo">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="section-content" id="socInfoContent">
+                        <div class="section-loading skeleton-loading">
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line"></div>
+                        </div>
+                        
+                        <div class="editable-content" style="display: none;">
+                            <div id="socListContainer">
+                                <!-- SOC list will be populated dynamically -->
+                                <div class="empty-state" id="noSocsMessage" style="display: none;">
+                                    <p>No Subjects of Concern associated with this case.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Platform Information Section -->
+                <div class="report-section" id="platformInfoSection">
+                    <div class="section-header">
+                        <h3 class="section-title">Platform Information</h3>
+                        <button class="section-toggle" data-section="platformInfo">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="section-content" id="platformInfoContent">
+                        <div class="section-loading skeleton-loading">
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line"></div>
+                        </div>
+                        
+                        <div class="editable-content" style="display: none;">
+                            <div id="platformListContainer">
+                                <!-- Platform list will be populated dynamically -->
+                                <div class="empty-state" id="noPlatformsMessage" style="display: none;">
+                                    <p>No platforms associated with this case.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Photos and Analysis Section -->
+                <div class="report-section" id="photosSection">
+                    <div class="section-header">
+                        <h3 class="section-title">Photos and Analysis</h3>
+                        <button class="section-toggle" data-section="photos">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="section-content" id="photosContent">
+                        <div class="section-loading skeleton-loading">
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line"></div>
+                        </div>
+                        
+                        <div class="editable-content" style="display: none;">
+                            <div id="photoListContainer">
+                                <!-- Photo list will be populated dynamically -->
+                                <div class="empty-state" id="noPhotosMessage" style="display: none;">
+                                    <p>No photos associated with this case.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Threat Information Section (if applicable) -->
+                <div class="report-section" id="threatInfoSection">
+                    <div class="section-header">
+                        <h3 class="section-title">Threat Information</h3>
+                        <button class="section-toggle" data-section="threatInfo">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="section-content" id="threatInfoContent">
+                        <div class="section-loading skeleton-loading">
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line"></div>
+                        </div>
+                        
+                        <div class="editable-content" style="display: none;">
+                            <div id="threatListContainer">
+                                <!-- Threat list will be populated dynamically -->
+                                <div class="empty-state" id="noThreatsMessage" style="display: none;">
+                                    <p>No threats associated with this case.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Error State -->
+        <div class="report-error" id="reportError" style="display: none;">
+            <svg class="icon error-icon" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+            <p class="error-text">Failed to load report data. Please try again.</p>
+            <button class="btn btn-secondary" id="retryReportBtn">Retry</button>
+        </div>
+        
+        <!-- Generation Progress -->
+        <div class="generation-progress" id="generationProgress" style="display: none;">
+            <h3 class="progress-title">Generating PDF Report</h3>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="pdfProgressBar"></div>
+            </div>
+            <p class="progress-status" id="progressStatus">Preparing data...</p>
+        </div>
+    </div>
+</div>
+
+<!-- SOC Template (for cloning) -->
+<template id="socTemplate">
+    <div class="soc-item">
+        <div class="soc-header">
+            <h4 class="soc-name"></h4>
+            <div class="soc-controls">
+                <label class="checkbox-container">
+                    <input type="checkbox" class="include-soc-checkbox" checked>
+                    <span class="checkmark"></span>
+                    Include in report
+                </label>
+            </div>
+        </div>
+        <div class="soc-details">
+            <div class="form-group">
+                <label>Student ID</label>
+                <input type="text" class="form-input soc-student-id">
+            </div>
+            <div class="form-group">
+                <label>Grade</label>
+                <input type="text" class="form-input soc-grade">
+            </div>
+            <div class="form-group">
+                <label>School</label>
+                <input type="text" class="form-input soc-school">
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select class="form-input soc-status">
+                    <option value="known">Known</option>
+                    <option value="potential">Potential</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Platform Template (for cloning) -->
+<template id="platformTemplate">
+    <div class="platform-item">
+        <div class="platform-header">
+            <h4 class="platform-name"></h4>
+            <div class="platform-controls">
+                <label class="checkbox-container">
+                    <input type="checkbox" class="include-platform-checkbox" checked>
+                    <span class="checkmark"></span>
+                    Include in report
+                </label>
+            </div>
+        </div>
+        <div class="platform-details">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" class="form-input platform-username">
+            </div>
+            <div class="form-group">
+                <label>Display Name</label>
+                <input type="text" class="form-input platform-display-name">
+            </div>
+            <div class="form-group">
+                <label>Profile URL</label>
+                <input type="text" class="form-input platform-url">
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Photo Template (for cloning) -->
+<template id="photoTemplate">
+    <div class="photo-item">
+        <div class="photo-header">
+            <div class="photo-thumbnail">
+                <img src="" alt="Photo thumbnail" class="photo-thumb-img">
+            </div>
+            <div class="photo-controls">
+                <label class="checkbox-container">
+                    <input type="checkbox" class="include-photo-checkbox" checked>
+                    <span class="checkmark"></span>
+                    Include in report
+                </label>
+            </div>
+        </div>
+        <div class="photo-details">
+            <div class="form-group">
+                <label>Platform</label>
+                <input type="text" class="form-input photo-platform" readonly>
+            </div>
+            <div class="form-group">
+                <label>Notes</label>
+                <textarea class="form-input photo-notes"></textarea>
+                <div class="character-counter">
+                    <span class="current-count">0</span>/<span class="max-count">500</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Tags</label>
+                <div class="photo-tags-container"></div>
+            </div>
+            <div class="form-group">
+                <label>Analysis Tags</label>
+                <div class="photo-analysis-tags-container"></div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Threat Template (for cloning) -->
+<template id="threatTemplate">
+    <div class="threat-item">
+        <div class="threat-header">
+            <h4 class="threat-id"></h4>
+            <div class="threat-controls">
+                <label class="checkbox-container">
+                    <input type="checkbox" class="include-threat-checkbox" checked>
+                    <span class="checkmark"></span>
+                    Include in report
+                </label>
+            </div>
+        </div>
+        <div class="threat-details">
+            <div class="form-group">
+                <label>Discovery Method</label>
+                <input type="text" class="form-input threat-discovery-method" readonly>
+            </div>
+            <div class="form-group">
+                <label>Content</label>
+                <textarea class="form-input threat-content"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Language Analysis</label>
+                <textarea class="form-input threat-language-analysis"></textarea>
+            </div>
+        </div>
+    </div>
+</template>

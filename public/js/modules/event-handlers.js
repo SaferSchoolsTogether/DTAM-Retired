@@ -49,7 +49,11 @@ function initEventListeners() {
     const closeAnalysisBtn = document.getElementById('closeAnalysisBtn');
     const analysisOptions = document.getElementById('analysisOptions');
     const backToOptionsBtns = document.querySelectorAll('[id^="backToOptionsBtn"]');
+    const backToRiskOptionsBtn = document.getElementById('backToRiskOptionsBtn');
     const tagOptions = document.querySelectorAll('.tag-option');
+    const domainOptions = document.querySelectorAll('.domain-option');
+    const categoryOptions = document.querySelectorAll('.category-option');
+    const backToDomainBtn = document.getElementById('backToDomainBtn');
     const applyTagBtns = document.querySelectorAll('[id^="apply"][id$="Btn"]');
     const addTagInput = document.getElementById('addTagInput');
     const tagsContainer = document.getElementById('tagsContainer');
@@ -178,6 +182,30 @@ function initEventListeners() {
     backToOptionsBtns.forEach(btn => {
         btn.addEventListener('click', backToOptions);
     });
+    
+    // Risk domain back to options button
+    if (backToRiskOptionsBtn) {
+        backToRiskOptionsBtn.addEventListener('click', backToOptions);
+    }
+    
+    // Domain options
+    domainOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            selectDomainOption(option);
+        });
+    });
+    
+    // Category options
+    categoryOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            selectCategoryOption(option);
+        });
+    });
+    
+    // Back to domain selection button
+    if (backToDomainBtn) {
+        backToDomainBtn.addEventListener('click', backToDomainSelection);
+    }
 
     // Tag options
     tagOptions.forEach(option => {
@@ -401,22 +429,93 @@ function selectTagOption(option) {
     applyBtn.disabled = false;
 }
 
+// Select domain option
+function selectDomainOption(option) {
+    // Clear other selections
+    const options = document.querySelectorAll('.domain-option');
+    options.forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    
+    // Select this option
+    option.classList.add('selected');
+    state.selectedDomain = option.dataset.domain;
+    
+    // Show category selection
+    document.getElementById('domainSelection').style.display = 'none';
+    document.getElementById('categorySelection').style.display = 'block';
+}
+
+// Back to domain selection
+function backToDomainSelection() {
+    document.getElementById('categorySelection').style.display = 'none';
+    document.getElementById('domainSelection').style.display = 'block';
+    
+    // Reset category selection
+    state.selectedCategory = null;
+    document.querySelectorAll('.category-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    
+    // Disable apply button
+    document.getElementById('applyRiskDomainBtn').disabled = true;
+}
+
+// Select category option
+function selectCategoryOption(option) {
+    // Clear other selections
+    const options = document.querySelectorAll('.category-option');
+    options.forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    
+    // Select this option
+    option.classList.add('selected');
+    state.selectedCategory = option.dataset.category;
+    
+    // Enable apply button
+    document.getElementById('applyRiskDomainBtn').disabled = false;
+}
+
 // Apply analysis tag
 function applyAnalysisTag() {
-    if (!state.currentPhotoId || !state.selectedAnalysisType || !state.selectedAnalysisValue) return;
+    if (!state.currentPhotoId || !state.selectedAnalysisType) return;
     
     const tagsContainer = document.getElementById('tagsContainer');
+    let tagText;
+    let tagValue;
+    
+    // Handle risk domain analysis differently
+    if (state.selectedAnalysisType === 'risk-domain') {
+        if (!state.selectedDomain || !state.selectedCategory) return;
+        
+        tagText = `${state.selectedDomain}: ${state.selectedCategory}`;
+        tagValue = tagText;
+    } else {
+        if (!state.selectedAnalysisValue) return;
+        
+        tagText = `${state.selectedAnalysisType.replace(/-/g, ' ')}: ${state.selectedAnalysisValue}`;
+        tagValue = state.selectedAnalysisValue;
+    }
     
     const analysisTags = {};
-    analysisTags[state.selectedAnalysisType] = state.selectedAnalysisValue;
+    analysisTags[state.selectedAnalysisType] = tagValue;
     
-    // Update photo
-    updatePhoto({ analysisTags });
+    // Update photo with both analysisTags and tags
+    updatePhoto({ 
+        analysisTags,
+        tags: [...Array.from(tagsContainer.querySelectorAll('.tag')).map(tagEl => 
+            tagEl.textContent.trim().replace('×', '')
+        ), tagText]
+    });
     
     // Add tag to UI
     const tagElement = document.createElement('span');
     tagElement.className = 'tag analysis-tag';
-    tagElement.textContent = `${state.selectedAnalysisType.replace(/-/g, ' ')}: ${state.selectedAnalysisValue}`;
+    tagElement.innerHTML = `
+        ${tagText}
+        <span class="tag-remove" data-tag="${tagText}">×</span>
+    `;
     tagsContainer.appendChild(tagElement);
     
     // Update photo status
@@ -426,6 +525,10 @@ function applyAnalysisTag() {
         photoStatus.classList.add('analyzed');
         photoStatus.textContent = '✓';
     }
+    
+    // Reset state
+    state.selectedDomain = null;
+    state.selectedCategory = null;
     
     // Hide modal
     hideAnalysisModal();
@@ -574,6 +677,9 @@ export {
     updateDeleteButtonListeners,
     selectPhoto,
     selectTagOption,
+    selectDomainOption,
+    selectCategoryOption,
+    backToDomainSelection,
     applyAnalysisTag,
     addTag,
     removeTag,

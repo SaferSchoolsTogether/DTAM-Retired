@@ -7,8 +7,9 @@
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/onboarding.css">
     <link rel="stylesheet" href="/css/components/platform-profile.css">
+    <link rel="stylesheet" href="/css/components/report-preview.css">
 </head>
-<body data-soc-id="<%= socId %>" data-case-id="<%= caseId %>" <% if (typeof threatId !== 'undefined') { %>data-threat-id="<%= threatId %>"<% } %>>
+<body data-case-id="<%= caseId %>" <% if (socId) { %>data-soc-id="<%= socId %>"<% } %> <% if (typeof threatId !== 'undefined') { %>data-threat-id="<%= threatId %>"<% } %> <% if (typeof isUnknownThreat !== 'undefined' && isUnknownThreat) { %>data-unknown-threat="true"<% } %>>
     <%- include('partials/navigation', { activePage: 'workstation' }) %>
     
     <% if (typeof message !== 'undefined' && message) { %>
@@ -47,12 +48,21 @@
         <!-- Platform Sidebar - Only shows platforms that have been set up -->
         <div class="sidebar">
             <% allPlatforms.forEach(function(p) { %>
-                <a href="/soc/<%= socId %>/platform/<%= p %>?caseId=<%= caseId %>" class="platform-icon <%= p === platform ? 'active' : '' %>">
-                    <span><%= p.substring(0, 2).toUpperCase() %></span>
-                    <% if (p === platform && platformData.photos.length > 0) { %>
-                        <span class="platform-progress"><%= platformData.photos.filter(photo => Object.keys(photo.analysisTags).length > 0).length %>/<%= platformData.photos.length %></span>
-                    <% } %>
-                </a>
+                <% if (typeof isUnknownThreat !== 'undefined' && isUnknownThreat) { %>
+                    <a href="/case/<%= caseId %>/platform/<%= p %>" class="platform-icon <%= p === platform ? 'active' : '' %>">
+                        <span><%= p.substring(0, 2).toUpperCase() %></span>
+                        <% if (p === platform && platformData.photos.length > 0) { %>
+                            <span class="platform-progress"><%= platformData.photos.filter(photo => Object.keys(photo.analysisTags).length > 0).length %>/<%= platformData.photos.length %></span>
+                        <% } %>
+                    </a>
+                <% } else { %>
+                    <a href="/soc/<%= socId %>/platform/<%= p %>?caseId=<%= caseId %>" class="platform-icon <%= p === platform ? 'active' : '' %>">
+                        <span><%= p.substring(0, 2).toUpperCase() %></span>
+                        <% if (p === platform && platformData.photos.length > 0) { %>
+                            <span class="platform-progress"><%= platformData.photos.filter(photo => Object.keys(photo.analysisTags).length > 0).length %>/<%= platformData.photos.length %></span>
+                        <% } %>
+                    </a>
+                <% } %>
             <% }); %>
             
             <!-- Add Platform Button -->
@@ -191,6 +201,7 @@
     <%- include('partials/analysis-modal') %>
     <%- include('partials/case-context-bar') %>
     <%- include('partials/platform-profile-bar') %>
+    <%- include('partials/report-preview-modal') %>
 
     <!-- Add SOC Modal -->
     <div class="modal" id="addSocModal">

@@ -470,8 +470,9 @@
                                     // For Known Threatmaker, go to main workstation
                                     window.location.href = `/workstation?caseId=${data.caseId}&socId=${data.socId}&threatId=${threatData2.id}`;
                                 } else {
-                                    // For Unknown Threatmaker, go to mini workstation
-                                    window.location.href = `/mini-workstation?caseId=${data.caseId}&threatId=${threatData2.id}`;
+                                    // For Unknown Threatmaker, go directly to workstation landing page
+                                    // This bypasses the mini-workstation entirely
+                                    window.location.href = `/workstation?caseId=${data.caseId}&threatId=${threatData2.id}`;
                                 }
                             } else {
                                 throw new Error('Failed to create case: ' + (data.error || 'Unknown error'));

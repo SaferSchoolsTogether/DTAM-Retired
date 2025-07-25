@@ -334,6 +334,107 @@ router.get('/soc/:socId/platform/:platform/edit', async (req, res) => {
   }
 });
 
+// New route for unknown threat evidence (direct to workstation without SOC)
+router.get('/case/:caseId/platform/unknown-threat', async (req, res) => {
+  try {
+    const { caseId } = req.params;
+    
+    // Check if case exists
+    const { data: caseData, error: caseError } = await supabase
+      .from('cases')
+      .select('*')
+      .eq('id', caseId)
+      .single();
+      
+    if (caseError || !caseData) {
+      console.error('Error fetching case:', caseError);
+      return res.redirect('/dashboard?error=Case+not+found');
+    }
+    
+    // Get photos for this case with platform = 'unknown-threat'
+    const { data: photosData, error: photosError } = await supabase
+      .from('photos')
+      .select('*')
+      .eq('case_id', caseId)
+      .eq('platform', 'unknown-threat')
+      .is('soc_id', null);
+    
+    console.log('Raw photos data for unknown threat:', JSON.stringify(photosData, null, 2));
+      
+    // Format photos for the frontend
+    let formattedPhotos = [];
+    
+    if (!photosError && photosData) {
+      formattedPhotos = photosData.map(photo => ({
+        id: photo.id,
+        file_path: photo.file_path,
+        thumbnail: photo.thumbnail,
+        uploadDate: photo.upload_date,
+        tags: photo.tags ? JSON.parse(photo.tags) : [],
+        analysisTags: photo.analysis_tags ? JSON.parse(photo.analysis_tags) : {},
+        notes: photo.notes || '',
+        metadata: photo.metadata ? JSON.parse(photo.metadata) : {}
+      }));
+      
+      console.log('Transformed photos data for unknown threat:', JSON.stringify(formattedPhotos, null, 2));
+    } else {
+      console.log('No photos found or error occurred:', photosError);
+    }
+    
+    // Format platform data for the template
+    const platformInfo = {
+      username: 'Unknown Threat',
+      displayName: 'Unknown Threat Evidence',
+      profileUrl: '',
+      photos: formattedPhotos
+    };
+    
+    // Get all SOCs for this case (for navigation purposes)
+    const { data: allSocsData, error: allSocsError } = await supabase
+      .from('socs')
+      .select('*')
+      .eq('case_id', caseId);
+      
+    // Format all SOCs data
+    const formattedAllSocs = {};
+    const allSocIds = [];
+    
+    if (!allSocsError && allSocsData) {
+      for (const soc of allSocsData) {
+        allSocIds.push(soc.id);
+        formattedAllSocs[soc.id] = {
+          id: soc.id,
+          name: soc.name || '',
+          studentId: soc.student_id || '',
+          grade: soc.grade || '',
+          school: soc.school || '',
+          dob: soc.dob || '',
+          supportPlans: soc.support_plans || [],
+          otherPlanText: soc.other_plan_text || '',
+          status: soc.status || 'known'
+        };
+      }
+    }
+    
+    // Render the workstation view with unknown threat data
+    res.render('workstation', {
+      caseId: caseId,
+      socId: null, // No SOC for unknown threats
+      platform: 'unknown-threat',
+      platformData: platformInfo,
+      socData: null, // No SOC data
+      allPlatforms: ['unknown-threat'], // Only this platform
+      allSocs: allSocIds,
+      allSocsData: formattedAllSocs,
+      activeSocId: null, // No active SOC
+      isUnknownThreat: true // Flag to indicate this is an unknown threat
+    });
+  } catch (error) {
+    console.error('Error in unknown threat workstation:', error);
+    res.status(500).redirect('/dashboard?error=Server+error');
+  }
+});
+
 // Redirect from old route to new route with active SOC
 router.get('/platform/:platform', async (req, res) => {
   try {
@@ -433,6 +534,66 @@ router.get('/api/soc/:socId/platform/:platform', async (req, res) => {
   } catch (error) {
     console.error('Error fetching platform data:', error);
     res.status(500).json({ error: 'Failed to fetch platform data' });
+  }
+});
+
+// Get unknown threat platform data (case-level, no SOC)
+router.get('/api/case/:caseId/platform/unknown-threat', async (req, res) => {
+  try {
+    const { caseId } = req.params;
+    
+    // Check if case exists
+    const { data: caseData, error: caseError } = await supabase
+      .from('cases')
+      .select('id')
+      .eq('id', caseId)
+      .single();
+      
+    if (caseError || !caseData) {
+      console.error('Error checking case:', caseError);
+      return res.status(404).json({ error: 'Case not found' });
+    }
+    
+    // Get photos for this case with platform = 'unknown-threat'
+    const { data: photosData, error: photosError } = await supabase
+      .from('photos')
+      .select('*')
+      .eq('case_id', caseId)
+      .eq('platform', 'unknown-threat')
+      .is('soc_id', null);
+    
+    console.log('Raw photos data from unknown threat API route:', JSON.stringify(photosData, null, 2));
+      
+    // Format response
+    const response = {
+      username: 'Unknown Threat',
+      displayName: 'Unknown Threat Evidence',
+      profileUrl: '',
+      photos: []
+    };
+    
+    if (!photosError && photosData) {
+      // Format photos for the frontend
+      response.photos = photosData.map(photo => ({
+        id: photo.id,
+        file_path: photo.file_path,
+        thumbnail: photo.thumbnail,
+        uploadDate: photo.upload_date,
+        tags: photo.tags ? JSON.parse(photo.tags) : [],
+        analysisTags: photo.analysis_tags ? JSON.parse(photo.analysis_tags) : {},
+        notes: photo.notes || '',
+        metadata: photo.metadata ? JSON.parse(photo.metadata) : {}
+      }));
+      
+      console.log('Transformed photos data for unknown threat API response:', JSON.stringify(response.photos, null, 2));
+    } else {
+      console.log('No photos found or error occurred in unknown threat API route:', photosError);
+    }
+    
+    res.json(response);
+  } catch (error) {
+    console.error('Error fetching unknown threat platform data:', error);
+    res.status(500).json({ error: 'Failed to fetch unknown threat platform data' });
   }
 });
 
