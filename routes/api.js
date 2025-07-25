@@ -86,10 +86,11 @@ router.get('/api/case-data', async (req, res) => {
     const caseId = req.query.caseId;
     
     if (!caseId) {
-      // If no case ID provided, get the most recent case
+      // If no case ID provided, get the most recent case created by the current user
       const { data: caseData, error } = await supabase
         .from('cases')
         .select('*')
+        .eq('created_by', req.user.id) // Filter by user ownership
         .order('date', { ascending: false })
         .limit(1)
         .single();
@@ -114,11 +115,12 @@ router.get('/api/case-data', async (req, res) => {
       return res.json({ case: formattedCase });
     }
     
-    // Get specific case data from Supabase
+    // Get specific case data from Supabase, ensuring it belongs to the current user
     const { data: caseData, error } = await supabase
       .from('cases')
       .select('*')
       .eq('id', caseId)
+      .eq('created_by', req.user.id) // Filter by user ownership
       .single();
       
     if (error || !caseData) {

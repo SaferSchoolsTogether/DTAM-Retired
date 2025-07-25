@@ -19,11 +19,12 @@ router.get('/workstation', async (req, res) => {
       return res.redirect('/dashboard');
     }
     
-    // Get case data from Supabase
+    // Get case data from Supabase, ensuring it belongs to the current user
     const { data: caseData, error: caseError } = await supabase
       .from('cases')
       .select('*')
       .eq('id', caseId)
+      .eq('created_by', req.user.id) // Verify user ownership
       .single();
       
     if (caseError || !caseData) {
@@ -111,12 +112,13 @@ router.get('/soc/:socId/platform/:platform/setup', async (req, res) => {
       return res.redirect('/dashboard');
     }
     
-    // Get SOC data from Supabase
+    // Get SOC data from Supabase, ensuring it belongs to a case owned by the current user
     const { data: socData, error: socError } = await supabase
       .from('socs')
-      .select('*')
+      .select('*, cases!inner(created_by)')
       .eq('id', socId)
       .eq('case_id', caseId)
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
       .single();
       
     if (socError || !socData) {
@@ -179,12 +181,13 @@ router.get('/soc/:socId/platform/:platform', async (req, res) => {
       return res.redirect('/dashboard');
     }
     
-    // Get SOC data from Supabase
+    // Get SOC data from Supabase, ensuring it belongs to a case owned by the current user
     const { data: socData, error: socError } = await supabase
       .from('socs')
-      .select('*')
+      .select('*, cases!inner(created_by)')
       .eq('id', socId)
       .eq('case_id', caseId)
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
       .single();
       
     if (socError || !socData) {
@@ -339,11 +342,12 @@ router.get('/case/:caseId/platform/unknown-threat', async (req, res) => {
   try {
     const { caseId } = req.params;
     
-    // Check if case exists
+    // Check if case exists and belongs to the current user
     const { data: caseData, error: caseError } = await supabase
       .from('cases')
       .select('*')
       .eq('id', caseId)
+      .eq('created_by', req.user.id) // Verify user ownership
       .single();
       
     if (caseError || !caseData) {
@@ -466,6 +470,19 @@ router.get('/platform/:platform', async (req, res) => {
       return res.redirect('/dashboard');
     }
     
+    // First verify the case belongs to the current user
+    const { data: caseData, error: caseError } = await supabase
+      .from('cases')
+      .select('id')
+      .eq('id', caseId)
+      .eq('created_by', req.user.id) // Verify user ownership
+      .single();
+      
+    if (caseError || !caseData) {
+      console.error('Case not found or not owned by user:', caseError);
+      return res.redirect('/dashboard?error=Case+not+found+or+access+denied');
+    }
+    
     // Get the first SOC for this case
     const { data: socData, error: socError } = await supabase
       .from('socs')
@@ -495,6 +512,20 @@ router.get('/api/soc/:socId/platform/:platform', async (req, res) => {
     const caseId = req.query.caseId || req.headers['x-case-id'];
     if (!caseId) {
       return res.status(400).json({ error: 'Case ID is required' });
+    }
+    
+    // First verify the SOC belongs to a case owned by the current user
+    const { data: socCheck, error: socCheckError } = await supabase
+      .from('socs')
+      .select('*, cases!inner(created_by)')
+      .eq('id', socId)
+      .eq('case_id', caseId)
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
+      .single();
+      
+    if (socCheckError || !socCheck) {
+      console.error('SOC not found or not owned by user:', socCheckError);
+      return res.status(404).json({ error: 'SOC not found or you do not have permission to access it' });
     }
     
     // Get platform data from Supabase
@@ -562,11 +593,12 @@ router.get('/api/case/:caseId/platform/unknown-threat', async (req, res) => {
   try {
     const { caseId } = req.params;
     
-    // Check if case exists
+    // Check if case exists and belongs to the current user
     const { data: caseData, error: caseError } = await supabase
       .from('cases')
       .select('id')
       .eq('id', caseId)
+      .eq('created_by', req.user.id) // Verify user ownership
       .single();
       
     if (caseError || !caseData) {
@@ -631,12 +663,13 @@ router.post('/api/soc/:socId/platform/:platform', async (req, res) => {
       return res.status(400).json({ error: 'Case ID is required' });
     }
     
-    // Check if SOC exists and belongs to the case
+    // Check if SOC exists, belongs to the case, and the case belongs to the current user
     const { data: socData, error: socError } = await supabase
       .from('socs')
-      .select('id')
+      .select('id, cases!inner(created_by)')
       .eq('id', socId)
       .eq('case_id', caseId)
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
       .single();
       
     if (socError || !socData) {
@@ -661,7 +694,8 @@ router.post('/api/soc/:socId/platform/:platform', async (req, res) => {
           platform_name: platform,
           username: username || '',
           display_name: displayName || '',
-          profile_url: profileUrl || ''
+          profile_url: profileUrl || '',
+          created_by: req.user.id // Add user ownership
         })
         .select();
         

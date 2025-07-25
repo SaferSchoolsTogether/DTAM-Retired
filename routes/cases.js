@@ -18,10 +18,11 @@ router.get('/dashboard', async (req, res) => {
   }
   
   try {
-    // Get all cases from Supabase
+    // Get only cases created by the current user
     const { data: casesData, error } = await supabase
       .from('cases')
       .select('*')
+      .eq('created_by', req.user.id) // Filter by user ownership
       .order('date', { ascending: false });
       
     if (error) {
@@ -63,10 +64,11 @@ router.get('/dashboard', async (req, res) => {
 // Cases route
 router.get('/cases', async (req, res) => {
   try {
-    // Get all cases from Supabase
+    // Get only cases created by the current user
     const { data: casesData, error } = await supabase
       .from('cases')
       .select('*')
+      .eq('created_by', req.user.id) // Filter by user ownership
       .order('date', { ascending: false });
       
     if (error) {
@@ -163,10 +165,11 @@ router.get('/cases', async (req, res) => {
 // Get all cases API endpoint
 router.get('/api/cases', async (req, res) => {
   try {
-    // Get all cases from Supabase
+    // Get only cases created by the current user
     const { data: casesData, error } = await supabase
       .from('cases')
       .select('*')
+      .eq('created_by', req.user.id) // Filter by user ownership
       .order('date', { ascending: false });
       
     if (error) {
@@ -209,10 +212,11 @@ router.get('/api/case-data', async (req, res) => {
     const caseId = req.query.caseId;
     
     if (!caseId) {
-      // If no case ID provided, get the most recent case
+      // If no case ID provided, get the most recent case created by the current user
       const { data: caseData, error } = await supabase
         .from('cases')
         .select('*')
+        .eq('created_by', req.user.id) // Filter by user ownership
         .order('date', { ascending: false })
         .limit(1)
         .single();
@@ -237,11 +241,12 @@ router.get('/api/case-data', async (req, res) => {
       return res.json({ case: formattedCase });
     }
     
-    // Get specific case data from Supabase
+    // Get specific case data from Supabase, ensuring it belongs to the current user
     const { data: caseData, error } = await supabase
       .from('cases')
       .select('*')
       .eq('id', caseId)
+      .eq('created_by', req.user.id) // Filter by user ownership
       .single();
       
     if (error || !caseData) {
@@ -274,11 +279,12 @@ router.get('/set-active-case/:caseId', async (req, res) => {
     const { caseId } = req.params;
     const redirect = req.query.redirect || '/dashboard';
     
-    // Get case data from Supabase
+    // Get case data from Supabase, ensuring it belongs to the current user
     const { data: caseData, error } = await supabase
       .from('cases')
       .select('*')
       .eq('id', caseId)
+      .eq('created_by', req.user.id) // Filter by user ownership
       .single();
       
     if (error) {
@@ -324,7 +330,8 @@ router.post('/api/save-case', async (req, res) => {
       discovery_method: req.body.discoveryMethod,
       safety_assessment: req.body.safetyAssessment,
       // Store student info as JSON
-      student_info: req.body.studentInfo ? JSON.stringify(req.body.studentInfo) : null
+      student_info: req.body.studentInfo ? JSON.stringify(req.body.studentInfo) : null,
+      created_by: req.user.id // Add user ownership
     };
     
     console.log('Formatted case data for Supabase:', caseData);
@@ -410,11 +417,12 @@ router.delete('/api/case/:caseId', async (req, res) => {
       return res.status(400).json({ error: 'Case ID is required' });
     }
     
-    // Check if the case exists
+    // Check if the case exists and belongs to the current user
     const { data: caseData, error: caseError } = await supabase
       .from('cases')
       .select('id')
       .eq('id', caseId)
+      .eq('created_by', req.user.id) // Verify user ownership
       .single();
       
     if (caseError || !caseData) {
@@ -636,7 +644,8 @@ router.post('/api/create-case', async (req, res) => {
       discovery_method: req.body.discoveryMethod || null,
       safety_assessment: req.body.safetyAssessment || null,
       // Store student info as JSON
-      student_info: req.body.studentInfo ? JSON.stringify(req.body.studentInfo) : null
+      student_info: req.body.studentInfo ? JSON.stringify(req.body.studentInfo) : null,
+      created_by: req.user.id // Add user ownership
     };
     
     // Insert into Supabase

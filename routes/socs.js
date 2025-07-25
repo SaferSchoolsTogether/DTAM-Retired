@@ -17,11 +17,12 @@ router.get('/api/soc/:socId', async (req, res) => {
   try {
     const { socId } = req.params;
     
-    // Get SOC data from Supabase
+    // Get SOC data from Supabase, ensuring it belongs to a case owned by the current user
     const { data: socData, error } = await supabase
       .from('socs')
-      .select('*')
+      .select('*, cases!inner(created_by)')
       .eq('id', socId)
+      .eq('cases.created_by', req.user.id) // Filter by user ownership via case relationship
       .single();
       
     if (error || !socData) {
@@ -55,8 +56,11 @@ router.get('/api/socs', async (req, res) => {
     // Get case ID from query parameter
     const caseId = req.query.caseId;
     
-    // Get SOCs from Supabase
-    let query = supabase.from('socs').select('*');
+    // Get SOCs from Supabase, ensuring they belong to cases owned by the current user
+    let query = supabase
+      .from('socs')
+      .select('*, cases!inner(created_by)')
+      .eq('cases.created_by', req.user.id); // Filter by user ownership via case relationship
     
     // Filter by case ID if provided
     if (caseId) {
@@ -104,11 +108,12 @@ router.post('/api/socs', async (req, res) => {
       return res.status(400).json({ error: 'Case ID is required' });
     }
     
-    // Check if case exists
+    // Check if case exists and belongs to the current user
     const { data: caseData, error: caseError } = await supabase
       .from('cases')
       .select('id')
       .eq('id', caseId)
+      .eq('created_by', req.user.id) // Verify user ownership
       .single();
       
     if (caseError || !caseData) {
@@ -128,7 +133,8 @@ router.post('/api/socs', async (req, res) => {
         dob: dob || '',
         support_plans: supportPlans || [],
         other_plan_text: otherPlanText || '',
-        status: status || 'potential'
+        status: status || 'potential',
+        created_by: req.user.id // Add user ownership
       })
       .select();
       
@@ -195,6 +201,19 @@ router.put('/api/soc/:socId', async (req, res) => {
     const { socId } = req.params;
     const { name, studentId, grade, school, dob, supportPlans, otherPlanText, status } = req.body;
     
+    // First verify the SOC belongs to a case owned by the current user
+    const { data: socCheck, error: socCheckError } = await supabase
+      .from('socs')
+      .select('*, cases!inner(created_by)')
+      .eq('id', socId)
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
+      .single();
+      
+    if (socCheckError || !socCheck) {
+      console.error('SOC not found or not owned by user:', socCheckError);
+      return res.status(404).json({ error: 'SOC not found or you do not have permission to update it' });
+    }
+    
     // Prepare update data
     const updateData = {};
     
@@ -256,12 +275,13 @@ router.post('/api/active-soc/:socId', async (req, res) => {
       return res.status(400).json({ error: 'Case ID is required' });
     }
     
-    // Check if SOC exists and belongs to the case
+    // Check if SOC exists, belongs to the case, and the case belongs to the current user
     const { data: socData, error } = await supabase
       .from('socs')
-      .select('id')
+      .select('id, cases!inner(created_by)')
       .eq('id', socId)
       .eq('case_id', caseId)
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
       .single();
       
     if (error || !socData) {
@@ -286,6 +306,19 @@ router.get('/api/active-soc', async (req, res) => {
     
     if (!caseId) {
       return res.status(400).json({ error: 'Case ID is required' });
+    }
+    
+    // First verify the case belongs to the current user
+    const { data: caseData, error: caseError } = await supabase
+      .from('cases')
+      .select('id')
+      .eq('id', caseId)
+      .eq('created_by', req.user.id) // Verify user ownership
+      .single();
+      
+    if (caseError || !caseData) {
+      console.error('Case not found or not owned by user:', caseError);
+      return res.status(404).json({ error: 'Case not found or you do not have permission to access it' });
     }
     
     // Get the first SOC for this case
@@ -330,11 +363,12 @@ router.get('/api/soc/:socId/report', async (req, res) => {
   try {
     const { socId } = req.params;
     
-    // Get SOC data from Supabase
+    // Get SOC data from Supabase, ensuring it belongs to a case owned by the current user
     const { data: socData, error } = await supabase
       .from('socs')
-      .select('*')
+      .select('*, cases!inner(created_by)')
       .eq('id', socId)
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
       .single();
       
     if (error || !socData) {

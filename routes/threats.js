@@ -29,11 +29,12 @@ router.post('/api/threats', async (req, res) => {
       return res.status(400).json({ error: 'Case ID is required' });
     }
     
-    // Check if case exists
+    // Check if case exists and belongs to the current user
     const { data: caseData, error: caseError } = await supabase
       .from('cases')
       .select('id')
       .eq('id', caseId)
+      .eq('created_by', req.user.id) // Verify user ownership
       .single();
       
     if (caseError || !caseData) {
@@ -55,7 +56,8 @@ router.post('/api/threats', async (req, res) => {
         content: content || '',
         language_analysis: languageAnalysis || '',
         reverse_image_results: reverseImageResults || '',
-        evidence_photos: evidencePhotos || ''
+        evidence_photos: evidencePhotos || '',
+        created_by: req.user.id // Add user ownership
       })
       .select();
       
@@ -93,11 +95,12 @@ router.get('/api/threats/:threatId', async (req, res) => {
   try {
     const { threatId } = req.params;
     
-    // Get threat data from Supabase
+    // Get threat data from Supabase, ensuring it belongs to a case owned by the current user
     const { data: threatData, error } = await supabase
       .from('threats')
-      .select('*')
+      .select('*, cases!inner(created_by)')
       .eq('id', threatId)
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
       .single();
       
     if (error || !threatData) {
@@ -138,6 +141,19 @@ router.put('/api/threats/:threatId', async (req, res) => {
       reverseImageResults, 
       evidencePhotos 
     } = req.body;
+    
+    // First verify the threat belongs to a case owned by the current user
+    const { data: threatCheck, error: threatCheckError } = await supabase
+      .from('threats')
+      .select('*, cases!inner(created_by)')
+      .eq('id', threatId)
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
+      .single();
+      
+    if (threatCheckError || !threatCheck) {
+      console.error('Threat not found or not owned by user:', threatCheckError);
+      return res.status(404).json({ error: 'Threat not found or you do not have permission to update it' });
+    }
     
     // Prepare update data
     const updateData = {};
@@ -194,6 +210,19 @@ router.delete('/api/threats/:threatId', async (req, res) => {
   try {
     const { threatId } = req.params;
     
+    // First verify the threat belongs to a case owned by the current user
+    const { data: threatCheck, error: threatCheckError } = await supabase
+      .from('threats')
+      .select('*, cases!inner(created_by)')
+      .eq('id', threatId)
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
+      .single();
+      
+    if (threatCheckError || !threatCheck) {
+      console.error('Threat not found or not owned by user:', threatCheckError);
+      return res.status(404).json({ error: 'Threat not found or you do not have permission to delete it' });
+    }
+    
     // First, delete all threat-soc relationships
     const { error: relationshipError } = await supabase
       .from('threat_socs')
@@ -230,6 +259,19 @@ router.delete('/api/threats/:threatId', async (req, res) => {
 router.get('/api/case/:caseId/threats', async (req, res) => {
   try {
     const { caseId } = req.params;
+    
+    // First verify the case belongs to the current user
+    const { data: caseData, error: caseError } = await supabase
+      .from('cases')
+      .select('id')
+      .eq('id', caseId)
+      .eq('created_by', req.user.id) // Verify user ownership
+      .single();
+      
+    if (caseError || !caseData) {
+      console.error('Case not found or not owned by user:', caseError);
+      return res.status(404).json({ error: 'Case not found or you do not have permission to access it' });
+    }
     
     // Get threats from Supabase
     const { data: threatsData, error } = await supabase
