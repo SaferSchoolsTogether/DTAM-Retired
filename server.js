@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 
 // Import route modules
 const casesRoutes = require('./routes/cases');
@@ -11,7 +12,7 @@ const photosRoutes = require('./routes/photos');
 const platformsRoutes = require('./routes/platforms');
 const reportsRoutes = require('./routes/reports');
 const analysisRoutes = require('./routes/analysis');
-const authRoutes = require('./routes/auth');
+const { router: authRoutes, requireAuth } = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const apiRoutes = require('./routes/api');
 const onboardingRoutes = require('./routes/onboarding');
@@ -29,6 +30,7 @@ const PORT = process.env.PORT || 3000;
 app.use(morgan('dev')); // Logging
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(express.static('public')); // Serve static files from public directory
 
 // Set up EJS as the view engine
@@ -39,19 +41,48 @@ app.set('views', path.join(__dirname, 'views'));
 const UPLOADS_DIR = path.join(__dirname, 'public', 'uploads');
 fs.ensureDirSync(UPLOADS_DIR);
 
-// Use route modules
-app.use(casesRoutes);
-app.use(socsRoutes);
-app.use(photosRoutes);
-app.use(platformsRoutes);
-app.use(reportsRoutes);
-app.use(analysisRoutes);
+// Root route - redirect to login or dashboard
+app.get('/', async (req, res) => {
+  const token = req.cookies.authToken;
+  
+  if (!token) {
+    return res.redirect('/login');
+  }
+  
+  try {
+    // Verify the token with Supabase
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    
+    if (error || !user) {
+      // Clear invalid token
+      res.clearCookie('authToken');
+      return res.redirect('/login');
+    }
+    
+    // User is authenticated, redirect to dashboard
+    res.redirect('/dashboard');
+  } catch (error) {
+    console.error('Root route error:', error);
+    res.clearCookie('authToken');
+    res.redirect('/login');
+  }
+});
+
+// Use auth routes (no auth required)
 app.use(authRoutes);
-app.use(adminRoutes);
-app.use(apiRoutes);
-app.use(onboardingRoutes);
-app.use(threatsRoutes);
-app.use(threatSocsRoutes);
+
+// Protected routes (require authentication)
+app.use(requireAuth, casesRoutes);
+app.use(requireAuth, socsRoutes);
+app.use(requireAuth, photosRoutes);
+app.use(requireAuth, platformsRoutes);
+app.use(requireAuth, reportsRoutes);
+app.use(requireAuth, analysisRoutes);
+app.use(requireAuth, adminRoutes);
+app.use(requireAuth, apiRoutes);
+app.use(requireAuth, onboardingRoutes);
+app.use(requireAuth, threatsRoutes);
+app.use(requireAuth, threatSocsRoutes);
 
 // Mini-workstation route for analyzing unknown threats
 app.get('/mini-workstation', async (req, res) => {
