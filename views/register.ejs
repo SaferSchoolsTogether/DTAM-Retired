@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Digital Threat Assessment Management</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/onboarding.css">
+    <style>
+        /* Auth Layout */
+        .auth-container {
+            max-width: 450px;
+            margin: 80px auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .auth-logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .sst-logo {
+            width: 50px;
+            height: 50px;
+            background-color: #0095f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+        
+        .auth-title {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .auth-subtitle {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .auth-form {
+            margin-top: 2rem;
+        }
+        
+        .form-footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .form-footer a {
+            color: #0095f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .error-banner {
+            background-color: #ffebee;
+            color: #d32f2f;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .error-banner.visible {
+            display: block;
+        }
+        
+        .name-fields {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .name-fields .form-group {
+            flex: 1;
+        }
+        
+        @media (max-width: 480px) {
+            .name-fields {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <div class="sst-logo">SST</div>
+            </div>
+            <h1 class="auth-title">DTAM - Digital Threat Assessment Management</h1>
+            <p class="auth-subtitle">Create your account</p>
+        </div>
+        
+        <div class="error-banner" id="errorBanner"></div>
+        
+        <form class="auth-form" id="registerForm">
+            <div class="name-fields">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" name="firstName" class="form-input" required>
+                    <div class="error-message" id="firstNameError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" name="lastName" class="form-input" required>
+                    <div class="error-message" id="lastNameError"></div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-input" required>
+                <div class="error-message" id="emailError"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-input" required>
+                <div class="error-message" id="passwordError"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" class="form-input" required>
+                <div class="error-message" id="confirmPasswordError"></div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block" id="registerButton">
+                Create Account
+            </button>
+            
+            <div class="form-footer">
+                Already have an account? <a href="/login">Sign in</a>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const registerForm = document.getElementById('registerForm');
+            const errorBanner = document.getElementById('errorBanner');
+            const firstNameError = document.getElementById('firstNameError');
+            const lastNameError = document.getElementById('lastNameError');
+            const emailError = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+            const confirmPasswordError = document.getElementById('confirmPasswordError');
+            const registerButton = document.getElementById('registerButton');
+            
+            registerForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Reset errors
+                errorBanner.classList.remove('visible');
+                errorBanner.textContent = '';
+                firstNameError.textContent = '';
+                lastNameError.textContent = '';
+                emailError.textContent = '';
+                passwordError.textContent = '';
+                confirmPasswordError.textContent = '';
+                firstNameError.classList.remove('visible');
+                lastNameError.classList.remove('visible');
+                emailError.classList.remove('visible');
+                passwordError.classList.remove('visible');
+                confirmPasswordError.classList.remove('visible');
+                
+                // Get form data
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                // Basic validation
+                let hasError = false;
+                
+                if (!firstName) {
+                    firstNameError.textContent = 'First name is required';
+                    firstNameError.classList.add('visible');
+                    hasError = true;
+                }
+                
+                if (!lastName) {
+                    lastNameError.textContent = 'Last name is required';
+                    lastNameError.classList.add('visible');
+                    hasError = true;
+                }
+                
+                if (!email) {
+                    emailError.textContent = 'Email is required';
+                    emailError.classList.add('visible');
+                    hasError = true;
+                } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+                    emailError.textContent = 'Please enter a valid email address';
+                    emailError.classList.add('visible');
+                    hasError = true;
+                }
+                
+                if (!password) {
+                    passwordError.textContent = 'Password is required';
+                    passwordError.classList.add('visible');
+                    hasError = true;
+                } else if (password.length < 6) {
+                    passwordError.textContent = 'Password must be at least 6 characters';
+                    passwordError.classList.add('visible');
+                    hasError = true;
+                }
+                
+                if (!confirmPassword) {
+                    confirmPasswordError.textContent = 'Please confirm your password';
+                    confirmPasswordError.classList.add('visible');
+                    hasError = true;
+                } else if (password !== confirmPassword) {
+                    confirmPasswordError.textContent = 'Passwords do not match';
+                    confirmPasswordError.classList.add('visible');
+                    hasError = true;
+                }
+                
+                if (hasError) return;
+                
+                // Show loading state
+                registerButton.disabled = true;
+                registerButton.innerHTML = '<span style="display: inline-block; width: 16px; height: 16px; border: 2px solid #fff; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite;"></span> Creating account...';
+                
+                try {
+                    // Send registration request
+                    const response = await fetch('/api/auth/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            email, 
+                            password,
+                            firstName,
+                            lastName
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.message || 'Failed to create account');
+                    }
+                    
+                    // Check if email confirmation is required
+                    if (data.requiresEmailConfirmation) {
+                        // Redirect to login page with success message
+                        const loginUrl = new URL('/login', window.location.origin);
+                        loginUrl.searchParams.append('message', data.message);
+                        window.location.href = loginUrl.toString();
+                    } else {
+                        // Redirect to dashboard on success
+                        window.location.href = '/dashboard';
+                    }
+                    
+                } catch (error) {
+                    // Show error message
+                    errorBanner.textContent = error.message || 'An error occurred during registration';
+                    errorBanner.classList.add('visible');
+                    
+                    // Reset button
+                    registerButton.disabled = false;
+                    registerButton.textContent = 'Create Account';
+                }
+            });
+        });
+        
+        // Add animation style
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

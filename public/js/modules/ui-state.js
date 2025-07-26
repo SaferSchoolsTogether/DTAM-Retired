@@ -66,6 +66,12 @@ function populateCaseContext(caseData) {
         if (el) el.textContent = caseData.investigatorName || 'N/A';
     });
     
+    // Set organization
+    const organizationElement = document.getElementById('organization');
+    if (organizationElement) {
+        organizationElement.textContent = caseData.organization || 'Unknown';
+    }
+    
     // Set student info
     const studentNameElements = document.querySelectorAll('.student-name, #studentName');
     const studentGradeElements = document.querySelectorAll('.student-grade, #studentGrade');
@@ -93,6 +99,57 @@ function populateCaseContext(caseData) {
     socStatusElements.forEach(el => {
         if (el) el.textContent = caseData.socStatus || 'N/A';
     });
+    
+    // Set safety assessment info if available
+    if (caseData.safetyAssessment) {
+        const safetyEnforcement = document.getElementById('safetyEnforcement');
+        const safetyMeans = document.getElementById('safetyMeans');
+        const safetyRisk = document.getElementById('safetyRisk');
+        
+        if (safetyEnforcement) {
+            safetyEnforcement.textContent = caseData.safetyAssessment.enforcement === 'yes' ? 'Yes' : 'No';
+        }
+        
+        if (safetyMeans) {
+            safetyMeans.textContent = caseData.safetyAssessment.means === 'yes' ? 'Yes' : 'No';
+        }
+        
+        if (safetyRisk) {
+            const highRisk = caseData.safetyAssessment.enforcement === 'yes' || caseData.safetyAssessment.means === 'yes';
+            safetyRisk.textContent = highRisk ? 'Higher Concern' : 'Moderate to Low Concern';
+            safetyRisk.style.color = highRisk ? '#e60000' : '#38a169';
+        }
+    }
+    
+    // Handle discovery method section
+    const discoveryMethodSection = document.getElementById('discoveryMethodSection');
+    const sourcePlatformRow = document.getElementById('sourcePlatformRow');
+    
+    // Only show discovery method for unknown threats
+    const isUnknownThreat = caseData.socStatus === 'unknown';
+    
+    if (discoveryMethodSection) {
+        discoveryMethodSection.style.display = isUnknownThreat ? 'block' : 'none';
+        
+        if (isUnknownThreat && caseData.discoveryMethod) {
+            const discoveryMethodElement = document.getElementById('discoveryMethod');
+            const sourcePlatformElement = document.getElementById('sourcePlatform');
+            
+            if (discoveryMethodElement) {
+                const methodText = caseData.discoveryMethod.method === 'physical' ? 
+                    'Physical (bathroom wall, note, etc.)' : 
+                    'Social media post';
+                discoveryMethodElement.textContent = methodText;
+            }
+            
+            if (sourcePlatformRow && sourcePlatformElement && caseData.discoveryMethod.method === 'social') {
+                sourcePlatformRow.style.display = 'flex';
+                sourcePlatformElement.textContent = caseData.discoveryMethod.sourcePlatform || 'Unknown';
+            } else if (sourcePlatformRow) {
+                sourcePlatformRow.style.display = 'none';
+            }
+        }
+    }
     
     // Update page title to include case ID
     document.title = `Case ${caseData.caseId} - Digital Threat Assessment Management`;
@@ -163,7 +220,7 @@ function saveCaseContextEdits(e) {
     
     // Get form values
     const caseId = document.getElementById('editCaseId').value;
-    const caseDate = document.getElementById('editCaseDate').value;
+    let caseDate = document.getElementById('editCaseDate').value;
     const investigatorName = document.getElementById('editInvestigatorName').value;
     const studentName = document.getElementById('editStudentName').value;
     const studentGrade = document.getElementById('editStudentGrade').value;
@@ -173,8 +230,18 @@ function saveCaseContextEdits(e) {
     const urlParams = new URLSearchParams(window.location.search);
     const currentCaseId = urlParams.get('caseId') || caseId;
     
-    // Check if this is an unknown threat
-    const isUnknownThreat = document.body.hasAttribute('data-unknown-threat') || socStatus === 'unknown';
+    // Check if this is an unknown threat - only set based on socStatus, not the current view
+    // This prevents the entire case from being marked as unknown threat when just viewing unknown threat platform
+    const isUnknownThreat = socStatus === 'unknown';
+    
+    // Ensure date is not empty - use current date if empty
+    if (!caseDate || caseDate.trim() === '') {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        caseDate = `${year}-${month}-${day}`;
+    }
     
     // Prepare case data
     const caseData = {
