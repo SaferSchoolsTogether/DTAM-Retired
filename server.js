@@ -191,7 +191,8 @@ app.listen(PORT, () => {
   // Ensure upload directories exist for common platforms
   const platforms = ['instagram', 'tiktok', 'snapchat', 'x', 'discord', 'facebook', 'other'];
   
-  // Create default upload directories
+  // Create default upload directories (Note: File uploads handled via Supabase storage in serverless environment)
+  const UPLOADS_DIR = path.join(__dirname, 'public', 'uploads');
   fs.ensureDirSync(UPLOADS_DIR);
   
   console.log('Server is ready to handle requests');
