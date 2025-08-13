@@ -10,7 +10,7 @@
 
 const express = require('express');
 const router = express.Router();
-const puppeteer = require('puppeteer-core');
+const puppeteerCore = require('puppeteer-core');
 const chromium = require('@sparticuz/chromium');
 const sharp = require('sharp');
 const supabase = require('../config/supabase');
@@ -249,17 +249,33 @@ router.post('/api/soc/:socId/platform/:platform/report/generate', async (req, re
     // Generate HTML for the report
     const reportHtml = generateReportHtml(reportData);
     
-    // Launch puppeteer with @sparticuz/chromium for Vercel compatibility
-    console.log('Chrome executable path:', await chromium.executablePath());
-    console.log('Chromium args:', chromium.args);
-    console.log('Is headless:', chromium.headless);
+    // Detect environment
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV;
+    console.log('Environment:', isProduction ? 'Production' : 'Development');
     
-    const browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
-    });
+    let browser;
+    if (isProduction) {
+      // Use @sparticuz/chromium for Vercel
+      console.log('Using @sparticuz/chromium for production');
+      console.log('Chrome executable path:', await chromium.executablePath());
+      console.log('Chromium args:', chromium.args);
+      console.log('Is headless:', chromium.headless);
+      
+      browser = await puppeteerCore.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+      });
+    } else {
+      // Use regular puppeteer for local development
+      console.log('Using regular puppeteer for local development');
+      const puppeteer = require('puppeteer');
+      browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      });
+    }
     
     const page = await browser.newPage();
     
