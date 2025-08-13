@@ -11,7 +11,7 @@
 const express = require('express');
 const router = express.Router();
 const puppeteer = require('puppeteer-core');
-const chromium = require('chrome-aws-lambda');
+const chromium = require('@sparticuz/chromium');
 const sharp = require('sharp');
 const supabase = require('../config/supabase');
 
@@ -249,17 +249,16 @@ router.post('/api/soc/:socId/platform/:platform/report/generate', async (req, re
     // Generate HTML for the report
     const reportHtml = generateReportHtml(reportData);
     
-    // Launch puppeteer with chrome-aws-lambda for Vercel compatibility
-    console.log('Chrome executable path:', await chromium.executablePath);
+    // Launch puppeteer with @sparticuz/chromium for Vercel compatibility
+    console.log('Chrome executable path:', await chromium.executablePath());
     console.log('Chromium args:', chromium.args);
     console.log('Is headless:', chromium.headless);
     
     const browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath,
+      executablePath: await chromium.executablePath(),
       headless: chromium.headless,
-      ignoreHTTPSErrors: true,
     });
     
     const page = await browser.newPage();
