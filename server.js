@@ -1,6 +1,5 @@
 const express = require('express');
 const path = require('path');
-const fs = require('fs-extra');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
@@ -37,9 +36,6 @@ app.use(express.static('public')); // Serve static files from public directory
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Ensure uploads directory exists
-const UPLOADS_DIR = path.join(__dirname, 'public', 'uploads');
-fs.ensureDirSync(UPLOADS_DIR);
 
 // Root route - redirect to login or dashboard
 app.get('/', async (req, res) => {
@@ -186,15 +182,13 @@ app.get('/mini-workstation', async (req, res) => {
   }
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  
-  // Ensure upload directories exist for common platforms
-  const platforms = ['instagram', 'tiktok', 'snapchat', 'x', 'discord', 'facebook', 'other'];
-  
-  // Create default upload directories
-  fs.ensureDirSync(UPLOADS_DIR);
-  
-  console.log('Server is ready to handle requests');
-});
+// Export the app for serverless deployment (Vercel)
+module.exports = app;
+
+// For local development, start the server if this file is run directly
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+    console.log('Server is ready to handle requests');
+  });
+}

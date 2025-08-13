@@ -11,22 +11,10 @@
 
 const express = require('express');
 const router = express.Router();
-const fs = require('fs-extra');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
 const supabase = require('../config/supabase');
-
-// Helper functions
-function readData() {
-  const DATA_FILE = path.join(__dirname, '..', 'data', 'app-data.json');
-  return fs.readJsonSync(DATA_FILE);
-}
-
-function writeData(data) {
-  const DATA_FILE = path.join(__dirname, '..', 'data', 'app-data.json');
-  return fs.writeJsonSync(DATA_FILE, data, { spaces: 2 });
-}
 
 // Set up multer for file uploads - using memory storage for Supabase
 const storage = multer.memoryStorage();
