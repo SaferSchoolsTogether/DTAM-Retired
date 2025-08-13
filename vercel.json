@@ -1,9 +1,17 @@
 {
   "version": 2,
+  "name": "dtam",
   "builds": [
     {
       "src": "server.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -14,14 +22,6 @@
     {
       "src": "/js/(.*)",
       "dest": "/public/js/$1"
-    },
-    {
-      "src": "/reports/(.*)",
-      "dest": "/public/reports/$1"
-    },
-    {
-      "src": "/uploads/(.*)",
-      "dest": "/public/uploads/$1"
     },
     {
       "src": "/(.*)",
