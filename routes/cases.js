@@ -380,7 +380,8 @@ router.post('/api/save-case', async (req, res) => {
               dob: req.body.studentInfo?.dob || '',
               support_plans: req.body.studentInfo?.supportPlans ? JSON.stringify(req.body.studentInfo.supportPlans) : JSON.stringify([]),
               other_plan_text: req.body.studentInfo?.otherPlanText || '',
-              status: req.body.socStatus || 'known'
+              status: req.body.socStatus || 'known',
+              created_by: req.user.id // Add user ownership
             })
             .select();
             
@@ -678,7 +679,8 @@ router.post('/api/create-case', async (req, res) => {
           dob: req.body.studentInfo?.dob || '',
           support_plans: req.body.studentInfo?.supportPlans ? JSON.stringify(req.body.studentInfo.supportPlans) : JSON.stringify([]),
           other_plan_text: req.body.studentInfo?.otherPlanText || '',
-          status: req.body.socStatus || 'known'
+          status: req.body.socStatus || 'known',
+          created_by: req.user.id // Add user ownership
         })
         .select();
         

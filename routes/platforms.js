@@ -52,7 +52,8 @@ router.get('/workstation', async (req, res) => {
         .insert({
           case_id: caseId,
           name: '',
-          status: 'known'
+          status: 'known',
+          created_by: req.user.id // Add user ownership
         })
         .select();
         

@@ -12,7 +12,9 @@ CREATE TABLE public.cases (
   student_info text,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT cases_pkey PRIMARY KEY (id)
+  created_by uuid,
+  CONSTRAINT cases_pkey PRIMARY KEY (id),
+  CONSTRAINT cases_created_by_fkey FOREIGN KEY (created_by) REFERENCES auth.users(id)
 );
 CREATE TABLE public.photos (
   id text NOT NULL,
@@ -28,8 +30,10 @@ CREATE TABLE public.photos (
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
   case_id text,
+  created_by uuid,
   CONSTRAINT photos_pkey PRIMARY KEY (id),
-  CONSTRAINT photos_case_id_fkey FOREIGN KEY (case_id) REFERENCES public.cases(id)
+  CONSTRAINT photos_case_id_fkey FOREIGN KEY (case_id) REFERENCES public.cases(id),
+  CONSTRAINT photos_created_by_fkey FOREIGN KEY (created_by) REFERENCES auth.users(id)
 );
 CREATE TABLE public.platforms (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -40,8 +44,10 @@ CREATE TABLE public.platforms (
   profile_url text,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
+  created_by uuid,
   CONSTRAINT platforms_pkey PRIMARY KEY (id),
-  CONSTRAINT platforms_soc_id_fkey FOREIGN KEY (soc_id) REFERENCES public.socs(id)
+  CONSTRAINT platforms_soc_id_fkey FOREIGN KEY (soc_id) REFERENCES public.socs(id),
+  CONSTRAINT platforms_created_by_fkey FOREIGN KEY (created_by) REFERENCES auth.users(id)
 );
 CREATE TABLE public.socs (
   id text NOT NULL DEFAULT (gen_random_uuid())::text,
@@ -56,7 +62,9 @@ CREATE TABLE public.socs (
   status text CHECK (status = ANY (ARRAY['known'::text, 'potential'::text])),
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
+  created_by uuid,
   CONSTRAINT socs_pkey PRIMARY KEY (id),
+  CONSTRAINT socs_created_by_fkey FOREIGN KEY (created_by) REFERENCES auth.users(id),
   CONSTRAINT socs_case_id_fkey FOREIGN KEY (case_id) REFERENCES public.cases(id)
 );
 CREATE TABLE public.threat_socs (
@@ -67,7 +75,9 @@ CREATE TABLE public.threat_socs (
   priority_level text CHECK (priority_level = ANY (ARRAY['high'::text, 'medium'::text, 'low'::text])),
   notes text,
   created_at timestamp with time zone DEFAULT now(),
+  created_by uuid,
   CONSTRAINT threat_socs_pkey PRIMARY KEY (id),
+  CONSTRAINT threat_socs_created_by_fkey FOREIGN KEY (created_by) REFERENCES auth.users(id),
   CONSTRAINT threat_socs_threat_id_fkey FOREIGN KEY (threat_id) REFERENCES public.threats(id),
   CONSTRAINT threat_socs_soc_id_fkey FOREIGN KEY (soc_id) REFERENCES public.socs(id)
 );
@@ -82,6 +92,17 @@ CREATE TABLE public.threats (
   evidence_photos text,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
+  created_by uuid,
   CONSTRAINT threats_pkey PRIMARY KEY (id),
-  CONSTRAINT threats_case_id_fkey FOREIGN KEY (case_id) REFERENCES public.cases(id)
+  CONSTRAINT threats_case_id_fkey FOREIGN KEY (case_id) REFERENCES public.cases(id),
+  CONSTRAINT threats_created_by_fkey FOREIGN KEY (created_by) REFERENCES auth.users(id)
+);
+CREATE TABLE public.user_profiles (
+  id uuid NOT NULL,
+  email text NOT NULL,
+  first_name text NOT NULL,
+  last_name text NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT user_profiles_pkey PRIMARY KEY (id),
+  CONSTRAINT user_profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
 );
