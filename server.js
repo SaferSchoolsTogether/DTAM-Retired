@@ -32,6 +32,31 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static('public')); // Serve static files from public directory
 
+// Additional static file handling for Vercel deployment
+app.use('/css', express.static(path.join(__dirname, 'public/css')));
+app.use('/js', express.static(path.join(__dirname, 'public/js')));
+app.use('/reports', express.static(path.join(__dirname, 'public/reports')));
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
+// Debug route to check static file serving
+app.get('/debug/static-files', (req, res) => {
+  const fs = require('fs');
+  const staticFiles = {
+    'styles.css': fs.existsSync(path.join(__dirname, 'public/css/styles.css')),
+    'onboarding.css': fs.existsSync(path.join(__dirname, 'public/css/onboarding.css')),
+    'navigation.css': fs.existsSync(path.join(__dirname, 'public/css/components/navigation.css')),
+    'typography.css': fs.existsSync(path.join(__dirname, 'public/css/base/typography.css')),
+    'layout.css': fs.existsSync(path.join(__dirname, 'public/css/base/layout.css'))
+  };
+  
+  res.json({
+    message: 'Static file check',
+    files: staticFiles,
+    publicPath: path.join(__dirname, 'public'),
+    cssPath: path.join(__dirname, 'public/css')
+  });
+});
+
 // Set up EJS as the view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
