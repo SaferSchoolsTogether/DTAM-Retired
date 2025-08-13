@@ -228,7 +228,8 @@
     margin-bottom: 20px;
 }
 
-.safety-question-title {
+/* Make flex styles specific to safety questions only */
+.safety-question .safety-question-title {
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 12px;
@@ -460,6 +461,7 @@
     justify-content: space-between;
     position: relative;
     margin-bottom: 30px;
+    width: 100%; /* Keep this - it fixed the spacing */
 }
 
 .progress-bar::before {
@@ -505,13 +507,36 @@
 .progress-labels {
     display: flex;
     justify-content: space-between;
+    margin-top: 8px;
+    width: 100%;
+    position: relative;
 }
 
 .progress-label {
-    width: 30px;
+    width: 60px;
     text-align: center;
     font-size: 12px;
     color: #666;
+    position: absolute;
+    transform: translateX(-50%);
+}
+
+/* Position each label to align with its corresponding step */
+.progress-labels .progress-label:nth-child(1) {
+    left: 0%;
+}
+
+.progress-labels .progress-label:nth-child(2) {
+    left: 33.33%;
+}
+
+.progress-labels .progress-label:nth-child(3) {
+    left: 66.66%;
+}
+
+.progress-labels .progress-label:nth-child(4) {
+    left: 100%;
+    transform: translateX(-100%);
 }
 
 .progress-label.active {
