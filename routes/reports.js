@@ -10,7 +10,7 @@
 
 const express = require('express');
 const router = express.Router();
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 const chromium = require('chrome-aws-lambda');
 const sharp = require('sharp');
 const supabase = require('../config/supabase');
