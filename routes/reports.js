@@ -250,6 +250,10 @@ router.post('/api/soc/:socId/platform/:platform/report/generate', async (req, re
     const reportHtml = generateReportHtml(reportData);
     
     // Launch puppeteer with chrome-aws-lambda for Vercel compatibility
+    console.log('Chrome executable path:', await chromium.executablePath);
+    console.log('Chromium args:', chromium.args);
+    console.log('Is headless:', chromium.headless);
+    
     const browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
