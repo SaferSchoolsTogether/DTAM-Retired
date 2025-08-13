@@ -10,8 +10,6 @@
 
 const express = require('express');
 const router = express.Router();
-const fs = require('fs-extra');
-const path = require('path');
 const puppeteer = require('puppeteer');
 const sharp = require('sharp');
 const supabase = require('../config/supabase');
@@ -243,13 +241,9 @@ router.post('/api/soc/:socId/platform/:platform/report/generate', async (req, re
       return res.status(404).json({ error: 'Case not found or you do not have permission to access it' });
     }
     
-    // Generate a unique filename
+    // Generate a unique filename for download
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filename = `DTAM_Report_${reportData.case.id}_${timestamp}.pdf`;
-    const outputPath = path.join(__dirname, '..', 'public', 'reports', filename);
-    
-    // Ensure reports directory exists
-    await fs.ensureDir(path.join(__dirname, '..', 'public', 'reports'));
     
     // Generate HTML for the report
     const reportHtml = generateReportHtml(reportData);
@@ -265,9 +259,8 @@ router.post('/api/soc/:socId/platform/:platform/report/generate', async (req, re
     // Set content and wait for images to load
     await page.setContent(reportHtml, { waitUntil: 'networkidle0' });
     
-    // Set PDF options
+    // Set PDF options - generate to buffer instead of file
     const pdfOptions = {
-      path: outputPath,
       format: 'A4',
       printBackground: true,
       margin: {
@@ -278,15 +271,19 @@ router.post('/api/soc/:socId/platform/:platform/report/generate', async (req, re
       }
     };
     
-    // Generate PDF
-    await page.pdf(pdfOptions);
+    // Generate PDF to buffer
+    const pdfBuffer = await page.pdf(pdfOptions);
     
     // Close browser
     await browser.close();
     
-    // Return the URL to download the PDF
-    const pdfUrl = `/reports/${filename}`;
-    res.json({ url: pdfUrl, filename });
+    // Set headers for PDF download
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', pdfBuffer.length);
+    
+    // Send PDF buffer directly
+    res.send(pdfBuffer);
   } catch (error) {
     console.error('Error generating PDF report:', error);
     res.status(500).json({ error: 'Failed to generate PDF report' });
@@ -519,6 +516,19 @@ function generateReportHtml(data) {
     });
   };
   
+  // Format time
+  const formatDateTime = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+  
   // Generate HTML for a single photo
   const generatePhotoHtml = (photo, platformName) => {
     const tagsHtml = (photo.tags || [])
@@ -646,21 +656,45 @@ function generateReportHtml(data) {
       <div class="soc-section">
         <h2 class="section-title">Subject of Concern: ${soc.name || 'Unknown'}</h2>
         <div class="soc-info">
-          <div class="detail-row">
-            <span class="detail-label">Student ID:</span>
-            <span class="detail-value">${soc.student_id || 'N/A'}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Grade:</span>
-            <span class="detail-value">${soc.grade || 'N/A'}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">School:</span>
-            <span class="detail-value">${soc.school || 'N/A'}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Status:</span>
-            <span class="detail-value">${soc.status ? soc.status.charAt(0).toUpperCase() + soc.status.slice(1) : 'N/A'}</span>
+          <div class="soc-details-grid">
+            <div class="detail-row">
+              <span class="detail-label">Student Name:</span>
+              <span class="detail-value">${soc.name || 'N/A'}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Student ID:</span>
+              <span class="detail-value">${soc.student_id || 'N/A'}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Grade:</span>
+              <span class="detail-value">${soc.grade || 'N/A'}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">School:</span>
+              <span class="detail-value">${soc.school || 'N/A'}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Status:</span>
+              <span class="detail-value status-${soc.status || 'unknown'}">${soc.status ? soc.status.charAt(0).toUpperCase() + soc.status.slice(1) : 'N/A'}</span>
+            </div>
+            ${soc.dob ? `
+            <div class="detail-row">
+              <span class="detail-label">Date of Birth:</span>
+              <span class="detail-value">${formatDate(soc.dob)}</span>
+            </div>
+            ` : ''}
+            ${soc.support_plans && Array.isArray(soc.support_plans) && soc.support_plans.length > 0 ? `
+            <div class="detail-row">
+              <span class="detail-label">Support Plans:</span>
+              <span class="detail-value">${soc.support_plans.join(', ')}</span>
+            </div>
+            ` : ''}
+            ${soc.other_plan_text ? `
+            <div class="detail-row">
+              <span class="detail-label">Other Plan Details:</span>
+              <span class="detail-value">${soc.other_plan_text}</span>
+            </div>
+            ` : ''}
           </div>
         </div>
         ${platformSections ? `
@@ -800,6 +834,35 @@ function generateReportHtml(data) {
           padding-bottom: 10px;
           border-bottom: 1px solid #eee;
         }
+        .case-details-grid, .soc-details-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 15px;
+          margin-bottom: 20px;
+        }
+        .case-id {
+          font-weight: bold;
+          color: #007bff;
+        }
+        .status-known {
+          color: #28a745;
+          font-weight: bold;
+        }
+        .status-potential {
+          color: #ffc107;
+          font-weight: bold;
+        }
+        .status-unknown {
+          color: #6c757d;
+          font-weight: bold;
+        }
+        .soc-info {
+          background-color: #f8f9fa;
+          padding: 20px;
+          border-radius: 8px;
+          margin-bottom: 25px;
+          border-left: 4px solid #007bff;
+        }
         .page-break {
           page-break-after: always;
         }
@@ -811,6 +874,10 @@ function generateReportHtml(data) {
             width: 100%;
             max-width: none;
             padding: 0;
+          }
+          .case-details-grid, .soc-details-grid {
+            grid-template-columns: 1fr;
+            gap: 10px;
           }
         }
       </style>
@@ -825,21 +892,33 @@ function generateReportHtml(data) {
         
         <div class="section">
           <h2 class="section-title">Case Information</h2>
-          <div class="detail-row">
-            <span class="detail-label">Case ID:</span>
-            <span class="detail-value">${caseData.id}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Date:</span>
-            <span class="detail-value">${formatDate(caseData.date)}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Investigator:</span>
-            <span class="detail-value">${caseData.team_member_name || 'N/A'}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Organization:</span>
-            <span class="detail-value">${caseData.organization || 'N/A'}</span>
+          <div class="case-details-grid">
+            <div class="detail-row">
+              <span class="detail-label">Case ID:</span>
+              <span class="detail-value case-id">${caseData.id}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Case Date:</span>
+              <span class="detail-value">${formatDate(caseData.date)}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Investigator:</span>
+              <span class="detail-value">${caseData.team_member_name || 'N/A'}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Organization:</span>
+              <span class="detail-value">${caseData.organization || 'N/A'}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Report Generated:</span>
+              <span class="detail-value">${formatDateTime(new Date().toISOString())}</span>
+            </div>
+            ${caseData.created_at ? `
+            <div class="detail-row">
+              <span class="detail-label">Case Created:</span>
+              <span class="detail-value">${formatDateTime(caseData.created_at)}</span>
+            </div>
+            ` : ''}
           </div>
         </div>
         

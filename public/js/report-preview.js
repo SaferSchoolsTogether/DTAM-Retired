@@ -802,17 +802,44 @@ function generateReportFromPreview() {
         if (!response.ok) {
             throw new Error(`Failed to generate PDF: ${response.status}`);
         }
-        return response.json();
+        
+        // Extract filename from Content-Disposition header
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = 'DTAM_Report.pdf'; // Default filename
+        
+        if (contentDisposition) {
+            const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+            if (filenameMatch && filenameMatch[1]) {
+                filename = filenameMatch[1];
+            }
+        }
+        
+        // Return blob and filename
+        return response.blob().then(blob => ({ blob, filename }));
     })
-    .then(result => {
+    .then(({ blob, filename }) => {
         // Clear interval and complete progress
         clearInterval(progressInterval);
         pdfProgressBar.style.width = '100%';
         progressStatus.textContent = 'PDF generated successfully!';
         
-        // Download the PDF
+        // Create blob URL and trigger download
         setTimeout(() => {
-            window.location.href = result.url;
+            const blobUrl = URL.createObjectURL(blob);
+            
+            // Create a temporary download link
+            const downloadLink = document.createElement('a');
+            downloadLink.href = blobUrl;
+            downloadLink.download = filename;
+            downloadLink.style.display = 'none';
+            
+            // Add to DOM, click, and remove
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            
+            // Clean up blob URL
+            URL.revokeObjectURL(blobUrl);
             
             // Show success message
             const saveIndicator = document.getElementById('saveIndicator');
