@@ -1,4 +1,19 @@
 {
+  "name": "dtam",
+  "version": "1.0.0",
+  "description": "Digital Threat Assessment and Management System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:build": "jest tests/acceptance/build-validation.test.js",
+    "prebuild": "npm run test:build",
+    "build": "echo 'Build validation complete'",
+    "prestart": "npm run test:build"
+  },
   "dependencies": {
     "@sparticuz/chromium": "^138.0.2",
     "@supabase/supabase-js": "^2.50.4",
@@ -14,5 +29,13 @@
     "puppeteer-core": "^23.5.0",
     "sharp": "^0.34.3",
     "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-junit": "^16.0.0",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
