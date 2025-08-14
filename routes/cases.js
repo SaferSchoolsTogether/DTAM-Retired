@@ -380,7 +380,8 @@ router.post('/api/save-case', async (req, res) => {
               dob: req.body.studentInfo?.dob || '',
               support_plans: req.body.studentInfo?.supportPlans ? JSON.stringify(req.body.studentInfo.supportPlans) : JSON.stringify([]),
               other_plan_text: req.body.studentInfo?.otherPlanText || '',
-              status: req.body.socStatus || 'known'
+              status: req.body.socStatus || 'known',
+              created_by: req.user.id // Add user ownership
             })
             .select();
             
@@ -485,43 +486,33 @@ router.delete('/api/case/:caseId', async (req, res) => {
     // Start a transaction to delete all related records
     // Note: Supabase doesn't support true transactions, so we'll delete in order
     
-    // 1. Delete photos first (both files and database records)
+    // 1. Delete photos (database records and Supabase Storage)
     if (photosToDelete.length > 0) {
-      // Delete photo files
-      const fs = require('fs');
-      const path = require('path');
-      
-      // Create an array of promises for file deletion
-      const fileDeletePromises = photosToDelete.map(photo => {
-        return new Promise((resolve) => {
-          // Only attempt to delete if we have a file path
-          if (photo.file_path) {
-            // Convert URL to file path if needed
-            let filePath = photo.file_path;
-            if (filePath.startsWith('/')) {
-              // Remove leading slash if present
-              filePath = filePath.substring(1);
-            }
-            
-            // Get absolute path
-            const absolutePath = path.join(process.cwd(), 'public', filePath);
-            
-            // Delete file if it exists
-            fs.unlink(absolutePath, (err) => {
-              if (err) {
-                // Log error but don't fail the operation
-                console.error(`Failed to delete file ${absolutePath}:`, err);
+      // Delete photo files from Supabase Storage
+      const storageDeletePromises = photosToDelete.map(async (photo) => {
+        if (photo.file_path) {
+          try {
+            // Extract storage path from URL
+            const storagePathMatch = photo.file_path.match(/\/([^\/]+\/[^\/]+\/[^\/]+)$/);
+            if (storagePathMatch && storagePathMatch[1]) {
+              const storagePath = storagePathMatch[1];
+              
+              const { error: storageError } = await supabase.storage
+                .from('dtam-photos')
+                .remove([storagePath]);
+                
+              if (storageError) {
+                console.error(`Failed to delete photo from storage: ${storagePath}`, storageError);
               }
-              resolve();
-            });
-          } else {
-            resolve();
+            }
+          } catch (err) {
+            console.error(`Error deleting photo from storage:`, err);
           }
-        });
+        }
       });
       
-      // Wait for all file deletions to complete
-      await Promise.all(fileDeletePromises);
+      // Wait for all storage deletions to complete
+      await Promise.all(storageDeletePromises);
       
       // Delete photo records from database
       const { error: deletePhotosError } = await supabase
@@ -532,39 +523,6 @@ router.delete('/api/case/:caseId', async (req, res) => {
       if (deletePhotosError) {
         console.error('Error deleting photos from database:', deletePhotosError);
         return res.status(500).json({ error: 'Failed to delete photos from database' });
-      }
-      
-      // Clean up empty directories
-      try {
-        const fs = require('fs');
-        const path = require('path');
-        
-        // Group photos by SOC and platform
-        const directories = new Set();
-        photosToDelete.forEach(photo => {
-          if (photo.soc_id && photo.platform) {
-            directories.add(path.join(process.cwd(), 'public', 'uploads', photo.soc_id, photo.platform));
-            directories.add(path.join(process.cwd(), 'public', 'uploads', photo.soc_id));
-          }
-        });
-        
-        // Check each directory and remove if empty
-        directories.forEach(dir => {
-          try {
-            if (fs.existsSync(dir)) {
-              const files = fs.readdirSync(dir);
-              if (files.length === 0) {
-                fs.rmdirSync(dir);
-              }
-            }
-          } catch (err) {
-            // Log but don't fail
-            console.error(`Failed to clean up directory ${dir}:`, err);
-          }
-        });
-      } catch (err) {
-        // Log but don't fail
-        console.error('Error cleaning up directories:', err);
       }
     }
     
@@ -678,7 +636,8 @@ router.post('/api/create-case', async (req, res) => {
           dob: req.body.studentInfo?.dob || '',
           support_plans: req.body.studentInfo?.supportPlans ? JSON.stringify(req.body.studentInfo.supportPlans) : JSON.stringify([]),
           other_plan_text: req.body.studentInfo?.otherPlanText || '',
-          status: req.body.socStatus || 'known'
+          status: req.body.socStatus || 'known',
+          created_by: req.user.id // Add user ownership
         })
         .select();
         

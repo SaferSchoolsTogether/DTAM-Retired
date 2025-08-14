@@ -11,38 +11,35 @@
 
 const express = require('express');
 const router = express.Router();
-const fs = require('fs-extra');
-const path = require('path');
 const supabase = require('../config/supabase');
-
-// Helper functions
-function readData() {
-  const DATA_FILE = path.join(__dirname, '..', 'data', 'app-data.json');
-  return fs.readJsonSync(DATA_FILE);
-}
-
-function writeData(data) {
-  const DATA_FILE = path.join(__dirname, '..', 'data', 'app-data.json');
-  return fs.writeJsonSync(DATA_FILE, data, { spaces: 2 });
-}
 
 // Future endpoint for batch analysis of photos
 router.post('/api/soc/:socId/platform/:platform/analyze-all', async (req, res) => {
   const { socId, platform } = req.params;
+  const { caseId } = req.query;
   
   try {
-    const data = readData();
-    
-    if (!data.socs[socId]) {
-      return res.status(404).json({ error: 'SOC not found' });
+    // Validate required parameters
+    if (!caseId) {
+      return res.status(400).json({ error: 'Case ID is required' });
     }
     
-    if (!data.socs[socId].platforms[platform]) {
-      return res.status(404).json({ error: 'Platform not found' });
+    // Verify the SOC belongs to a case owned by the current user
+    const { data: socData, error: socError } = await supabase
+      .from('socs')
+      .select('*, cases!inner(created_by)')
+      .eq('id', socId)
+      .eq('case_id', caseId)
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
+      .single();
+      
+    if (socError || !socData) {
+      console.error('SOC not found or not owned by user:', socError);
+      return res.status(404).json({ error: 'SOC not found or you do not have permission to access it' });
     }
     
     // Placeholder for future implementation
-    // This would analyze all photos for a platform and apply tags
+    // This would analyze all photos for a platform and apply tags using Supabase data
     
     res.json({ 
       success: true, 
@@ -57,20 +54,30 @@ router.post('/api/soc/:socId/platform/:platform/analyze-all', async (req, res) =
 // Future endpoint for generating content insights
 router.get('/api/soc/:socId/platform/:platform/insights', async (req, res) => {
   const { socId, platform } = req.params;
+  const { caseId } = req.query;
   
   try {
-    const data = readData();
-    
-    if (!data.socs[socId]) {
-      return res.status(404).json({ error: 'SOC not found' });
+    // Validate required parameters
+    if (!caseId) {
+      return res.status(400).json({ error: 'Case ID is required' });
     }
     
-    if (!data.socs[socId].platforms[platform]) {
-      return res.status(404).json({ error: 'Platform not found' });
+    // Verify the SOC belongs to a case owned by the current user
+    const { data: socData, error: socError } = await supabase
+      .from('socs')
+      .select('*, cases!inner(created_by)')
+      .eq('id', socId)
+      .eq('case_id', caseId)
+      .eq('cases.created_by', req.user.id) // Verify user ownership via case relationship
+      .single();
+      
+    if (socError || !socData) {
+      console.error('SOC not found or not owned by user:', socError);
+      return res.status(404).json({ error: 'SOC not found or you do not have permission to access it' });
     }
     
     // Placeholder for future implementation
-    // This would generate insights based on photo content and metadata
+    // This would generate insights based on photo content and metadata from Supabase
     
     res.json({ 
       success: true, 

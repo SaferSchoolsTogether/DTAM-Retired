@@ -166,14 +166,6 @@ router.post('/api/socs', async (req, res) => {
       }
     }
     
-    // Create upload directories for the new SOC
-    const fs = require('fs-extra');
-    const path = require('path');
-    
-    platforms.forEach(platform => {
-      const uploadDir = path.join(__dirname, '..', 'public', 'uploads', socData[0].id, platform);
-      fs.ensureDirSync(uploadDir);
-    });
     
     // Format response to match the expected format by the frontend
     const formattedSoc = {

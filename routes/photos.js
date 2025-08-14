@@ -11,22 +11,10 @@
 
 const express = require('express');
 const router = express.Router();
-const fs = require('fs-extra');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
 const supabase = require('../config/supabase');
-
-// Helper functions
-function readData() {
-  const DATA_FILE = path.join(__dirname, '..', 'data', 'app-data.json');
-  return fs.readJsonSync(DATA_FILE);
-}
-
-function writeData(data) {
-  const DATA_FILE = path.join(__dirname, '..', 'data', 'app-data.json');
-  return fs.writeJsonSync(DATA_FILE, data, { spaces: 2 });
-}
 
 // Set up multer for file uploads - using memory storage for Supabase
 const storage = multer.memoryStorage();
@@ -44,6 +32,12 @@ const upload = multer({
 // Upload photo
 router.post('/api/soc/:socId/platform/:platform/upload', upload.single('photo'), async (req, res) => {
   const { socId, platform } = req.params;
+  
+  // Debug auth context
+  console.log('=== DEBUG AUTH CONTEXT (SOC UPLOAD) ===');
+  console.log('User from req.user:', req.user);
+  console.log('User ID:', req.user?.id);
+  console.log('======================================');
   
   try {
     // Validate request
@@ -101,6 +95,7 @@ router.post('/api/soc/:socId/platform/:platform/upload', upload.single('photo'),
       
     if (storageError) {
       console.error('Supabase storage error:', storageError);
+      console.error('Error details:', JSON.stringify(storageError, null, 2));
       return res.status(500).json({ 
         error: 'Failed to upload photo to storage', 
         details: storageError.message 
@@ -437,6 +432,12 @@ router.delete('/api/soc/:socId/platform/:platform/photo/:photoId', async (req, r
 router.post('/api/case/:caseId/platform/:platform/upload', upload.single('photo'), async (req, res) => {
   const { caseId, platform } = req.params;
   
+  // Debug auth context
+  console.log('=== DEBUG AUTH CONTEXT (CASE UPLOAD) ===');
+  console.log('User from req.user:', req.user);
+  console.log('User ID:', req.user?.id);
+  console.log('=======================================');
+  
   try {
     // Validate request
     if (!req.file) {
@@ -473,6 +474,7 @@ router.post('/api/case/:caseId/platform/:platform/upload', upload.single('photo'
       
     if (storageError) {
       console.error('Supabase storage error:', storageError);
+      console.error('Error details:', JSON.stringify(storageError, null, 2));
       return res.status(500).json({ 
         error: 'Failed to upload photo to storage', 
         details: storageError.message 
